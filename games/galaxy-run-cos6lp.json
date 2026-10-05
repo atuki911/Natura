@@ -1,0 +1,16 @@
+{
+  "slug": "galaxy-run-cos6lp",
+  "title": "ギャラクシー・ラン",
+  "genre": "runner",
+  "theme": "space",
+  "seed": 767219821,
+  "params": {
+    "gravity": 1958.752,
+    "jump": 771.311,
+    "speed": 273.684,
+    "accel": 5.706,
+    "maxJumps": 2,
+    "tallChance": 0.172,
+    "coinChance": 0.573
+  }
+}

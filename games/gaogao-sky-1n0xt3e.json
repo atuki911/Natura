@@ -1,0 +1,18 @@
+{
+  "slug": "gaogao-sky-1n0xt3e",
+  "title": "ガオガオ・スカイ 2",
+  "genre": "flappy",
+  "theme": "dino",
+  "seed": 3569081738,
+  "params": {
+    "gravity": 1189.915,
+    "flap": 428.656,
+    "speed": 148.114,
+    "interval": 1.501,
+    "gap": 172.853,
+    "minGap": 148.984,
+    "shrink": 0.751,
+    "width": 70.847,
+    "coinChance": 0.267
+  }
+}

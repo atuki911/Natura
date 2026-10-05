@@ -1,0 +1,16 @@
+{
+  "slug": "gaogao-dash",
+  "title": "ガオガオ・ダッシュ",
+  "genre": "runner",
+  "theme": "dino",
+  "seed": 2026,
+  "params": {
+    "gravity": 2218.785,
+    "jump": 786.1,
+    "speed": 266.281,
+    "accel": 6.092,
+    "maxJumps": 2,
+    "tallChance": 0.194,
+    "coinChance": 0.505
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "forest-patapata-1btkp7t",
+  "title": "フォレスト・パタパタ 2",
+  "genre": "flappy",
+  "theme": "forest",
+  "seed": 2891584937,
+  "params": {
+    "gravity": 1320.474,
+    "flap": 443.722,
+    "speed": 175.257,
+    "interval": 1.464,
+    "gap": 180.512,
+    "minGap": 141.89,
+    "shrink": 0.891,
+    "width": 62.891,
+    "coinChance": 0.27
+  }
+}

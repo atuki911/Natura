@@ -1,0 +1,16 @@
+{
+  "slug": "morimori-jump-wsshs2",
+  "title": "もりもり・ジャンプ",
+  "genre": "runner",
+  "theme": "forest",
+  "seed": 1983276290,
+  "params": {
+    "gravity": 2143.288,
+    "jump": 813.522,
+    "speed": 239.472,
+    "accel": 5.192,
+    "maxJumps": 1,
+    "tallChance": 0.341,
+    "coinChance": 0.436
+  }
+}

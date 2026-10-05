@@ -1,0 +1,16 @@
+{
+  "slug": "sakura-paradise-1wnrnik",
+  "title": "サクラ・パラダイス",
+  "genre": "catcher",
+  "theme": "ninja",
+  "seed": 4151621324,
+  "params": {
+    "fall": 205.683,
+    "every": 0.745,
+    "minEvery": 0.329,
+    "badRatio": 0.221,
+    "follow": 13.75,
+    "lives": 3,
+    "missPenalty": false
+  }
+}

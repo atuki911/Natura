@@ -1,0 +1,16 @@
+{
+  "slug": "galaxy-collect-xk2u0",
+  "title": "ギャラクシー・コレクト!",
+  "genre": "catcher",
+  "theme": "space",
+  "seed": 56364120,
+  "params": {
+    "fall": 172.505,
+    "every": 0.679,
+    "minEvery": 0.349,
+    "badRatio": 0.315,
+    "follow": 10.673,
+    "lives": 3,
+    "missPenalty": false
+  }
+}

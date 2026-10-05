@@ -1,0 +1,21 @@
+{
+  "slug": "night-ocean-catch",
+  "title": "よるのうみキャッチ",
+  "genre": "catcher",
+  "theme": "ocean",
+  "seed": 2628824383,
+  "params": {
+    "fall": 214.037,
+    "every": 0.8,
+    "minEvery": 0.367,
+    "badRatio": 0.348,
+    "follow": 15.616,
+    "lives": 3,
+    "missPenalty": false
+  },
+  "themeOverrides": {
+    "bg1": "#1b263b",
+    "bg2": "#0d1b2a",
+    "deco": "🌙"
+  }
+}

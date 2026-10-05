@@ -1,0 +1,16 @@
+{
+  "slug": "snow-jump-1vlo1zc",
+  "title": "スノー・ジャンプ GO",
+  "genre": "runner",
+  "theme": "winter",
+  "seed": 4087628040,
+  "params": {
+    "gravity": 2519.035,
+    "jump": 834.969,
+    "speed": 280.955,
+    "accel": 5.283,
+    "maxJumps": 1,
+    "tallChance": 0.344,
+    "coinChance": 0.381
+  }
+}

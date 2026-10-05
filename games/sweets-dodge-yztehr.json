@@ -1,0 +1,16 @@
+{
+  "slug": "sweets-dodge-yztehr",
+  "title": "スイーツ・ドッジ!",
+  "genre": "dodger",
+  "theme": "candy",
+  "seed": 2116008351,
+  "params": {
+    "speed": 194.301,
+    "every": 0.63,
+    "minEvery": 0.166,
+    "drift": false,
+    "freeMove": false,
+    "rate": 10,
+    "bonus": 34
+  }
+}

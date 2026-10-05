@@ -1,0 +1,16 @@
+{
+  "slug": "penguin-collect-cc14ph",
+  "title": "ペンギン・コレクト GO",
+  "genre": "catcher",
+  "theme": "winter",
+  "seed": 745802261,
+  "params": {
+    "fall": 185.11,
+    "every": 0.816,
+    "minEvery": 0.32,
+    "badRatio": 0.325,
+    "follow": 10.832,
+    "lives": 3,
+    "missPenalty": false
+  }
+}

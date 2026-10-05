@@ -1,0 +1,17 @@
+{
+  "slug": "sugar-panic-1wrl2li",
+  "title": "シュガー・パニック 2",
+  "genre": "tapper",
+  "theme": "candy",
+  "seed": 4158032742,
+  "params": {
+    "life": 1.393,
+    "minLife": 0.7,
+    "every": 0.769,
+    "minEvery": 0.317,
+    "badRatio": 0.26,
+    "lives": 3,
+    "cols": 3,
+    "rows": 4
+  }
+}

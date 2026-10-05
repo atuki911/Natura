@@ -1,0 +1,18 @@
+{
+  "slug": "sweets-flight-1ij44p6",
+  "title": "スイーツ・フライト",
+  "genre": "flappy",
+  "theme": "candy",
+  "seed": 3297278922,
+  "params": {
+    "gravity": 1379.057,
+    "flap": 468.138,
+    "speed": 148.47,
+    "interval": 1.695,
+    "gap": 176.081,
+    "minGap": 145.47,
+    "shrink": 0.863,
+    "width": 77.474,
+    "coinChance": 0.307
+  }
+}

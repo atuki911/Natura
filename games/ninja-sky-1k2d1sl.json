@@ -1,0 +1,18 @@
+{
+  "slug": "ninja-sky-1k2d1sl",
+  "title": "ニンジャ・スカイ 2",
+  "genre": "flappy",
+  "theme": "ninja",
+  "seed": 3390073941,
+  "params": {
+    "gravity": 1305.031,
+    "flap": 410.708,
+    "speed": 159.647,
+    "interval": 1.416,
+    "gap": 186.779,
+    "minGap": 149.533,
+    "shrink": 0.419,
+    "width": 64.164,
+    "coinChance": 0.372
+  }
+}

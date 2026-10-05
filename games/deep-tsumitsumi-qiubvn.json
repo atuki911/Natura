@@ -1,0 +1,15 @@
+{
+  "slug": "deep-tsumitsumi-qiubvn",
+  "title": "ディープ・つみつみ",
+  "genre": "stacker",
+  "theme": "ocean",
+  "seed": 1603768739,
+  "params": {
+    "h": 31.826,
+    "width": 200.602,
+    "speed": 190.661,
+    "speedUp": 5.514,
+    "maxSpeed": 389.71,
+    "perfect": 7.543
+  }
+}

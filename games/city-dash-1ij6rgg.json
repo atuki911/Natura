@@ -1,0 +1,16 @@
+{
+  "slug": "city-dash-1ij6rgg",
+  "title": "シティ・ダッシュ DX",
+  "genre": "runner",
+  "theme": "city",
+  "seed": 3297401728,
+  "params": {
+    "gravity": 2262.402,
+    "jump": 785.35,
+    "speed": 240.925,
+    "accel": 3.866,
+    "maxJumps": 1,
+    "tallChance": 0.233,
+    "coinChance": 0.352
+  }
+}

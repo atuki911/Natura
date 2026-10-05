@@ -1,0 +1,16 @@
+{
+  "slug": "neon-dodge-16mt4m8",
+  "title": "ネオン・ドッジ",
+  "genre": "dodger",
+  "theme": "city",
+  "seed": 2577889952,
+  "params": {
+    "speed": 224.422,
+    "every": 0.553,
+    "minEvery": 0.22,
+    "drift": false,
+    "freeMove": true,
+    "rate": 10,
+    "bonus": 31
+  }
+}

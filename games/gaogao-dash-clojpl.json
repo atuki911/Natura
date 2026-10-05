@@ -1,0 +1,16 @@
+{
+  "slug": "gaogao-dash-clojpl",
+  "title": "ガオガオ・ダッシュ 2",
+  "genre": "runner",
+  "theme": "dino",
+  "seed": 762011337,
+  "params": {
+    "gravity": 2191.614,
+    "jump": 809.107,
+    "speed": 242.383,
+    "accel": 3.44,
+    "maxJumps": 2,
+    "tallChance": 0.305,
+    "coinChance": 0.389
+  }
+}

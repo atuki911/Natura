@@ -1,0 +1,16 @@
+{
+  "slug": "metro-collect-1tu9c9n",
+  "title": "メトロ・コレクト!",
+  "genre": "catcher",
+  "theme": "city",
+  "seed": 3981125723,
+  "params": {
+    "fall": 196.864,
+    "every": 0.894,
+    "minEvery": 0.355,
+    "badRatio": 0.28,
+    "follow": 15.729,
+    "lives": 3,
+    "missPenalty": false
+  }
+}

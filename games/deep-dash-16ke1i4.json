@@ -1,0 +1,16 @@
+{
+  "slug": "deep-dash-16ke1i4",
+  "title": "ディープ・ダッシュ DX",
+  "genre": "runner",
+  "theme": "ocean",
+  "seed": 2573826844,
+  "params": {
+    "gravity": 2086.006,
+    "jump": 790.98,
+    "speed": 283.877,
+    "accel": 3.69,
+    "maxJumps": 1,
+    "tallChance": 0.279,
+    "coinChance": 0.44
+  }
+}

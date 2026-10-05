@@ -1,0 +1,17 @@
+{
+  "slug": "cosmic-pop-1pry51l",
+  "title": "コズミック・ポップ",
+  "genre": "tapper",
+  "theme": "space",
+  "seed": 3735379209,
+  "params": {
+    "life": 1.483,
+    "minLife": 0.582,
+    "every": 0.72,
+    "minEvery": 0.308,
+    "badRatio": 0.259,
+    "lives": 3,
+    "cols": 3,
+    "rows": 4
+  }
+}

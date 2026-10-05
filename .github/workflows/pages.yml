@@ -1,0 +1,37 @@
+# 生産済みゲーム（games/ の設計図）をビルドして GitHub Pages に公開する。
+# 使う前に: リポジトリの Settings → Pages → Source を「GitHub Actions」にする。
+# 公開後は https://<ユーザー名>.github.io/<リポジトリ名>/ がゲーム一覧になる。
+# main への push で自動公開したい場合は on: に push を追加する。
+name: Deploy games to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - run: node factory/cli.js rebuild
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

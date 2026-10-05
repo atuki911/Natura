@@ -1,0 +1,15 @@
+{
+  "slug": "okashi-tower",
+  "title": "おかしタワー",
+  "genre": "stacker",
+  "theme": "candy",
+  "seed": 4045519508,
+  "params": {
+    "h": 37.433,
+    "width": 195.024,
+    "speed": 150,
+    "speedUp": 3.885,
+    "maxSpeed": 399.014,
+    "perfect": 10
+  }
+}

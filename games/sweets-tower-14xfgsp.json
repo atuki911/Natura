@@ -1,0 +1,15 @@
+{
+  "slug": "sweets-tower-14xfgsp",
+  "title": "スイーツ・タワー",
+  "genre": "stacker",
+  "theme": "candy",
+  "seed": 2474795977,
+  "params": {
+    "h": 32.236,
+    "width": 194.605,
+    "speed": 214.849,
+    "speedUp": 3.856,
+    "maxSpeed": 399.888,
+    "perfect": 6.585
+  }
+}

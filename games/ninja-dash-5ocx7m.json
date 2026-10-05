@@ -1,0 +1,16 @@
+{
+  "slug": "ninja-dash-5ocx7m",
+  "title": "ニンジャ・ダッシュ DX",
+  "genre": "runner",
+  "theme": "ninja",
+  "seed": 343244578,
+  "params": {
+    "gravity": 2497.245,
+    "jump": 846.529,
+    "speed": 227.105,
+    "accel": 7.783,
+    "maxJumps": 2,
+    "tallChance": 0.319,
+    "coinChance": 0.59
+  }
+}

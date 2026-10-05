@@ -1,0 +1,16 @@
+{
+  "slug": "jura-escape-jhl6e4",
+  "title": "ジュラ・エスケープ",
+  "genre": "dodger",
+  "theme": "dino",
+  "seed": 1178398876,
+  "params": {
+    "speed": 204.683,
+    "every": 0.491,
+    "minEvery": 0.214,
+    "drift": true,
+    "freeMove": true,
+    "rate": 10,
+    "bonus": 33
+  }
+}

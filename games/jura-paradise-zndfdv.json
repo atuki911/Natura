@@ -1,0 +1,16 @@
+{
+  "slug": "jura-paradise-zndfdv",
+  "title": "ジュラ・パラダイス",
+  "genre": "catcher",
+  "theme": "dino",
+  "seed": 2155573795,
+  "params": {
+    "fall": 216.012,
+    "every": 0.673,
+    "minEvery": 0.375,
+    "badRatio": 0.295,
+    "follow": 14.561,
+    "lives": 3,
+    "missPenalty": false
+  }
+}

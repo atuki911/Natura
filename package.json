@@ -1,0 +1,22 @@
+{
+  "name": "natura-game-factory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "スマホ向け HTML5 ゲームを量産する工場（ジャンル×テーマ×パラメータで自動生成）",
+  "license": "MIT",
+  "bin": {
+    "natura": "factory/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "factory": "node factory/cli.js",
+    "batch": "node factory/cli.js batch",
+    "new": "node factory/cli.js new",
+    "rebuild": "node factory/cli.js rebuild",
+    "serve": "node factory/cli.js serve",
+    "test": "node --test test/*.test.js",
+    "test:browser": "node test/browser-smoke.js"
+  }
+}
