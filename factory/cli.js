@@ -7,6 +7,7 @@ const { GENRES } = require('./genres');
 const { THEMES } = require('./themes');
 const { resolveSpec, planBatch, randomSeed } = require('./spec');
 const { buildGame, buildGallery, buildArcade, saveBlueprint, loadBlueprints } = require('./build');
+const apps = require('./app');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -28,9 +29,19 @@ const HELP = `🏭 Natura Game Factory — スマホゲーム量産工場
   serve [--port 8080]    dist/ をローカル配信（同じ Wi-Fi のスマホから遊べる）
   clean                  dist/ を削除
 
+ストア用アプリ（ジャンル別工場。1 ジャンル = 1 アプリ）:
+  app new <ジャンル>     apps/<ジャンル>/ にアプリを作る（8 ワールド・コイン・広告・課金入り）
+        [--key tower] [--app-id com.example.tower] [--name "つみつみタワー"] [--seed 7]
+  app build <key>        apps/<key>/www/ を作る（そのあと apps/<key> で npx cap sync android）
+  app check <key>        ストアに出す前のチェック（テスト広告のまま、など）
+  app store <key>        ストア提出キット（アイコン・スクショ・掲載文・プライバシーポリシー）
+                         画像には playwright が必要。文書だけなら --docs-only
+  app list               作ったアプリの一覧
+
 共通オプション:
   --games <dir>   設計図の保存先（既定: games）
   --out <dir>     ビルド出力先（既定: dist）
+  --root <dir>    apps/ を置く場所（既定: リポジトリ直下）
 `;
 
 function parseArgs(argv) {
@@ -157,6 +168,73 @@ const COMMANDS = {
     require('./serve').serve(ctx.out, int(args.port, '--port') ?? 8080);
   },
 
+  app(args, ctx) {
+    const sub = args._.shift();
+    const key = args._[0];
+    if (sub === 'new') {
+      if (!key) throw new Error('ジャンルを指定してください（例: app new stacker）');
+      const { dir, app } = apps.createApp(ctx.root, key, {
+        key: typeof args.key === 'string' ? args.key : undefined,
+        appId: typeof args['app-id'] === 'string' ? args['app-id'] : undefined,
+        name: typeof args.name === 'string' ? args.name : undefined,
+        seed: int(args.seed, '--seed'),
+        force: args.force === true,
+      });
+      console.log(`📱 アプリを作りました: ${app.name}（${GENRES[app.genre].label}）→ ${path.relative(ROOT, dir) || dir}/`);
+      console.log(`   設定: ${path.relative(ROOT, path.join(dir, 'app.json'))}  ← アプリID・広告ID・価格などはここ`);
+      COMMANDS.app({ _: ['build', app.key] }, ctx);
+      return;
+    }
+    if (sub === 'build') {
+      if (!key) throw new Error('アプリのキーを指定してください（例: app build stacker）');
+      const r = apps.buildApp(ctx.root, key);
+      console.log(`🔧 ${r.app.name}: ${r.worlds.length} ワールド → ${path.relative(ROOT, path.join(r.www, 'index.html'))}（${(r.bytes / 1024).toFixed(0)}KB）`);
+      const issues = apps.preflight(r.app);
+      if (issues.length) console.log(`   ⚠️  ストア公開前に直すこと ${issues.length} 件（app check ${key} で確認）`);
+      return;
+    }
+    if (sub === 'check') {
+      if (!key) throw new Error('アプリのキーを指定してください');
+      const { app } = apps.loadApp(ctx.root, key);
+      const issues = apps.preflight(app);
+      if (!issues.length) {
+        console.log(`✅ ${app.name}: ストアに出す準備ができています`);
+        return;
+      }
+      console.log(`📋 ${app.name}: ストアに出す前に直すこと`);
+      for (const i of issues) console.log(`  - ${i}`);
+      if (args.strict) throw new Error('本番前チェックに未解決の項目があります');
+      return;
+    }
+    if (sub === 'store') {
+      if (!key) throw new Error('アプリのキーを指定してください');
+      const store = require('./store');
+      if (args['docs-only']) {
+        for (const f of store.writeStoreDocs(ctx.root, key)) console.log(`  📄 ${f}`);
+        return;
+      }
+      console.log('🖼️  ストア提出キットを作っています（アイコン・スプラッシュ・スクリーンショット・掲載文）…');
+      store
+        .makeStoreKit(ctx.root, key)
+        .then((files) => {
+          for (const f of files) console.log(`  ✓ ${f}`);
+          console.log(`\n📦 apps/${key}/store/ を Google Play Console にアップロードしてください（手順は RELEASE.md）`);
+        })
+        .catch((e) => {
+          console.error(`❌ ${e.message}`);
+          process.exitCode = 1;
+        });
+      return;
+    }
+    if (sub === 'list') {
+      const all = apps.listApps(ctx.root);
+      if (!all.length) console.log('まだアプリはありません（app new <ジャンル>）');
+      for (const a of all) console.log(`  ${a.key.padEnd(12)} ${a.name}  (${a.genre}, ${a.appId}, v${a.version})`);
+      return;
+    }
+    throw new Error('app のあとに new / build / check / store / list を指定してください');
+  },
+
   clean(args, ctx) {
     fs.rmSync(ctx.out, { recursive: true, force: true });
     console.log(`🧹 ${path.relative(ROOT, ctx.out)}/ を削除しました（設計図 games/ は残っています）`);
@@ -173,6 +251,7 @@ function main(argv) {
   const ctx = {
     games: path.resolve(typeof args.games === 'string' ? args.games : path.join(ROOT, 'games')),
     out: path.resolve(typeof args.out === 'string' ? args.out : path.join(ROOT, 'dist')),
+    root: path.resolve(typeof args.root === 'string' ? args.root : ROOT),
   };
   try {
     COMMANDS[cmd](args, ctx);

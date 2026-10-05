@@ -1,0 +1,21 @@
+{
+  "name": "natura-app-tower",
+  "version": "1.0.0",
+  "private": true,
+  "description": "つみつみタワー（Natura ジャンル別工場で生産）",
+  "scripts": {
+    "build": "node ../../factory/cli.js app build tower",
+    "sync": "npm run build && npx cap sync android",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "cordova-plugin-purchase": "^13.18.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}

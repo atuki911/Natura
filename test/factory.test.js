@@ -110,6 +110,62 @@ for (const genre of Object.keys(GENRES)) {
   });
 }
 
+test('収益化フック: 全ジャンルで「つづきから」が動き、コインは二重に数えない', () => {
+  for (const genre of Object.keys(GENRES)) {
+    const bp = resolveSpec({ genre, theme: 'city', seed: 21 });
+    const rate = GENRES[genre].coinRate;
+    assert.ok(rate > 0, `${genre}.coinRate`);
+    let credited = 0;
+    let revives = 0;
+    let restarts = 0;
+    const core = createCore(runtimeConfig(bp), compile(genre), {
+      seed: 3,
+      rewardFor: (score) => score * rate,
+      canRevive: () => true,
+      onRevive: (done) => {
+        revives++;
+        done(true);
+      },
+      beforeRestart: (done) => {
+        restarts++;
+        done();
+      },
+      onGameOver: (score, coins) => {
+        credited += coins;
+      },
+    });
+    const ctx = stubCtx();
+    const tap = (y) => {
+      core.input.pressed = true;
+      core.input.x = 180;
+      core.input.y = y;
+    };
+    tap(400);
+    let phase = 'first';
+    for (let f = 0; f < 60 * 400 && phase !== 'done'; f++) {
+      if (core.state === 'play' && f % 23 === 0) tap(160 + (f % 400));
+      if (core.state === 'over' && core.stateTime > 0.7) {
+        if (phase === 'first') {
+          assert.ok(core.reviveOffered, `${genre}: つづきからが出ない`);
+          tap(420); // つづきからボタン
+          phase = 'revived';
+        } else {
+          assert.ok(!core.reviveOffered, `${genre}: 2回目のつづきからが出てしまう`);
+          assert.equal(credited, Math.floor(core.score * rate), `${genre}: コインの合計がずれている`);
+          tap(300); // ボタン以外 → リトライ（つづきから無しなので画面のどこでも）
+          phase = 'retry';
+        }
+      }
+      core.update(1 / 60);
+      core.draw(ctx);
+      if (phase === 'retry' && core.state === 'play') phase = 'done';
+    }
+    assert.equal(phase, 'done', `${genre}: 復活→ゲームオーバー→リトライまで進まない`);
+    assert.equal(revives, 1);
+    assert.equal(restarts, 1);
+  }
+});
+
 test('ランダムタップだけでもゲームオーバーになりうる（無限に終わらないゲームがない）', () => {
   for (const genre of Object.keys(GENRES)) {
     const bp = resolveSpec({ genre, theme: 'space', seed: 11 });

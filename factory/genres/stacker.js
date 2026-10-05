@@ -7,6 +7,7 @@ module.exports = {
   label: 'スタック',
   howto: 'タップでブロックをおとして 高くつみあげよう',
   words: [['タワー', 'tower'], ['スタック', 'stack'], ['つみつみ', 'tsumitsumi']],
+  coinRate: 1.5,
 
   params(r) {
     return {
@@ -16,6 +17,18 @@ module.exports = {
       speedUp: r.range(3, 6),
       maxSpeed: r.range(380, 460),
       perfect: r.range(5, 8), // この誤差(px)以内ならパーフェクト（削れない）
+    };
+  },
+
+  // アプリのワールド進行用: t=0（最初のワールド）→ t=1（最後のワールド）でだんだん難しく
+  tune(p, t) {
+    const r = (v) => Math.round(v * 1000) / 1000;
+    return {
+      ...p,
+      speed: r(p.speed * (1 + 0.45 * t)),
+      speedUp: r(p.speedUp * (1 + 0.5 * t)),
+      perfect: r(p.perfect * (1 - 0.35 * t)),
+      width: r(p.width * (1 - 0.12 * t)),
     };
   },
 
@@ -50,6 +63,12 @@ module.exports = {
         falling = [];
         camY = 0;
         combo = 0;
+        spawnNext();
+      },
+
+      // 「つづきから」: 外したブロックをなかったことにして、同じ幅でもう一度
+      revive() {
+        falling = [];
         spawnNext();
       },
 

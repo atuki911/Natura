@@ -7,6 +7,7 @@ module.exports = {
   label: 'タップ',
   howto: 'でてきた なかまをタップ！ てきは さわるな',
   words: [['タップ', 'tap'], ['ポップ', 'pop'], ['パニック', 'panic']],
+  coinRate: 1,
 
   params(r) {
     return {
@@ -56,6 +57,13 @@ module.exports = {
         holes = new Array(n).fill(null);
         spawnT = 0.4;
         lives = P.lives;
+      },
+
+      // 「つづきから」: ライフ1で、穴を空にして再開
+      revive() {
+        holes = new Array(n).fill(null);
+        lives = 1;
+        spawnT = 1;
       },
 
       update(dt) {

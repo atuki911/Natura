@@ -4,6 +4,14 @@
  * ブラウザでは生成された HTML にインライン展開され window.NaturaEngine になる。
  * Node では require() でき、テストや工場側から createCore / mulberry32 を使う。
  *
+ * 収益化フック（すべて任意。指定しなければ従来どおり）:
+ *   opts.rewardFor(score)        → そのスコアで手に入るコイン数
+ *   opts.canRevive(core)         → 「つづきから」を出すか（1プレイ1回まで。ゲーム側に revive() が必要）
+ *   opts.reviveLabel             → つづきからボタンの文言
+ *   opts.onRevive(done)          → リワード広告などを出し、done(true) で復活
+ *   opts.beforeRestart(done)     → リトライ前（インタースティシャル広告など）。done() で開始
+ *   opts.onGameOver(score, coins) → coins はこの回で新たに増えた分（復活後の二重計上なし）
+ *
  * ゲーム本体（ジャンル）は GAME(api, params) =>{ reset(), update(dt), draw(ctx) } を返す関数。
  * 論理解像度は 360x640（縦持ち）。画面サイズに合わせて自動スケールする。
  */
@@ -58,6 +66,10 @@
       stateTime: 0,
       plays: 0,
       input: input,
+      revived: false,
+      reviveOffered: false,
+      runReward: 0,
+      reward: 0,
     };
 
     function range(a, b) {
@@ -108,6 +120,10 @@
         core.stateTime = 0;
         sfx('hit');
         shakeMag = Math.max(shakeMag, 12);
+        var total = opts.rewardFor ? Math.max(0, Math.floor(opts.rewardFor(core.score)) || 0) : 0;
+        core.reward = Math.max(0, total - core.runReward);
+        core.runReward = Math.max(core.runReward, total);
+        core.reviveOffered = !core.revived && typeof game.revive === 'function' && !!(opts.canRevive && opts.canRevive(core));
         if (core.score > core.best) {
           core.best = core.score;
           core.newBest = true;
@@ -117,7 +133,7 @@
             /* storage unavailable */
           }
         }
-        if (opts.onGameOver) opts.onGameOver(core.score);
+        if (opts.onGameOver) opts.onGameOver(core.score, core.reward);
       },
       sfx: function (name) {
         sfx(name);
@@ -197,12 +213,55 @@
       core.time = 0;
       core.stateTime = 0;
       core.newBest = false;
+      core.revived = false;
+      core.reviveOffered = false;
+      core.runReward = 0;
+      core.reward = 0;
       core.plays++;
       particles.length = 0;
       floaters.length = 0;
       game.reset();
       sfx('start');
     }
+
+    function revive() {
+      core.state = 'play';
+      core.stateTime = 0;
+      core.revived = true;
+      core.reviveOffered = false;
+      game.revive();
+      sfx('start');
+    }
+
+    function requestRevive() {
+      core.state = 'wait';
+      var called = false;
+      opts.onRevive(function (ok) {
+        if (called) return;
+        called = true;
+        if (ok) revive();
+        else {
+          core.state = 'over';
+          core.reviveOffered = false;
+        }
+      });
+    }
+
+    function requestRestart() {
+      if (!opts.beforeRestart) return startPlay();
+      core.state = 'wait';
+      var called = false;
+      opts.beforeRestart(function () {
+        if (called) return;
+        called = true;
+        startPlay();
+      });
+    }
+
+    // ゲームオーバー画面のボタン位置（論理座標）
+    var BTN_REVIVE = 420;
+    var BTN_RETRY_WITH_REVIVE = 488;
+    var BTN_RETRY = 420;
 
     function update(dt) {
       core.stateTime += dt;
@@ -221,7 +280,11 @@
         core.time += dt;
         game.update(dt);
       } else if (core.state === 'over') {
-        if (input.pressed && core.stateTime > 0.6) startPlay();
+        if (input.pressed && core.stateTime > 0.6) {
+          if (!core.reviveOffered) requestRestart();
+          else if (Math.abs(input.y - BTN_REVIVE) < 32 && opts.onRevive) requestRevive();
+          else if (Math.abs(input.y - BTN_RETRY_WITH_REVIVE) < 30) requestRestart();
+        }
       }
 
       for (var j = particles.length - 1; j >= 0; j--) {
@@ -280,16 +343,22 @@
     }
 
     // 点滅する押しボタン風ラベル（パネルの白地でも読めるよう、テーマの濃い色で塗る）
-    function cta(ctx, text, y, t) {
-      var pulse = 1 + Math.sin(t * 5) * 0.04;
+    function cta(ctx, text, y, t, style) {
+      var pulse = style === 'quiet' ? 1 : 1 + Math.sin(t * 5) * 0.04;
       ctx.save();
       ctx.translate(W / 2, y);
       ctx.scale(pulse, pulse);
-      ctx.fillStyle = theme.bg2;
       api.roundRect(ctx, -120, -26, 240, 52, 26);
-      ctx.fill();
+      if (style === 'quiet') {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = theme.bg2;
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = style === 'gold' ? '#e85d04' : theme.bg2;
+        ctx.fill();
+      }
       fitText(ctx, text, 22, 210);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = style === 'quiet' ? theme.bg2 : '#fff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(text, 0, 1);
@@ -357,24 +426,39 @@
           ctx.fillText('ベスト ' + core.best, W / 2, 404);
         }
         cta(ctx, 'タップでスタート', 456, t);
-      } else if (core.state === 'over') {
-        panel(ctx, 150, 320);
+      } else if (core.state === 'over' || core.state === 'wait') {
+        var offer = core.reviveOffered;
+        panel(ctx, 140, offer ? 390 : 320);
         ctx.fillStyle = theme.ink;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         fitText(ctx, 'ゲームオーバー', 30, W - 80);
-        ctx.fillText('ゲームオーバー', W / 2, 200);
-        fitText(ctx, String(core.score), 72, W - 80);
-        ctx.fillText(String(core.score), W / 2, 280);
+        ctx.fillText('ゲームオーバー', W / 2, 186);
+        fitText(ctx, String(core.score), 68, W - 80);
+        ctx.fillText(String(core.score), W / 2, 256);
         fitText(ctx, 'ベスト ' + core.best, 18, W - 80, 'normal');
         ctx.fillStyle = theme.inkSoft;
-        ctx.fillText('ベスト ' + core.best, W / 2, 336);
-        if (core.newBest) {
-          fitText(ctx, '★ 新記録！ ★', 22, W - 80);
+        ctx.fillText('ベスト ' + core.best, W / 2, 306);
+        var notes = [];
+        if (core.newBest) notes.push('★ 新記録！');
+        if (core.runReward > 0) notes.push('🪙 +' + core.runReward);
+        if (notes.length) {
+          fitText(ctx, notes.join('   '), 20, W - 80);
           ctx.fillStyle = '#e85d04';
-          ctx.fillText('★ 新記録！ ★', W / 2, 376);
+          ctx.fillText(notes.join('   '), W / 2, 346);
         }
-        if (t > 0.6) cta(ctx, 'タップでリトライ', 426, t);
+        if (core.state === 'wait') {
+          fitText(ctx, 'よみこみ中…', 18, W - 80, 'normal');
+          ctx.fillStyle = theme.inkSoft;
+          ctx.fillText('よみこみ中…', W / 2, BTN_REVIVE);
+        } else if (t > 0.6) {
+          if (offer) {
+            cta(ctx, opts.reviveLabel || '▶ つづきから', BTN_REVIVE, t, 'gold');
+            cta(ctx, 'リトライ', BTN_RETRY_WITH_REVIVE, t, 'quiet');
+          } else {
+            cta(ctx, 'タップでリトライ', BTN_RETRY, t);
+          }
+        }
       }
     }
 
@@ -458,6 +542,7 @@
   // ------------------------------------------------------------- browser
 
   // opts.serviceWorker: false でオフライン用 Service Worker を登録しない（1ファイル版アーケードなど）
+  // opts には createCore の収益化フック（rewardFor / canRevive / onRevive / beforeRestart / onGameOver）も渡せる
   // 戻り値の core.stop() でループとイベントを止められる（同じページで別のゲームに切り替えるとき用）
   function start(cfg, GAME, opts) {
     opts = opts || {};
@@ -479,12 +564,18 @@
     var core = createCore(cfg, GAME, {
       storage: storage,
       sfx: audio.play,
-      onGameOver: function () {
+      rewardFor: opts.rewardFor,
+      canRevive: opts.canRevive,
+      reviveLabel: opts.reviveLabel,
+      onRevive: opts.onRevive,
+      beforeRestart: opts.beforeRestart,
+      onGameOver: function (score, coins) {
         try {
           if (root.navigator.vibrate) root.navigator.vibrate(60);
         } catch (e) {
           /* ignore */
         }
+        if (opts.onGameOver) opts.onGameOver(score, coins);
       },
     });
     var input = core.input;

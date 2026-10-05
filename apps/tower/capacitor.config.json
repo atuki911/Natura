@@ -1,0 +1,14 @@
+{
+  "appId": "io.github.atuki911.tsumitsumi",
+  "appName": "つみつみタワー",
+  "webDir": "www",
+  "backgroundColor": "#0f0d1f",
+  "android": {
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "AdMob": {
+      "appId": "ca-app-pub-3940256099942544~3347511713"
+    }
+  }
+}

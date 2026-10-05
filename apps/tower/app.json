@@ -1,0 +1,39 @@
+{
+  "key": "tower",
+  "appId": "io.github.atuki911.tsumitsumi",
+  "name": "つみつみタワー",
+  "genre": "stacker",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "seed": 2026,
+  "privacyPolicyUrl": "",
+  "contactEmail": "",
+  "ads": {
+    "testing": true,
+    "appId": "ca-app-pub-3940256099942544~3347511713",
+    "rewarded": "ca-app-pub-3940256099942544/5224354917",
+    "interstitial": "ca-app-pub-3940256099942544/1033173712",
+    "maxAdContentRating": "General",
+    "interstitialEvery": 3,
+    "interstitialMinSeconds": 90,
+    "graceGames": 5
+  },
+  "iap": {
+    "removeAds": "remove_ads"
+  },
+  "economy": {
+    "unlockCost": [
+      0,
+      60,
+      120,
+      180,
+      260,
+      340,
+      440,
+      560
+    ],
+    "bonusCoins": 30,
+    "bonusCooldownMinutes": 30,
+    "dailyMultiplier": 2
+  }
+}

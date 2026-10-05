@@ -7,6 +7,7 @@ module.exports = {
   label: 'フライ',
   howto: 'タップではばたいて すきまを くぐろう',
   words: [['フライト', 'flight'], ['パタパタ', 'patapata'], ['スカイ', 'sky']],
+  coinRate: 1.5,
 
   params(r) {
     const gravity = r.range(1150, 1500);
@@ -42,6 +43,14 @@ module.exports = {
         spawnT = 0.8;
         lastCy = api.H * 0.45;
         scroll = 0;
+      },
+
+      // 「つづきから」: 近くの柱を消して、次のすきまの高さから再開
+      revive() {
+        pipes = pipes.filter((q) => q.x - P.width / 2 > p.x + 160);
+        p.y = pipes.length ? pipes[0].cy : api.H * 0.42;
+        p.vy = -P.flap;
+        spawnT = Math.max(spawnT, 0.8);
       },
 
       update(dt) {

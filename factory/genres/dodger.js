@@ -7,6 +7,7 @@ module.exports = {
   label: 'よけゲー',
   howto: '指でうごかして ふってくるものを よけつづけろ！',
   words: [['サバイバル', 'survival'], ['エスケープ', 'escape'], ['ドッジ', 'dodge']],
+  coinRate: 0.1,
 
   params(r) {
     return {
@@ -37,6 +38,12 @@ module.exports = {
         spawnT = 0.6;
         starT = 3;
         bonus = 0;
+      },
+
+      // 「つづきから」: 自分の近くにあるものを消して再開
+      revive() {
+        rocks = rocks.filter((r) => r.y < p.y - 260);
+        spawnT = Math.max(spawnT, 1);
       },
 
       update(dt) {

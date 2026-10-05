@@ -16,6 +16,7 @@
     "new": "node factory/cli.js new",
     "rebuild": "node factory/cli.js rebuild",
     "serve": "node factory/cli.js serve",
+    "app": "node factory/cli.js app",
     "test": "node --test test/*.test.js",
     "test:browser": "node test/browser-smoke.js"
   }

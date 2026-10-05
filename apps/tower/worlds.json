@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "tower-w1-candy",
+    "title": "シュガー・タワー GO",
+    "genre": "stacker",
+    "theme": "candy",
+    "seed": 1955961175,
+    "params": {
+      "h": 33.045,
+      "width": 216.049,
+      "speed": 176.578,
+      "speedUp": 4.162,
+      "maxSpeed": 453.649,
+      "perfect": 5.346
+    }
+  },
+  {
+    "slug": "tower-w2-forest",
+    "title": "フォレスト・タワー GO",
+    "genre": "stacker",
+    "theme": "forest",
+    "seed": 1324980858,
+    "params": {
+      "h": 30.806,
+      "width": 191.568,
+      "speed": 220.229,
+      "speedUp": 3.687,
+      "maxSpeed": 443.885,
+      "perfect": 6.791
+    }
+  },
+  {
+    "slug": "tower-w3-ocean",
+    "title": "オーシャン・スタック",
+    "genre": "stacker",
+    "theme": "ocean",
+    "seed": 2839649622,
+    "params": {
+      "h": 34.796,
+      "width": 208.462,
+      "speed": 241.266,
+      "speedUp": 5.8,
+      "maxSpeed": 402.653,
+      "perfect": 7.024
+    }
+  },
+  {
+    "slug": "tower-w4-winter",
+    "title": "フロスト・スタック 2",
+    "genre": "stacker",
+    "theme": "winter",
+    "seed": 2656330836,
+    "params": {
+      "h": 37.118,
+      "width": 203.853,
+      "speed": 248.647,
+      "speedUp": 4.171,
+      "maxSpeed": 438.261,
+      "perfect": 6.134
+    }
+  },
+  {
+    "slug": "tower-w5-city",
+    "title": "メトロ・つみつみ",
+    "genre": "stacker",
+    "theme": "city",
+    "seed": 654038057,
+    "params": {
+      "h": 34.238,
+      "width": 202.914,
+      "speed": 203.293,
+      "speedUp": 4.942,
+      "maxSpeed": 421.993,
+      "perfect": 5.601
+    }
+  },
+  {
+    "slug": "tower-w6-dino",
+    "title": "ジュラ・タワー",
+    "genre": "stacker",
+    "theme": "dino",
+    "seed": 952809762,
+    "params": {
+      "h": 31.06,
+      "width": 193.467,
+      "speed": 221.643,
+      "speedUp": 7.067,
+      "maxSpeed": 412.824,
+      "perfect": 4.332
+    }
+  },
+  {
+    "slug": "tower-w7-ninja",
+    "title": "カゲ・タワー",
+    "genre": "stacker",
+    "theme": "ninja",
+    "seed": 2932860988,
+    "params": {
+      "h": 35.027,
+      "width": 196.473,
+      "speed": 278.44,
+      "speedUp": 7.206,
+      "maxSpeed": 454.932,
+      "perfect": 4.682
+    }
+  },
+  {
+    "slug": "tower-w8-space",
+    "title": "コズミック・タワー DX",
+    "genre": "stacker",
+    "theme": "space",
+    "seed": 3442024153,
+    "params": {
+      "h": 35.288,
+      "width": 169.426,
+      "speed": 315.598,
+      "speedUp": 7.007,
+      "maxSpeed": 390.234,
+      "perfect": 4.523
+    }
+  }
+]

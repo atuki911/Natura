@@ -8,6 +8,7 @@ module.exports = {
   label: 'ランナー',
   howto: 'タップでジャンプ！障害物をとびこえよう',
   words: [['ダッシュ', 'dash'], ['ラン', 'run'], ['ジャンプ', 'jump']],
+  coinRate: 1, // スコア1点あたりのコイン（ジャンルごとのスコアの出やすさを揃える）
 
   params(r) {
     const gravity = r.range(1900, 2600);
@@ -42,6 +43,15 @@ module.exports = {
         spawnT = 1.2;
         speed = P.speed;
         scroll = 0;
+      },
+
+      // 「つづきから」: 目の前の障害物を消して着地からやり直す
+      revive() {
+        obs = obs.filter((o) => o.x > p.x + 240);
+        p.y = GY;
+        p.vy = 0;
+        p.jumps = 0;
+        spawnT = Math.max(spawnT, 1);
       },
 
       update(dt) {

@@ -7,6 +7,7 @@ module.exports = {
   label: 'キャッチ',
   howto: '指でうごかして いいものだけキャッチ！',
   words: [['キャッチ', 'catch'], ['コレクト', 'collect'], ['パラダイス', 'paradise']],
+  coinRate: 1,
 
   params(r) {
     return {
@@ -45,6 +46,14 @@ module.exports = {
         spawnT = 0.5;
         lives = P.lives;
         combo = 0;
+      },
+
+      // 「つづきから」: ライフ1で、落ちてくるものを全部消して再開
+      revive() {
+        lives = 1;
+        items = [];
+        combo = 0;
+        spawnT = 1;
       },
 
       update(dt) {

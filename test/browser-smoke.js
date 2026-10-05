@@ -114,6 +114,74 @@ async function main() {
     await page.close();
   }
 
+  // ストア用アプリ（ジャンル別工場）: 遊ぶ → つづきから（テスト広告）→ ホーム → ワールド解放 → インタースティシャル
+  {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'natura-app-smoke-'));
+    const { createApp, buildApp } = require('../factory/app');
+    createApp(root, 'stacker', { key: 'tw' });
+    const { www } = buildApp(root, 'tw');
+    const log = console.log;
+    console.log = () => {};
+    const appServer = serve(www, 0);
+    await new Promise((r) => appServer.on('listening', r));
+    console.log = log;
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    const steps = [];
+    try {
+      await page.goto(`http://127.0.0.1:${appServer.address().port}/`);
+      await page.locator('#play').tap();
+      await page.waitForFunction(() => window.__natura && window.__natura.state === 'title');
+      const box = await page.locator('#game').boundingBox();
+      const tapAt = (fy) => page.touchscreen.tap(box.x + box.width / 2, box.y + box.height * fy);
+      await tapAt(0.7);
+      await page.waitForFunction(() => window.__natura.state === 'play');
+      // 次のブロックが画面外にあるうちに連打 → 確実にゲームオーバーになる
+      for (let i = 0; i < 200 && (await page.evaluate(() => window.__natura.state)) === 'play'; i++) await tapAt(0.5);
+      await page.waitForFunction(() => window.__natura.state === 'over' && window.__natura.reviveOffered);
+      await page.waitForTimeout(700);
+      steps.push('over');
+      await tapAt(420 / 640);
+      await page.waitForSelector('#adClose:not([disabled])', { timeout: 6000 });
+      await page.locator('#adClose').tap();
+      await page.waitForFunction(() => window.__natura.state === 'play' && window.__natura.revived);
+      steps.push('revive');
+      await page.locator('#exit').tap();
+      await page.evaluate(() => {
+        window.__app.S.coins = 999;
+      });
+      await page.locator('[data-world="1"]').tap();
+      await page.locator('#unlock').tap();
+      await page.waitForFunction(() => window.__app.S.unlocked[1] === true && window.__app.S.selected === 1);
+      steps.push('unlock');
+      // インタースティシャル: 猶予回数を過ぎた状態にしてからリトライ
+      await page.evaluate(() => {
+        Object.assign(window.__app.S, { games: 99, sinceInter: 99, lastInter: 0 });
+      });
+      await page.locator('#play').tap();
+      await page.waitForFunction(() => window.__natura && window.__natura.state === 'title');
+      await tapAt(0.7);
+      await page.waitForFunction(() => window.__natura.state === 'play');
+      // 次のブロックが画面外にあるうちに連打 → 確実にゲームオーバーになる
+      for (let i = 0; i < 200 && (await page.evaluate(() => window.__natura.state)) === 'play'; i++) await tapAt(0.5);
+      await page.waitForTimeout(700);
+      await tapAt(488 / 640); // リトライ
+      await page.waitForSelector('#adMock:not([hidden])', { timeout: 3000 });
+      steps.push('interstitial');
+      await page.screenshot({ path: path.join(shots, 'app-ad.png') });
+    } catch (e) {
+      const st = await page.evaluate(() => JSON.stringify(window.__natura && { state: window.__natura.state, offer: window.__natura.reviveOffered })).catch(() => '?');
+      errors.push(`${e.message.split('\n')[0]}（${steps.length + 1} 段階目, ${st}）`);
+    }
+    const ok = errors.length === 0 && steps.length === 4;
+    if (!ok) failed++;
+    console.log(`${ok ? '✅' : '❌'} app      ${steps.join(' → ')}${errors.length ? '\n   ' + errors.join('\n   ') : ''}`);
+    await page.close();
+    appServer.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+
   await browser.close();
   server.close();
   fs.rmSync(tmp, { recursive: true, force: true });
