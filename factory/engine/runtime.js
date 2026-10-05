@@ -387,8 +387,9 @@
 
   // --------------------------------------------------------------- audio
 
+  var sharedAC = null; // ブラウザは AudioContext の数に上限があるので全ゲームで 1 つを共有する
+
   function createAudio(cfg) {
-    var ac = null;
     var muted = false;
     var pitch = (cfg.sound && cfg.sound.pitch) || 1;
     var wave = (cfg.sound && cfg.sound.wave) || 'triangle';
@@ -409,19 +410,20 @@
 
     return {
       unlock: function () {
-        if (ac) {
-          if (ac.state === 'suspended') ac.resume();
+        if (sharedAC) {
+          if (sharedAC.state === 'suspended') sharedAC.resume();
           return;
         }
         var AC = root.AudioContext || root.webkitAudioContext;
         if (!AC) return;
         try {
-          ac = new AC();
+          sharedAC = new AC();
         } catch (e) {
-          ac = null;
+          sharedAC = null;
         }
       },
       play: function (name) {
+        var ac = sharedAC;
         if (!ac || muted) return;
         var s = SFX[name];
         if (!s) return;
@@ -455,8 +457,16 @@
 
   // ------------------------------------------------------------- browser
 
-  function start(cfg, GAME) {
+  // opts.serviceWorker: false でオフライン用 Service Worker を登録しない（1ファイル版アーケードなど）
+  // 戻り値の core.stop() でループとイベントを止められる（同じページで別のゲームに切り替えるとき用）
+  function start(cfg, GAME, opts) {
+    opts = opts || {};
     var doc = root.document;
+    var winListeners = [];
+    function listen(type, fn) {
+      root.addEventListener(type, fn);
+      winListeners.push([type, fn]);
+    }
     var canvas = doc.getElementById('game');
     var ctx = canvas.getContext('2d');
     var audio = createAudio(cfg);
@@ -489,7 +499,7 @@
       canvas.width = Math.round(W * scale * dpr);
       canvas.height = Math.round(H * scale * dpr);
     }
-    root.addEventListener('resize', resize);
+    listen('resize', resize);
     resize();
 
     function locate(e) {
@@ -523,7 +533,7 @@
     canvas.addEventListener('contextmenu', function (e) {
       e.preventDefault();
     });
-    root.addEventListener('keydown', function (e) {
+    listen('keydown', function (e) {
       if (e.repeat) return;
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter') {
         e.preventDefault();
@@ -536,7 +546,7 @@
         input.x = clamp(input.x + 60, 0, W);
       }
     });
-    root.addEventListener('keyup', function (e) {
+    listen('keyup', function (e) {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter') release();
     });
 
@@ -554,20 +564,29 @@
     }
 
     var last = root.performance.now();
+    var rafId = 0;
     function frame(now) {
       var dt = Math.min((now - last) / 1000, 1 / 30);
       last = now;
       core.update(dt);
       ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
       core.draw(ctx);
-      root.requestAnimationFrame(frame);
+      rafId = root.requestAnimationFrame(frame);
     }
-    doc.addEventListener('visibilitychange', function () {
+    function onVisibility() {
       last = root.performance.now();
-    });
-    root.requestAnimationFrame(frame);
+    }
+    doc.addEventListener('visibilitychange', onVisibility);
+    rafId = root.requestAnimationFrame(frame);
 
-    if ('serviceWorker' in root.navigator && /^(https:|http:\/\/(localhost|127\.0\.0\.1))/.test(root.location.href)) {
+    core.stop = function () {
+      root.cancelAnimationFrame(rafId);
+      doc.removeEventListener('visibilitychange', onVisibility);
+      for (var i = 0; i < winListeners.length; i++) root.removeEventListener(winListeners[i][0], winListeners[i][1]);
+      winListeners.length = 0;
+    };
+
+    if (opts.serviceWorker !== false && 'serviceWorker' in root.navigator && /^(https:|http:\/\/(localhost|127\.0\.0\.1))/.test(root.location.href)) {
       root.navigator.serviceWorker.register('sw.js').catch(function () {});
     }
 

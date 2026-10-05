@@ -8,6 +8,7 @@ const { THEMES } = require('./themes');
 const { runtimeConfig } = require('./spec');
 const { gameHtml, manifest, iconSvg, serviceWorker } = require('./templates/game');
 const { galleryHtml } = require('./templates/gallery');
+const { arcadeHtml } = require('./templates/arcade');
 
 const RUNTIME = fs.readFileSync(path.join(__dirname, 'engine', 'runtime.js'), 'utf8');
 
@@ -52,6 +53,25 @@ function buildGallery(blueprints, distDir) {
   return entries;
 }
 
+// 全ゲーム入りの 1 ファイル版（dist/arcade.html）。サーバー不要・非公開のまま遊べる
+function arcadeSource(blueprints, { fragment = false } = {}) {
+  const used = [...new Set(blueprints.map((bp) => bp.genre))];
+  return arcadeHtml({
+    runtime: RUNTIME,
+    genres: Object.fromEntries(used.map((id) => [id, gameSource(id)])),
+    games: blueprints.map(runtimeConfig),
+    fragment,
+  });
+}
+
+function buildArcade(blueprints, distDir) {
+  fs.mkdirSync(distDir, { recursive: true });
+  const file = path.join(distDir, 'arcade.html');
+  const html = arcadeSource(blueprints);
+  fs.writeFileSync(file, html);
+  return { file, bytes: Buffer.byteLength(html) };
+}
+
 function saveBlueprint(bp, gamesDir) {
   fs.mkdirSync(gamesDir, { recursive: true });
   const file = path.join(gamesDir, `${bp.slug}.json`);
@@ -68,4 +88,4 @@ function loadBlueprints(gamesDir) {
     .map((f) => JSON.parse(fs.readFileSync(path.join(gamesDir, f), 'utf8')));
 }
 
-module.exports = { buildGame, buildGallery, saveBlueprint, loadBlueprints, gameSource };
+module.exports = { buildGame, buildGallery, buildArcade, arcadeSource, saveBlueprint, loadBlueprints, gameSource };

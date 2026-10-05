@@ -9,7 +9,7 @@ const { createCore } = require('../factory/engine/runtime');
 const { GENRES } = require('../factory/genres');
 const { THEMES } = require('../factory/themes');
 const { resolveSpec, runtimeConfig, planBatch } = require('../factory/spec');
-const { buildGame, buildGallery, saveBlueprint, loadBlueprints, gameSource } = require('../factory/build');
+const { buildGame, buildGallery, buildArcade, arcadeSource, saveBlueprint, loadBlueprints, gameSource } = require('../factory/build');
 const { main } = require('../factory/cli');
 
 // どんな描画命令も受け付けるダミーの CanvasRenderingContext2D
@@ -170,6 +170,25 @@ test('ビルド済み HTML の中身をそのまま実行できる', () => {
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test('1ファイル版アーケード: 全ゲーム入り・スクリプトが正しく、エンジンは1回だけ埋め込まれる', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'natura-'));
+  const bps = planBatch(12, { seed: 5 }).map(resolveSpec);
+  bps.push(resolveSpec({ genre: 'runner', theme: 'city', seed: 1, title: '</script><img src=x onerror=alert(1)>' }));
+  const { file } = buildArcade(bps, tmp);
+  const html = fs.readFileSync(file, 'utf8');
+  assert.ok(html.startsWith('<!doctype html>'));
+  assert.ok(html.includes('noindex'));
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  assert.equal(scripts.length, 2, 'タイトルに </script> があっても script タグが壊れない');
+  for (const src of scripts) new Function(src); // 構文チェック
+  assert.equal(html.split('var NaturaEngine =').length - 1, 1);
+  for (const bp of bps) assert.ok(html.includes(JSON.stringify(bp.slug)), bp.slug);
+  const fragment = arcadeSource(bps, { fragment: true });
+  assert.ok(!/<html|<body|<!doctype/i.test(fragment));
+  assert.ok(fragment.trimStart().startsWith('<title>'));
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
 test('CLI: batch → rebuild → remove が動く', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'natura-'));
   const opts = ['--games', path.join(tmp, 'games'), '--out', path.join(tmp, 'dist')];
@@ -185,6 +204,7 @@ test('CLI: batch → rebuild → remove が動く', () => {
     assert.ok(!fs.existsSync(path.join(tmp, 'dist', slugs[0])));
     assert.equal(main(['new', '--genre', 'flappy', '--theme', 'winter', '--seed', '3', ...opts]), 0);
     assert.equal(JSON.parse(fs.readFileSync(path.join(tmp, 'dist', 'catalog.json'), 'utf8')).length, 4);
+    assert.ok(fs.existsSync(path.join(tmp, 'dist', 'arcade.html')));
     const err = console.error;
     console.error = () => {};
     try {

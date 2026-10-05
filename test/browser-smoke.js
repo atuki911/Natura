@@ -13,7 +13,7 @@ const os = require('os');
 const path = require('path');
 const { GENRES } = require('../factory/genres');
 const { resolveSpec } = require('../factory/spec');
-const { buildGame, buildGallery } = require('../factory/build');
+const { buildGame, buildGallery, buildArcade } = require('../factory/build');
 const { serve } = require('../factory/serve');
 
 let playwright;
@@ -33,6 +33,7 @@ async function main() {
   const bps = Object.keys(GENRES).map((genre) => resolveSpec({ genre, theme: THEMES_FOR[genre] || 'space', seed: 2026 }));
   for (const bp of bps) buildGame(bp, tmp);
   buildGallery(bps, tmp);
+  buildArcade(bps, tmp);
 
   const log = console.log;
   console.log = () => {};
@@ -84,6 +85,32 @@ async function main() {
     const ok = errors.length === 0 && state.s === 'over';
     if (!ok) failed++;
     console.log(`${ok ? '✅' : '❌'} ${bp.genre.padEnd(8)} ${bp.title}  state=${state.s} score=${state.score} best=${state.best}${errors.length ? '\n   ' + errors.join('\n   ') : ''}`);
+    await page.close();
+  }
+
+  // 1ファイル版アーケード: 棚 → ゲーム起動 → 遊ぶ → 棚にもどる → 別のゲーム
+  {
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(base + '/arcade.html');
+    await page.screenshot({ path: path.join(shots, 'arcade-shelf.png') });
+    const carts = page.locator('.cart');
+    const n = await carts.count();
+    await carts.nth(0).tap();
+    await page.waitForFunction(() => window.__natura && window.__natura.state === 'title');
+    const box = await page.locator('#game').boundingBox();
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height * 0.7);
+    await page.waitForFunction(() => window.__natura.state === 'play');
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(shots, 'arcade-play.png') });
+    await page.locator('#home').tap();
+    await page.waitForFunction(() => document.getElementById('stage').hidden && !document.getElementById('shelfView').hidden);
+    await carts.nth(n - 1).tap();
+    await page.waitForFunction(() => document.querySelectorAll('#stage canvas').length === 1 && window.__natura.state === 'title');
+    const ok = errors.length === 0 && n === bps.length;
+    if (!ok) failed++;
+    console.log(`${ok ? '✅' : '❌'} arcade   ${n} 本の棚から起動・帰還・切り替え${errors.length ? '\n   ' + errors.join('\n   ') : ''}`);
     await page.close();
   }
 

@@ -6,10 +6,12 @@
 ```bash
 npm run batch -- -n 24     # 24 本まとめて量産
 npm run serve              # 同じ Wi-Fi のスマホから遊べる
+open dist/arcade.html      # 全ゲーム入りの1ファイル版（自分のスマホに送って遊べる）
 ```
 
 - **依存ゼロ**：Node.js 18 以上だけで動きます（`npm install` 不要）
-- **1 ゲーム = 1 ファイル（約 23KB）**：HTML に全部インライン。どこに置いても動く
+- **1 ゲーム = 1 ファイル（約 23KB）**：HTML に全部インライン。全ゲーム入りの 1 ファイル版 `arcade.html` も自動で作られる
+- **自分専用**：公開サイトは作らず、手元のファイルか家の Wi-Fi の中だけで遊ぶ
 - **スマホ最適化**：タッチ操作、縦画面、高 DPI、全画面 PWA（ホーム画面に追加可）、オフライン動作、効果音、振動、ベストスコア保存
 - **品質検査つき**：全ジャンル × 全テーマをボットに遊ばせる自動テスト
 
@@ -82,13 +84,17 @@ node factory/cli.js serve --port 8080                 # ローカル配信
 
 すべて省略可能。省略した項目はシードから自動で決まります。配列にすれば複数本をまとめて注文できます（`specs/example.json` 参照）。
 
-## 公開する
+## 自分専用で遊ぶ（非公開）
 
-`dist/` は静的ファイルだけなので、どこにでも置けます。
+この工場はインターネットに公開しない前提です。どのページにも検索エンジン除けの `noindex` が入っています。
 
-- **GitHub Pages**：Settings → Pages → Source を「GitHub Actions」にして、Actions タブから
-  「Deploy games to GitHub Pages」を実行。`games/` の設計図からビルドして公開されます。
-- **Netlify / Cloudflare Pages / Vercel**：ビルドコマンド `node factory/cli.js rebuild`、公開ディレクトリ `dist`。
+- **1ファイル版アーケード**：ビルドするたびに `dist/arcade.html` が作られます。全ゲームが入った 1 つのファイル（約 70KB）です。
+  PC ならダブルクリックで開けます。スマホなら AirDrop・LINE の自分用トーク・ファイルアプリなどで自分に送って開けば、サーバーなしで遊べます。
+  ハイスコアはその端末の中だけに保存されます。
+- **家の Wi-Fi の中だけ**：`npm run serve` を実行すると、同じ Wi-Fi につながったスマホから遊べます。外からは見えません。
+
+> GitHub Pages は無料プランだと誰でも見られる公開サイトになるので、使っていません。
+> コード（このリポジトリ）も隠したい場合は、GitHub の Settings → General → Danger Zone → Change visibility で Private にしてください。
 
 ## 工場を拡張する
 

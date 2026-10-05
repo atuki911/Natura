@@ -20,6 +20,7 @@ function galleryHtml(entries, genres) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
 <title>Natura Game Factory</title>
 <meta name="description" content="Natura ゲーム工場で量産されたスマホゲーム一覧">
 <style>

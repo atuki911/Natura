@@ -6,7 +6,7 @@ const path = require('path');
 const { GENRES } = require('./genres');
 const { THEMES } = require('./themes');
 const { resolveSpec, planBatch, randomSeed } = require('./spec');
-const { buildGame, buildGallery, saveBlueprint, loadBlueprints } = require('./build');
+const { buildGame, buildGallery, buildArcade, saveBlueprint, loadBlueprints } = require('./build');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -22,6 +22,7 @@ const HELP = `🏭 Natura Game Factory — スマホゲーム量産工場
         [--genre runner] [--theme space] [--seed 7] [--title "名前"]
   build <spec.json...>   注文書(JSON)からゲームを作る
   rebuild                games/ の設計図から全ゲームを作り直す（エンジン更新の反映に）
+                         いつも dist/arcade.html（全ゲーム入りの1ファイル版）も作られる
   remove <slug...>       ゲームを廃番にする（設計図と出力を削除）
   list                   使えるジャンル・テーマと、生産済みゲームの一覧
   serve [--port 8080]    dist/ をローカル配信（同じ Wi-Fi のスマホから遊べる）
@@ -74,8 +75,11 @@ function produce(specs, ctx) {
 }
 
 function finish(ctx) {
-  const entries = buildGallery(loadBlueprints(ctx.games), ctx.out);
+  const bps = loadBlueprints(ctx.games);
+  const entries = buildGallery(bps, ctx.out);
+  const arcade = buildArcade(bps, ctx.out);
   console.log(`\n🏬 ギャラリー更新: ${path.relative(ROOT, path.join(ctx.out, 'index.html'))}（全 ${entries.length} 本）`);
+  console.log(`🕹️  1ファイル版: ${path.relative(ROOT, arcade.file)}（${(arcade.bytes / 1024).toFixed(0)}KB、ダブルクリックやスマホに送るだけで遊べる）`);
   console.log(`   遊ぶには: npm run serve`);
 }
 
