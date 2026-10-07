@@ -1,0 +1,111 @@
+{
+  "id": "chatbase",
+  "name": "Chatbase",
+  "url": "https://www.chatbase.co",
+  "tagline": "自社サイトや文書を学習させたAIチャットボットを数分で作れる",
+  "founders": [
+    {
+      "name": "Yasser Elsaid",
+      "country": "エジプト"
+    }
+  ],
+  "basedIn": "アメリカ（創業時は大学生）",
+  "teamSize": 1,
+  "teamNote": "大学在学中に1人で創業。2026年には約26名",
+  "launched": "2023-02",
+  "status": "active",
+  "category": "support-chatbot",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "中小企業が自社データに基づいて回答するAIチャットを導入するのは技術的に難しい。",
+  "solution": "URLやPDFを読み込ませるだけで、自社データに基づいて回答するチャットボットを作成し、サイトに埋め込める。",
+  "target": "中小企業のカスタマーサポート、EC、SaaS",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "メッセージ数に応じた段階制の月額プラン。"
+  },
+  "revenue": [
+    {
+      "date": "2023-05",
+      "metric": "MRR",
+      "usd": 64000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "公開から約4か月"
+    },
+    {
+      "date": "2026-05",
+      "metric": "ARR",
+      "usd": 10000000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "$10M ARR、有料顧客1万超、外部資金なし"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped（$1Mの買収提案を断って継続）",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "Next.js",
+    "Supabase",
+    "OpenAI API"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "viral-loop",
+    "seo"
+  ],
+  "growthTactics": [
+    "フォロワー16人のXでのデモ投稿がバイラル",
+    "ボットに「Powered by Chatbase」表示で拡散",
+    "ChatGPT登場直後という先行者利益"
+  ],
+  "lessons": [
+    "新技術が出た直後の先行者利益は大きい",
+    "黒字のまま採用し、外部資金なしで成長できる"
+  ],
+  "risks": [
+    "競合の乱立と大手の参入",
+    "ハルシネーションによる誤回答"
+  ],
+  "japan": {
+    "localAngle": "LINE公式アカウント連携・業種別テンプレート（クリニック・美容院・士業）・請求書払い対応で中小企業向けに。",
+    "notes": [
+      "日本語の敬語品質と導入支援の手厚さが差別化になる。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "How a college student reached $64,000/mo in 6 months (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/how-a-college-student-reached-64-000-mo-in-6-months-by-being-an-ai-first-mover-ba7981f6e1",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Bootstrapped to $10M ARR — Chatbase case study (Superframeworks)",
+      "url": "https://superframeworks.com/case-study/chatbase",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s3",
+      "title": "Chatbase customer story (Supabase)",
+      "url": "https://supabase.com/customers/chatbase",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ソロ創業",
+    "先行者利益",
+    "B2B SaaS",
+    "bootstrapped"
+  ]
+}

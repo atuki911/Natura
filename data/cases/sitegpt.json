@@ -1,0 +1,108 @@
+{
+  "id": "sitegpt",
+  "name": "SiteGPT",
+  "url": "https://sitegpt.ai",
+  "tagline": "Webサイトの内容を学習したAIチャットボットを作れる。インドの個人開発者",
+  "founders": [
+    {
+      "name": "Bhanu Teja Pachipulusu",
+      "country": "インド"
+    }
+  ],
+  "basedIn": "インド",
+  "teamSize": 1,
+  "teamNote": "ソロ",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "support-chatbot",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "自社サイトの情報に基づく問い合わせ対応を自動化したい。",
+  "solution": "サイトのURLを入れるだけで内容を学習し、サイトに埋め込めるAIチャットを作成。",
+  "target": "中小企業、SaaS、オンラインビジネス",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額段階制。"
+  },
+  "revenue": [
+    {
+      "date": "2023-04",
+      "metric": "MRR",
+      "usd": 10000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "初月に$10K MRR。翌月に約半数が解約し$5Kへ"
+    },
+    {
+      "date": "2024-06",
+      "metric": "MRR",
+      "usd": 15000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "月$13〜15K、経費$4〜5K、利益約$10K"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2024-06",
+      "label": "有料会員約985人、累計売上$471K",
+      "sourceId": "s1"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "Next.js",
+    "LLM API"
+  ],
+  "channels": [
+    "hacker-news",
+    "product-hunt",
+    "free-tools",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "Show HNでトップページ入り",
+    "Product HuntでProduct of the Day",
+    "無料ツールで集客（Engineering as Marketing）"
+  ],
+  "lessons": [
+    "初月の解約率が高い（物珍しさで契約する層がいる）",
+    "無料ツールはSEO集客に効く"
+  ],
+  "risks": [
+    "同種サービスが多く価格競争になる"
+  ],
+  "japan": {
+    "localAngle": "日本では解約防止に「導入設定代行」をセット販売し、LINE連携で差別化。",
+    "notes": [
+      "インド在住の個人が世界に売った事例。日本からも英語圏向けに同時展開する選択肢がある。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "SiteGPT growth story (AI Pursuits)",
+      "url": "https://ai-pursuits.beehiiv.com/p/the-incredible-growth-story-of-sitegpt",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "SiteGPT From Weekend Project to $15,000 Monthly (Mixergy)",
+      "url": "https://mixergy.com/interviews/sitegpt-with-bhanu-teja-p/",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ソロ",
+    "解約対策",
+    "Engineering as Marketing"
+  ]
+}

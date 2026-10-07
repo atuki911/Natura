@@ -1,0 +1,29 @@
+{
+  "lookbackDays": 30,
+  "requestDelayMs": 800,
+  "maxCandidates": 600,
+  "retentionDays": 180,
+  "minScore": 35,
+  "userAgent": "NaturaResearchBot/1.0 (personal research tool; https://github.com/atuki911/Natura)",
+  "sources": {
+    "hackernews": {
+      "enabled": true,
+      "queries": ["AI MRR", "AI ARR", "AI revenue solo", "Show HN AI", "bootstrapped AI", "GPT revenue", "indie hacker AI", "AI SaaS profitable"]
+    },
+    "reddit": {
+      "enabled": true,
+      "subreddits": ["SideProject", "SaaS", "indiehackers", "EntrepreneurRideAlong", "microsaas", "Entrepreneur", "startups"],
+      "query": "AI (MRR OR ARR OR revenue OR \"per month\")"
+    },
+    "rss": {
+      "enabled": true,
+      "feeds": [
+        { "name": "Google News: solo founder AI revenue", "url": "https://news.google.com/rss/search?q=%22solo+founder%22+AI+revenue&hl=en-US&gl=US&ceid=US:en" },
+        { "name": "Google News: indie hacker AI MRR", "url": "https://news.google.com/rss/search?q=%22indie+hacker%22+AI+MRR&hl=en-US&gl=US&ceid=US:en" },
+        { "name": "Google News: bootstrapped AI startup ARR", "url": "https://news.google.com/rss/search?q=bootstrapped+AI+startup+ARR&hl=en-US&gl=US&ceid=US:en" },
+        { "name": "Google News: one-person AI company", "url": "https://news.google.com/rss/search?q=%22one-person%22+AI+company+revenue&hl=en-US&gl=US&ceid=US:en" },
+        { "name": "Product Hunt", "url": "https://www.producthunt.com/feed" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "id": "formulabot",
+  "name": "Formula Bot",
+  "url": "https://www.formulabot.com",
+  "tagline": "文章で指示するとExcelの数式を生成し、データ分析もしてくれる",
+  "founders": [
+    {
+      "name": "David Bressler",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "アメリカ",
+  "teamSize": 1,
+  "teamNote": "ソロ、非エンジニア",
+  "launched": "2022-09",
+  "status": "active",
+  "category": "spreadsheet-ai",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "Excelの関数を覚えるのは難しく、調べるのに時間がかかる。",
+  "solution": "やりたいことを文章で入力するとExcel/Googleスプレッドシートの数式を返す。データ分析機能も追加。",
+  "target": "事務職・営業・学生などExcelを使う人",
+  "pricing": {
+    "type": "freemium",
+    "plans": [
+      {
+        "name": "有料",
+        "usd": 6.99,
+        "period": "month"
+      },
+      {
+        "name": "年額",
+        "usd": 75,
+        "period": "year"
+      }
+    ],
+    "note": "無料は月5回まで等の制限付き（記事掲載時点）。"
+  },
+  "revenue": [
+    {
+      "date": "2022-09",
+      "metric": "monthly",
+      "usd": 10700,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "ローンチ初月"
+    },
+    {
+      "date": "2023-05",
+      "metric": "monthly",
+      "usd": 20000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": ""
+    },
+    {
+      "date": "2026-02",
+      "metric": "MRR",
+      "usd": 40000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": ""
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 1,
+  "nocodePossible": true,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "Bubble（ノーコード）",
+    "OpenAI API"
+  ],
+  "channels": [
+    "reddit",
+    "seo",
+    "product-hunt"
+  ],
+  "growthTactics": [
+    "Redditへの投稿でローンチ直後に大量の流入",
+    "週末でMVPを作って即公開",
+    "低価格で迷わせない"
+  ],
+  "lessons": [
+    "非エンジニアでもノーコードでAI SaaSを作れる",
+    "明確で狭い課題（数式）に絞るとメッセージが伝わりやすい"
+  ],
+  "risks": [
+    "Copilot・Geminiなど表計算ソフト標準AIとの競合"
+  ],
+  "japan": {
+    "localAngle": "Excel関数に加え、VBA・GAS生成、和暦・祝日・全角半角など日本の事務特有の処理をテンプレ化。",
+    "notes": [
+      "非エンジニアの再現性が最も高い事例の1つ。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "How to build a $1M product with no coding: David Bressler’s story (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/how-to-build-a-1m-product-with-no-coding-david-bresslers-story-172bda76ab",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "How an AI wrapper hit $40k MRR (newsletter)",
+      "url": "https://jacks-newsletter-0adf2e.beehiiv.com/p/how-an-ai-wrapper-hit-40k-mrr-and-what-it-means-for-our-tools-126a",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ノーコード",
+    "非エンジニア",
+    "ソロ",
+    "Reddit"
+  ]
+}

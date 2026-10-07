@@ -1,0 +1,97 @@
+{
+  "id": "audiopen",
+  "name": "AudioPen",
+  "url": "https://audiopen.ai",
+  "tagline": "まとまりのない音声メモを、読みやすい文章に整えてくれる",
+  "founders": [
+    {
+      "name": "Louis Pereira",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 1,
+  "teamNote": "ソロ",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "voice-notes",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "思いついたことを話して記録しても、文字起こしは読みにくく使えない。",
+  "solution": "話した内容を文字起こしし、AIが要点を整理した文章に書き直す。",
+  "target": "ライター、起業家、考えを整理したい個人",
+  "pricing": {
+    "type": "freemium",
+    "plans": [],
+    "note": "無料版＋年額/月額のPrime。"
+  },
+  "revenue": [
+    {
+      "date": "2023-04",
+      "metric": "MRR",
+      "usd": 12000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "ローンチ1か月で有料会員500人超、MRR $12〜15K"
+    },
+    {
+      "date": "2025-12",
+      "metric": "MRR",
+      "usd": 15000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": "推計"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "Whisper API",
+    "GPT API",
+    "Webアプリ"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "product-hunt"
+  ],
+  "growthTactics": [
+    "1ページの極めてシンプルなUI",
+    "Xでのデモ動画"
+  ],
+  "lessons": [
+    "機能を足さず「話す→整った文章」の1体験に絞る"
+  ],
+  "risks": [
+    "大手の音声機能に吸収される"
+  ],
+  "japan": {
+    "localAngle": "日本語の話し言葉（えー、あのー、敬語の混在）を整えて、日報・ブログ・議事録など用途別の書式で出力。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "500 paying customers in 1 month (AI Makers)",
+      "url": "https://aimakers.beehiiv.com/p/500-paying-customers-1-month",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "AudioPen revenue (Starter Story)",
+      "url": "https://www.starterstory.com/businesses/audiopen/revenue",
+      "kind": "estimate",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "シンプル",
+    "ソロ",
+    "音声"
+  ]
+}

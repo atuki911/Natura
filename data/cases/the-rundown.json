@@ -1,0 +1,80 @@
+{
+  "id": "the-rundown",
+  "name": "The Rundown AI",
+  "url": "https://www.therundown.ai",
+  "tagline": "AIの最新ニュースを毎日届けるニュースレター。個人の発信から100万読者規模のメディアへ",
+  "founders": [
+    {
+      "name": "Rowan Cheung",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 12,
+  "teamNote": "個人の発信から始まり、12名体制に",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "media-newsletter",
+  "secondaryCategories": [],
+  "model": "B2B2C",
+  "problem": "AIの情報が多すぎて追いきれない。",
+  "solution": "毎日5分で読めるAIニュースの要約をメールで届ける。スポンサー広告で収益化。",
+  "target": "AIに関心のあるビジネスパーソン",
+  "pricing": {
+    "type": "ads",
+    "plans": [],
+    "note": "読者は無料。スポンサー広告・関連事業で収益化。"
+  },
+  "revenue": [],
+  "traction": [
+    {
+      "date": "2024",
+      "label": "購読者90万人超（約2年）、1日平均1,200人増",
+      "sourceId": "s1"
+    }
+  ],
+  "funding": "非公開",
+  "buildComplexity": 1,
+  "nocodePossible": true,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "beehiiv（ニュースレター配信）"
+  ],
+  "channels": [
+    "newsletter",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "Xでの速報性の高い投稿から購読へ誘導",
+    "ChatGPT登場直後の情報需要に乗った"
+  ],
+  "lessons": [
+    "ノーコードで始められる最も手軽なAI起業の形",
+    "売上は非公開。規模化にはチームが必要だった"
+  ],
+  "risks": [
+    "AI情報発信者の増加による差別化難"
+  ],
+  "japan": {
+    "localAngle": "業界特化（建設・医療・自治体・士業）のAI活用ニュースレターにし、法人研修・導入支援へ送客して収益化。",
+    "notes": [
+      "このツールで調べた海外事例を日本語で解説するだけでもコンテンツになる。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Creator spotlight: Rowan Cheung (beehiiv)",
+      "url": "https://www.beehiiv.com/blog/creator-spotlight-rowan-cheung",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ノーコード",
+    "メディア",
+    "発信"
+  ]
+}

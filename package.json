@@ -1,0 +1,20 @@
+{
+  "name": "natura",
+  "version": "1.0.0",
+  "private": true,
+  "description": "海外の個人AI起業事例をリサーチし、日本向けの事業プランに落とし込む起業リサーチツール（外部有料API不要）",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "collect": "node scripts/cli.mjs collect",
+    "build": "node scripts/cli.mjs build",
+    "validate": "node scripts/cli.mjs validate",
+    "list": "node scripts/cli.mjs list",
+    "report": "node scripts/cli.mjs report",
+    "serve": "node scripts/cli.mjs serve",
+    "new-case": "node scripts/cli.mjs new-case",
+    "test": "node --test test/*.test.mjs"
+  }
+}

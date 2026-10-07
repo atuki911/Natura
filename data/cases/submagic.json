@@ -1,0 +1,118 @@
+{
+  "id": "submagic",
+  "name": "Submagic",
+  "url": "https://www.submagic.co",
+  "tagline": "ショート動画に流行りのテロップ・絵文字・BGMを自動で付ける",
+  "founders": [
+    {
+      "name": "David Zitoun",
+      "country": "フランス"
+    },
+    {
+      "name": "Tsi-fei Chan",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "フランス",
+  "teamSize": 2,
+  "teamNote": "共同創業者2名で開始",
+  "launched": "2023-05",
+  "status": "active",
+  "category": "short-video",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "ショート動画のテロップ付けは時間がかかり、外注すると高い。",
+  "solution": "動画をアップすると、強調・絵文字付きのテロップ、見どころの切り出し、フックタイトル、BGMを自動で付ける。",
+  "target": "クリエイター、SNS運用担当、エージェンシー",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額段階制。"
+  },
+  "revenue": [
+    {
+      "date": "2023-08",
+      "metric": "ARR",
+      "usd": 1000000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "最初の顧客獲得から3か月で$1M ARR"
+    },
+    {
+      "date": "2025-06",
+      "metric": "ARR",
+      "usd": 8000000,
+      "sourceId": "s3",
+      "confidence": "medium",
+      "note": "外部資金なしで$8M ARR"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2025",
+      "label": "1日5,000〜10,000件の新規登録",
+      "sourceId": "s3"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 4,
+  "nocodePossible": false,
+  "initialCost": 3,
+  "aiDependency": "high",
+  "techStack": [
+    "音声認識",
+    "動画処理",
+    "LLM"
+  ],
+  "channels": [
+    "affiliate",
+    "influencer",
+    "short-video"
+  ],
+  "growthTactics": [
+    "クリエイターへのアフィリエイト報酬",
+    "生成した動画自体がサービスの宣伝になる"
+  ],
+  "lessons": [
+    "クリエイター経済の「時間がかかる作業」に刺さると伸びが速い"
+  ],
+  "risks": [
+    "CapCut等の無料ツールの機能追加",
+    "動画処理の原価"
+  ],
+  "japan": {
+    "localAngle": "日本のバラエティ風テロップ文化（縁取り・色・効果音）への最適化と、日本語の改行位置の美しさで差別化。",
+    "notes": [
+      "日本ではVrew・CapCutが強く、無料ツールとの差を明確にする必要がある。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Submagic founder interview (Latka)",
+      "url": "https://getlatka.com/interviews/submagic-david-zitoun-2025",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Generating $1M ARR in 3 months (SaaS Trappers)",
+      "url": "https://saastrappers.beehiiv.com/p/21-generating-1m-arr-3-months",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s3",
+      "title": "$0 to $8M ARR bootstrapped in 2 years (Superframeworks)",
+      "url": "https://superframeworks.com/case-study/submagic",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "動画",
+    "アフィリエイト",
+    "bootstrapped"
+  ]
+}

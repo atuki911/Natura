@@ -1,0 +1,100 @@
+{
+  "id": "base44",
+  "name": "Base44",
+  "url": "https://base44.com",
+  "tagline": "自然言語の指示だけでWebアプリを作れるAIアプリビルダー。創業6か月でWixが買収",
+  "founders": [
+    {
+      "name": "Maor Shlomo",
+      "country": "イスラエル"
+    }
+  ],
+  "basedIn": "イスラエル",
+  "teamSize": 1,
+  "teamNote": "1人で創業。買収直前に6名を採用",
+  "launched": "2025-03",
+  "status": "acquired",
+  "category": "app-builder",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "エンジニアでない人が業務アプリを作るにはノーコードでも学習コストが高い。",
+  "solution": "作りたいアプリを文章で説明すると、データベース・認証込みのアプリを生成してそのまま公開できる。",
+  "target": "個人・中小企業・社内ツールを作りたい人",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "フリーミアム＋月額プラン。"
+  },
+  "revenue": [
+    {
+      "date": "2025-06",
+      "metric": "ARR",
+      "usd": 3500000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "買収時点で数百万ドル規模のARR（報道により表現差あり）"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2025-06",
+      "label": "Wixによる買収（初期支払$80M＋業績連動）",
+      "sourceId": "s1"
+    }
+  ],
+  "funding": "外部資金なし（自己資金約3万シェケル）",
+  "buildComplexity": 5,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM",
+    "独自のアプリ実行基盤"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "community",
+    "viral-loop"
+  ],
+  "growthTactics": [
+    "開発過程をLinkedIn・Xで公開",
+    "ユーザーが作ったアプリが口コミになる",
+    "早期に黒字化してから買収交渉"
+  ],
+  "lessons": [
+    "1人でも最先端領域で大手の買収対象になれる",
+    "ただし技術的難易度が高く、高い開発力が前提"
+  ],
+  "risks": [
+    "大手・モデル提供元との競争が非常に激しい"
+  ],
+  "japan": {
+    "localAngle": "汎用ビルダーでの正面勝負は避け、「Excel帳票・紙の業務をアプリにする中小企業特化版」やkintone・GAS生成に絞る。",
+    "notes": [
+      "技術難易度が高く、エンジニアでない人の再現は困難。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Wix acquires Israeli vibe coding co Base44 (Globes)",
+      "url": "https://en.globes.co.il/en/article-wix-acquires-israeli-vibe-coding-co-base44-1001513267",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Wix acquires Base44 for $80M (TipRanks)",
+      "url": "https://www.tipranks.com/news/ma-news-wix-com-wix-acquires-base44-for-80m",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ソロ",
+    "買収",
+    "バイブコーディング",
+    "高難度"
+  ]
+}

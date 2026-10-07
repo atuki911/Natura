@@ -1,0 +1,108 @@
+{
+  "id": "typingmind",
+  "name": "TypingMind",
+  "url": "https://www.typingmind.com",
+  "tagline": "複数のAIモデルを1つの快適なUIで使えるチャットクライアント",
+  "founders": [
+    {
+      "name": "Tony Dinh",
+      "country": "ベトナム"
+    }
+  ],
+  "basedIn": "ベトナム",
+  "teamSize": 3,
+  "teamNote": "ソロ創業、のちに数名体制",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "chat-client",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "ChatGPT公式UIは機能が限られ、複数のAIモデルを使い分けたい人には不便。",
+  "solution": "ユーザー自身のAPIキーで動くチャットUIを買い切りで提供。プロンプト管理、複数モデル、プラグイン等を搭載。チーム版も提供。",
+  "target": "AIのヘビーユーザー、開発者、社内でAIを使いたいチーム",
+  "pricing": {
+    "type": "one-time",
+    "plans": [],
+    "note": "個人向けは買い切りライセンス、チーム向けはサブスク。"
+  },
+  "revenue": [
+    {
+      "date": "2024-12",
+      "metric": "annual",
+      "usd": 817300,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "推計データベースによる2024年売上"
+    },
+    {
+      "date": "2025-11",
+      "metric": "monthly",
+      "usd": 130000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "月$130〜160Kで、その半分以上がチーム版の継続課金と紹介"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "フロントエンド中心（BYOK: ユーザーのAPIキー利用）"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "seo",
+    "product-hunt"
+  ],
+  "growthTactics": [
+    "Xで開発の数字を公開",
+    "BYOKでAI原価をユーザー負担にして高利益率",
+    "個人の買い切り→チーム版のサブスクへ展開"
+  ],
+  "lessons": [
+    "AI原価を持たないBYOKモデルは個人開発と相性が良い",
+    "一時的な売上より継続課金のB2Bが安定"
+  ],
+  "risks": [
+    "公式UIの改善で差別化が消える",
+    "APIキー管理が一般ユーザーには難しい"
+  ],
+  "japan": {
+    "localAngle": "社内でChatGPT利用が制限されている日本企業向けに、利用ログ・NGワード検知・請求書払い対応の「社内AI環境」として売る。",
+    "notes": [
+      "日本の法人営業ではセキュリティチェックシート対応が必須。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "TypingMind company data (Latka)",
+      "url": "https://getlatka.com/companies/typingmind",
+      "kind": "estimate",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Solo founder who turned $100 into $1,500,000 (newsletter)",
+      "url": "https://nomadpreneur.beehiiv.com/p/solo-founder-who-turned-100-into-1-500-000-no-team-no-investors",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s3",
+      "title": "Making $10k/mo by building a better ChatGPT UI (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/making-10k-mo-by-building-a-better-chatgpt-ui-5e69b67949",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "BYOK",
+    "買い切り",
+    "B2Bへ展開"
+  ]
+}

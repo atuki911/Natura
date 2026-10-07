@@ -1,0 +1,84 @@
+{
+  "id": "talknotes",
+  "name": "TalkNotes",
+  "url": "https://talknotes.io",
+  "tagline": "音声メモをブログ記事・タスクリスト・台本などに変換",
+  "founders": [
+    {
+      "name": "Nico Jeannen",
+      "country": "フランス"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 1,
+  "teamNote": "ソロのインディーメーカー",
+  "launched": "2023-06",
+  "status": "active",
+  "category": "voice-notes",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "既存の文字起こしは精度や整形が不十分。",
+  "solution": "Whisper APIで文字起こしし、ブログ記事・リスト・台本など目的別に整形。50以上の言語に対応。",
+  "target": "クリエイター・個人事業主",
+  "pricing": {
+    "type": "freemium",
+    "plans": [
+      {
+        "name": "有料",
+        "usd": 10,
+        "period": "month"
+      }
+    ],
+    "note": "月$10〜（記事時点）。"
+  },
+  "revenue": [
+    {
+      "date": "2024-06",
+      "metric": "MRR",
+      "usd": 7000,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "推計"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "Whisper API",
+    "LLM API"
+  ],
+  "channels": [
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "自分の不満から作り、Xにクイック版を投稿して反応を見た"
+  ],
+  "lessons": [
+    "同カテゴリに競合が多くても、小さく黒字を作ることはできる"
+  ],
+  "risks": [
+    "類似サービスが非常に多い"
+  ],
+  "japan": {
+    "localAngle": "職種別の出力テンプレ（営業日報・介護記録・不動産の内見メモ）で差別化。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "TalkNotes, the AI voice notes app (Starter Story)",
+      "url": "https://www.starterstory.com/businesses/talknotes-the-ai-voice-notes-app",
+      "kind": "estimate",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ソロ",
+    "小さく黒字"
+  ]
+}

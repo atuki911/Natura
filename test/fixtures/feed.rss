@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+<title>Search results</title>
+<item>
+  <title><![CDATA[Solo founder's AI chatbot startup crosses $1.2M ARR without VC]]></title>
+  <link>https://news.example.com/articles/solo-ai-chatbot?utm_medium=rss</link>
+  <pubDate>Mon, 05 Oct 2026 08:00:00 GMT</pubDate>
+  <description>&lt;p&gt;The bootstrapped customer support chatbot reached $1.2M ARR &amp;amp; profitability.&lt;/p&gt;</description>
+  <dc:creator>Jane Reporter</dc:creator>
+</item>
+<item>
+  <title>Big Tech raises $500M Series C for AI chips</title>
+  <link>https://news.example.com/articles/chips</link>
+  <pubDate>Sun, 04 Oct 2026 08:00:00 GMT</pubDate>
+  <description>Funding round news.</description>
+</item>
+</channel>
+</rss>

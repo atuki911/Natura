@@ -1,0 +1,92 @@
+{
+  "id": "chatpdf",
+  "name": "ChatPDF",
+  "url": "https://www.chatpdf.com",
+  "tagline": "PDFとチャットできるサービス。公開1週間で100万ユーザー",
+  "founders": [
+    {
+      "name": "Mathis Lichtenberger",
+      "country": "ドイツ"
+    }
+  ],
+  "basedIn": "ドイツ（ベルリン）",
+  "teamSize": 2,
+  "teamNote": "少人数（bootstrapped）",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "document-ai",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "論文・マニュアルなど長いPDFを読む時間がない。",
+  "solution": "PDFをアップロードするとチャットで内容について質問できる。",
+  "target": "学生・研究者・ビジネスパーソン",
+  "pricing": {
+    "type": "freemium",
+    "plans": [],
+    "note": "無料枠＋月額Plus。"
+  },
+  "revenue": [
+    {
+      "date": "2025-01",
+      "metric": "annual",
+      "usd": 440000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": "推計データベース"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2023-03",
+      "label": "公開1週間で100万ユーザー",
+      "sourceId": "s1"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM API",
+    "埋め込み検索"
+  ],
+  "channels": [
+    "viral-loop",
+    "seo"
+  ],
+  "growthTactics": [
+    "ChatGPT公開直後に「PDFと話せる」という分かりやすいコンセプトで話題化"
+  ],
+  "lessons": [
+    "ユーザー数の多さが売上の大きさに直結するとは限らない"
+  ],
+  "risks": [
+    "ChatGPT等の標準機能化"
+  ],
+  "japan": {
+    "localAngle": "業界特化（就業規則・重要事項説明書・補助金公募要領など）の質疑応答に絞る。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "ChatPDF brings the power of ChatGPT to PDFs (The Decoder)",
+      "url": "https://the-decoder.com/chatpdf-brings-the-power-of-chatgpt-to-pdfs/",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "ChatPDF company data (Latka)",
+      "url": "https://getlatka.com/companies/chatpdf.com/contacts",
+      "kind": "estimate",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "先行者利益",
+    "バイラル"
+  ]
+}

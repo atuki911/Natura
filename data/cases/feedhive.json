@@ -1,0 +1,83 @@
+{
+  "id": "feedhive",
+  "name": "FeedHive",
+  "url": "https://www.feedhive.com",
+  "tagline": "AIで投稿作成・予約・分析までできるSNS運用ツール",
+  "founders": [
+    {
+      "name": "Simon Høiberg",
+      "country": "デンマーク"
+    }
+  ],
+  "basedIn": "スイス（チューリッヒ）",
+  "teamSize": 5,
+  "teamNote": "少人数で複数SaaSを運営",
+  "launched": "2021-01",
+  "status": "active",
+  "category": "social-media",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "複数SNSへの投稿作成・予約・分析が手間。",
+  "solution": "AIによる投稿作成支援、予約投稿、再投稿、分析、承認フローなどを提供する。",
+  "target": "クリエイター、ブランド、エージェンシー",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額段階制。"
+  },
+  "revenue": [
+    {
+      "date": "2025-06",
+      "metric": "ARR",
+      "usd": 1000000,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "約$1M ARR、ユーザー3万人超"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "medium",
+  "techStack": [
+    "Webアプリ",
+    "各SNSのAPI",
+    "LLM"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "newsletter",
+    "youtube"
+  ],
+  "growthTactics": [
+    "創業者がXで20万人超のフォロワーを持ち、自社ツールで運用して見せる"
+  ],
+  "lessons": [
+    "自分自身がヘビーユーザーであるツールは説得力が出る",
+    "複数の小さなSaaSを組み合わせて収益を安定させる"
+  ],
+  "risks": [
+    "SNS各社のAPI料金・仕様変更"
+  ],
+  "japan": {
+    "localAngle": "Instagram・LINE・Googleビジネスプロフィール中心の店舗向けSNS運用に置き換える。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Simon Hoiberg profile (yespress)",
+      "url": "https://yespress.io/simon-hoiberg",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "SNS",
+    "ポートフォリオ",
+    "発信力"
+  ]
+}

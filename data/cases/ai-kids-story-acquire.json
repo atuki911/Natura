@@ -1,0 +1,79 @@
+{
+  "id": "ai-kids-story-acquire",
+  "name": "AI子ども向け物語SaaS（匿名・売却案件）",
+  "url": "https://app.acquire.com/startup/vd5g2p0i9w-profitable-ai-kids-story-saas-83-margins-425-yr-ops",
+  "tagline": "AIで子ども向けの物語を作るSaaS。小規模なまま売却に出された「現実的な」事例",
+  "founders": [
+    {
+      "name": "非公開（Acquire.com掲載）",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 1,
+  "teamNote": "個人運営とみられる",
+  "launched": "2023-06",
+  "status": "active",
+  "category": "kids-family",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "子どもの寝かしつけ用の新しい物語を毎晩用意するのは大変。",
+  "solution": "子どもの名前や好みを入れるとAIがオリジナルの物語を生成する。",
+  "target": "幼児の保護者",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "サブスクと広告。"
+  },
+  "revenue": [
+    {
+      "date": "2025-01",
+      "metric": "annual",
+      "usd": 2300,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "直近12か月の売上$2.3K、粗利率83%、年間運営費$425"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 1,
+  "nocodePossible": true,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM API"
+  ],
+  "channels": [
+    "seo"
+  ],
+  "growthTactics": [],
+  "lessons": [
+    "作るのは簡単でも、集客の仕組みがないと売上はほぼ立たない（生存者バイアスへの戒め）",
+    "デジタルの物語単体は支払意欲が低い"
+  ],
+  "risks": [
+    "差別化が難しく価格が上げられない"
+  ],
+  "japan": {
+    "localAngle": "デジタル単体ではなく、名前入りの紙の絵本（出産祝い・誕生日ギフト）として物販と組み合わせる。",
+    "notes": [
+      "成功事例だけを見ないための参照事例。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Profitable AI Kids’ Story SaaS — 83% margins (Acquire.com listing)",
+      "url": "https://app.acquire.com/startup/vd5g2p0i9w-profitable-ai-kids-story-saas-83-margins-425-yr-ops",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "小規模",
+    "失敗からの教訓",
+    "売却案件"
+  ]
+}

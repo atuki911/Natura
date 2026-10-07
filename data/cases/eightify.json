@@ -1,0 +1,84 @@
+{
+  "id": "eightify",
+  "name": "Eightify",
+  "url": "https://eightify.app",
+  "tagline": "YouTube動画をAIで要約するChrome拡張",
+  "founders": [
+    {
+      "name": "Alex Kataev",
+      "country": "非公開"
+    },
+    {
+      "name": "Dmytro Tymoshenko",
+      "country": "ウクライナ"
+    }
+  ],
+  "basedIn": "スペイン（バレンシア）",
+  "teamSize": 5,
+  "teamNote": "少人数チーム",
+  "launched": "2022-12",
+  "status": "active",
+  "category": "content-summary",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "長いYouTube動画を最後まで見る時間がない。",
+  "solution": "Chrome拡張でYouTube動画の要点を数秒で要約表示する。",
+  "target": "情報収集をするビジネスパーソン・学生",
+  "pricing": {
+    "type": "freemium",
+    "plans": [],
+    "note": "無料枠＋月額。"
+  },
+  "revenue": [
+    {
+      "date": "2023-12",
+      "metric": "monthly",
+      "usd": 45000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "月間訪問660万"
+    }
+  ],
+  "traction": [],
+  "funding": "非公開",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "Chrome拡張",
+    "GPT API"
+  ],
+  "channels": [
+    "seo",
+    "marketplace"
+  ],
+  "growthTactics": [
+    "多言語の大量ランディングページでSEO（programmatic SEO）",
+    "Chromeウェブストアでの露出"
+  ],
+  "lessons": [
+    "多言語SEOは小さなチームでも世界から集客できる"
+  ],
+  "risks": [
+    "YouTube・ブラウザ標準の要約機能"
+  ],
+  "japan": {
+    "localAngle": "汎用要約は標準機能化が進む。業界別（法改正・入札・特許）の情報収集要約に絞る。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "This site gets 70M+ visitors per year using AI (Starter Story)",
+      "url": "https://starterstory.com/stories/eightify-breakdown",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "Chrome拡張",
+    "多言語SEO"
+  ]
+}

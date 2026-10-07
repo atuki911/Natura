@@ -1,0 +1,96 @@
+{
+  "id": "umax-rizzgpt",
+  "name": "Umax / RizzGPT",
+  "url": "https://www.umax.app",
+  "tagline": "恋愛メッセージ支援と外見アドバイスのAIアプリ群。ChatGPTで書いたコードで開発",
+  "founders": [
+    {
+      "name": "Blake Anderson",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "アメリカ",
+  "teamSize": 5,
+  "teamNote": "少人数チーム",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "consumer-lifestyle",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "マッチングアプリの返信が思いつかない／外見を改善したいが方法がわからない。",
+  "solution": "RizzGPT（現Plug AI）はメッセージの返信案を生成、Umaxは顔写真から外見改善のアドバイスを出す。",
+  "target": "10代後半〜20代の若者",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "アプリ内サブスク（週額中心）。"
+  },
+  "revenue": [
+    {
+      "date": "2024-02",
+      "metric": "monthly",
+      "usd": 700000,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "アプリ群合計で最高月$700K"
+    },
+    {
+      "date": "2024-12",
+      "metric": "annual",
+      "usd": 11500000,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "アプリ群合計の年間換算"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 4,
+  "aiDependency": "high",
+  "techStack": [
+    "iOS",
+    "LLM・画像解析API"
+  ],
+  "channels": [
+    "short-video",
+    "influencer",
+    "app-store"
+  ],
+  "growthTactics": [
+    "TikTokのUGC・インフルエンサー動画を大量に回す",
+    "同じ型のアプリを複数ローンチ"
+  ],
+  "lessons": [
+    "ビジネス専攻の学生がChatGPTの助けでコーディングして作った",
+    "アプリは「配信の型」を持つと横展開できる"
+  ],
+  "risks": [
+    "外見評価は炎上・倫理面の懸念",
+    "TikTokのアルゴリズム依存"
+  ],
+  "japan": {
+    "localAngle": "外見の点数化ではなく「似合わせ提案」「マッチングアプリのメッセージ添削」として設計。",
+    "notes": [
+      "未成年利用・外見評価の社会的受容性に十分注意。"
+    ],
+    "scoreAdjust": {
+      "regulatoryLightness": -1
+    }
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "The 23-year-old who’s making $11M/year from AI apps (Scale Nuggets)",
+      "url": "https://scalenuggets.beehiiv.com/p/23yearold-whos-making-11myear-ai-apps",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "モバイルアプリ",
+    "TikTok",
+    "若手創業者"
+  ]
+}

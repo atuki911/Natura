@@ -1,0 +1,116 @@
+{
+  "id": "pdfai",
+  "name": "PDF.ai",
+  "url": "https://pdf.ai",
+  "tagline": "PDFをアップロードして質問すると答えてくれる。事業を$20Kで買って伸ばした",
+  "founders": [
+    {
+      "name": "Damon Chen",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 1,
+  "teamNote": "ソロ（Testimonial.toの創業者）",
+  "launched": "2023-03",
+  "status": "active",
+  "category": "document-ai",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "長いPDF（契約書・論文・マニュアル）から必要な情報を探すのに時間がかかる。",
+  "solution": "PDFをアップロードしてチャットで質問すると、該当箇所を示しながら回答する。",
+  "target": "学生・研究者・ビジネスパーソン",
+  "pricing": {
+    "type": "freemium",
+    "plans": [
+      {
+        "name": "Pro",
+        "usd": 15,
+        "period": "month"
+      },
+      {
+        "name": "Enterprise",
+        "usd": 50,
+        "period": "month"
+      }
+    ],
+    "note": "記事掲載時点の価格。"
+  },
+  "revenue": [
+    {
+      "date": "2023-07",
+      "metric": "MRR",
+      "usd": 25070,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "買収から約4か月、有料ユーザー1,250人超"
+    },
+    {
+      "date": "2024-01",
+      "metric": "MRR",
+      "usd": 50000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": ""
+    }
+  ],
+  "traction": [
+    {
+      "date": "2023-03",
+      "label": "開発者から48時間で$20Kで買収、6日で投資回収",
+      "sourceId": "s2"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM API",
+    "ベクトル検索"
+  ],
+  "channels": [
+    "seo",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "短く覚えやすいドメイン（pdf.ai）を取得してSEOとブランドで有利に",
+    "既存事業で培ったマーケ力を移植"
+  ],
+  "lessons": [
+    "ゼロから作らず小さな事業を買って伸ばす選択肢もある",
+    "ドメイン名は資産になる"
+  ],
+  "risks": [
+    "ChatGPT等がPDF読み込みを標準搭載し差別化が薄れる"
+  ],
+  "japan": {
+    "localAngle": "汎用PDFチャットは大手に吸収される。日本の業界文書（重要事項説明書、就業規則、補助金公募要領）に特化。",
+    "notes": [
+      "日本でもサイト売買（ラッコM&A等）で小さなWebサービスを買う選択肢がある。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "PDF AI tool made $25k in MRR last month (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/pdf-ai-tool-made-25k-in-mrr-last-month-07148fa17d",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "PDF.ai breakdown (SpyMetrics)",
+      "url": "https://spymetrics.beehiiv.com/p/pdf",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "事業買収",
+    "ドメイン",
+    "ソロ"
+  ]
+}

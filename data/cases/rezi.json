@@ -1,0 +1,95 @@
+{
+  "id": "rezi",
+  "name": "Rezi",
+  "url": "https://www.rezi.ai",
+  "tagline": "採用システム（ATS）に通りやすい履歴書をAIで作る。Redditの$9.69テンプレから始まった",
+  "founders": [
+    {
+      "name": "Jacob Jacquet",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "韓国（ソウル）",
+  "teamSize": 8,
+  "teamNote": "「2つのテーブルに収まる」少人数チーム",
+  "launched": "2015-05",
+  "status": "active",
+  "category": "career",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "応募書類がATS（応募者追跡システム）で落とされ、面接に進めない。",
+  "solution": "求人票とのキーワード照合、ATS向けの書式チェック、AIによる文章生成で履歴書を最適化する。",
+  "target": "求職者（主に英語圏）",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額・買い切りプラン。"
+  },
+  "revenue": [
+    {
+      "date": "2025-06",
+      "metric": "MRR",
+      "usd": 215000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "Stripe検証で年$3M超のランレートとの報道もあり"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2025",
+      "label": "累計ユーザー300万人超",
+      "sourceId": "s2"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "medium",
+  "techStack": [
+    "Webアプリ",
+    "GPT系API"
+  ],
+  "channels": [
+    "reddit",
+    "seo"
+  ],
+  "growthTactics": [
+    "Redditに投稿したWordテンプレートがバイラル",
+    "AI登場で既存事業を強化"
+  ],
+  "lessons": [
+    "AI以前からの事業にAIを足して成長を加速した例",
+    "長期間続けることで複利的にSEO資産が貯まる"
+  ],
+  "risks": [
+    "求人サイト・大手の無料機能"
+  ],
+  "japan": {
+    "localAngle": "日本の就活ES（ガクチカ・自己PR）、職務経歴書のフォーマットに特化。外国人材向けの日本式履歴書支援も有望。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "0 to 1 million users (Rezi blog)",
+      "url": "https://www.rezi.ai/posts/0-to-1-million-users",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "From resume template to $5M SaaS: how Jacob built Rezi",
+      "url": "https://www.wearefounders.uk/from-resume-template-to-5m-saas-how-jacob-built-rezi/",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "長期継続",
+    "Reddit",
+    "キャリア"
+  ]
+}

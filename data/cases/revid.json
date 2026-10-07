@@ -1,0 +1,98 @@
+{
+  "id": "revid",
+  "name": "Revid.ai",
+  "url": "https://www.revid.ai",
+  "tagline": "長尺動画やアイデアから、バズを狙うショート動画を自動生成",
+  "founders": [
+    {
+      "name": "Tibo Louis-Lucas",
+      "country": "フランス"
+    }
+  ],
+  "basedIn": "フランス",
+  "teamSize": 3,
+  "teamNote": "複数プロダクトを少人数（共同創業者と）で運営",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "short-video",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "SNS用のショート動画を継続的に作るのは大変。",
+  "solution": "記事・アイデア・長尺動画からショート動画（台本・音声・映像）を自動生成する。",
+  "target": "クリエイター、マーケター、フェイスレス運用者",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額段階制。"
+  },
+  "revenue": [
+    {
+      "date": "2024-04",
+      "metric": "ARR",
+      "usd": 1000000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "15か月で$1M ARR"
+    },
+    {
+      "date": "2026-01",
+      "metric": "monthly",
+      "usd": 600000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": "報道ベース"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 4,
+  "nocodePossible": false,
+  "initialCost": 3,
+  "aiDependency": "high",
+  "techStack": [
+    "Remotion（動画生成）",
+    "LLM",
+    "音声合成"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "affiliate",
+    "short-video"
+  ],
+  "growthTactics": [
+    "創業者のX発信力（前作Tweet Hunterの実績）",
+    "複数プロダクトでノウハウを横展開"
+  ],
+  "lessons": [
+    "過去のプロダクトで得たオーディエンスが次のプロダクトの立ち上げを加速する"
+  ],
+  "risks": [
+    "動画生成モデルの急速な進化と大手参入"
+  ],
+  "japan": {
+    "localAngle": "店舗・不動産・採用向けに、写真と原稿から縦型動画を作るB2B用途に絞る。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Remotion success story: a million dollars",
+      "url": "https://www.remotion.dev/success-stories/a-million-dollars",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Solo founder scales AI tools to over $1m a month without staff",
+      "url": "https://spaces.collab365.com/posts/solo-founder-scales-ai-tools-to-over-1m-a-month-wi-GIx6v9",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "動画",
+    "連続起業",
+    "ポートフォリオ"
+  ]
+}

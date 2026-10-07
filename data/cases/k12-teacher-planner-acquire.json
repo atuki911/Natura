@@ -1,0 +1,82 @@
+{
+  "id": "k12-teacher-planner-acquire",
+  "name": "K-12教員向けAI授業計画プラットフォーム（匿名・売却案件）",
+  "url": "https://app.acquire.com/startup/c1kmxf1mzo-an-ai-toolkit-for-k-12-teachers-to-efficiently-generate-classroom-materials-of-all-kinds",
+  "tagline": "現役教員2人とエンジニア1人が作った、教材・指導案作成AI",
+  "founders": [
+    {
+      "name": "非公開（教員2名＋エンジニア1名）",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "アメリカ",
+  "teamSize": 3,
+  "teamNote": "教員2名＋エンジニア1名",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "education-writing",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "教員は授業準備・教材作成・評価作成に多くの時間を取られる。",
+  "solution": "指導案・差別化教材・テストなど100以上の目的別ツールで教員の準備を支援する。",
+  "target": "小中高の教員",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "教員個人の月額課金が中心とみられる。"
+  },
+  "revenue": [
+    {
+      "date": "2025-01",
+      "metric": "ARR",
+      "usd": 228000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "直近12か月売上$233.6K、利益$173.6K（掲載情報）"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM API",
+    "Webアプリ"
+  ],
+  "channels": [
+    "community",
+    "seo"
+  ],
+  "growthTactics": [
+    "当事者（現役教員）が作り、教員コミュニティで広める"
+  ],
+  "lessons": [
+    "業界の当事者が作ると課題設定が的確で、コミュニティ集客が効く"
+  ],
+  "risks": [
+    "学校・自治体単位の無料ツール導入"
+  ],
+  "japan": {
+    "localAngle": "日本の学習指導要領に沿った指導案、通知表の所見文、学級通信の下書きを作る「教員の働き方改革」ツール。",
+    "notes": [
+      "教員経験者・教育関係者の起業に特に向く。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "An AI toolkit for K-12 teachers (Acquire.com listing)",
+      "url": "https://app.acquire.com/startup/c1kmxf1mzo-an-ai-toolkit-for-k-12-teachers-to-efficiently-generate-classroom-materials-of-all-kinds",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "当事者起業",
+    "教育",
+    "売却案件"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "id": "interiorai",
+  "name": "Interior AI",
+  "url": "https://interiorai.com",
+  "tagline": "部屋の写真をアップすると別スタイルのインテリア案を生成する",
+  "founders": [
+    {
+      "name": "Pieter Levels",
+      "country": "オランダ"
+    }
+  ],
+  "basedIn": "拠点を持たないデジタルノマド",
+  "teamSize": 1,
+  "teamNote": "1人運営",
+  "launched": "2022-11",
+  "status": "active",
+  "category": "ai-interior",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "模様替え・リフォームの完成イメージをつかむのが難しく、デザイナーに頼むと高い。",
+  "solution": "部屋の写真からスタイル別（北欧・ミニマル等）のインテリア案を数秒で生成。バーチャルステージングにも使える。",
+  "target": "模様替えしたい個人、不動産エージェント、インテリアデザイナー",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額サブスク。公式サイトで最新価格を確認。"
+  },
+  "revenue": [
+    {
+      "date": "2023-01",
+      "metric": "MRR",
+      "usd": 42000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "ある時点で$42K MRRと紹介"
+    },
+    {
+      "date": "2023-12",
+      "metric": "annual",
+      "usd": 600000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": "推計データベースによる2023年売上"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "Stable Diffusion系モデル",
+    "PHP"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "viral-loop",
+    "short-video"
+  ],
+  "growthTactics": [
+    "Stable Diffusion公開直後に素早くプロダクト化した先行者利益",
+    "Before/Afterの画像がSNSで拡散"
+  ],
+  "lessons": [
+    "新しい基盤モデルの登場直後は、用途特化のUIを付けるだけで価値になる",
+    "先行者利益は模倣品の増加で薄れる"
+  ],
+  "risks": [
+    "同種ツールが大量に出て差別化が難しい"
+  ],
+  "japan": {
+    "localAngle": "一般消費者より、不動産仲介・工務店向けのバーチャルステージングとしてB2Bで売る。",
+    "notes": [
+      "日本の間取り（和室・6畳など）に合わせたスタイルが差別化ポイント。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "This solopreneur makes $3 million using Twitter (newsletter)",
+      "url": "https://wouter.beehiiv.com/p/solopreuner-makes-3-million-using-twitter",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "InteriorAI company data (Latka)",
+      "url": "https://getlatka.com/companies/InteriorAI",
+      "kind": "estimate",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "画像生成",
+    "ソロ",
+    "先行者利益"
+  ]
+}

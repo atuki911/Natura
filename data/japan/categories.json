@@ -1,0 +1,695 @@
+{
+  "updated": "2026-10-07",
+  "scale": "各スコアは1〜5。demand=日本での需要、openness=競合の空き具合（5ほど空いている）、regulatoryLightness=規制の軽さ（5ほど軽い）、languageMoat=日本語・日本固有事情による参入障壁（5ほど海外勢が入りにくく国内個人に有利）、wtp=支払意欲、soloFeasibility=個人で実行できる度合い",
+  "items": [
+    {
+      "id": "ai-photo",
+      "name": "AI写真・プロフィール画像",
+      "description": "自撮りから宣材写真・ビジネスプロフィール・アバターを生成する。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 3, "languageMoat": 2, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "就活・転職・名刺・社内プロフィール・マッチングアプリ・SNSアイコンと用途は広い。ただしLinkedIn文化が弱く、英語圏ほど『ビジネスヘッドショット』単体の需要は大きくない。",
+        "competition": "海外大手（HeadshotPro等）は日本語LPでも集客している。写真館のAIプラン、スマホアプリも多い。",
+        "language": "画像生成は言語の壁が低く、海外勢と直接競合しやすい。日本固有の規格（履歴書写真3×4cm、背景色、身だしなみ規範）で差別化する余地がある。",
+        "wtp": "B2Cは2,000〜5,000円の単発課金が意思決定しやすい。企業の一括撮影代替（B2B）は単価が上がる。"
+      },
+      "knownCompetitors": ["HeadshotPro（日本語LPあり）", "写真館・フォトスタジオのAIプラン", "各種AIアバターアプリ"],
+      "regulations": ["portrait-rights", "appi", "appi-overseas-ai", "copyright-ai", "tokushoho", "keihyo"],
+      "channels": ["short-video", "seo", "viral-loop", "marketplace", "x-build-in-public"],
+      "pricing": { "b2c": "単発 1,980〜4,980円", "b2b": "社員1人あたり 2,000〜5,000円（企業一括）", "note": "サブスクより単発課金が受け入れられやすい。" },
+      "localizationAngles": [
+        "履歴書・証明写真の規格（3×4cm、背景色、スーツ着用）に特化した『就活AI証明写真』",
+        "企業の採用ページ・社員紹介用の『全社員の写真トーンを統一』するB2Bプラン",
+        "士業・不動産営業・保険営業など『顔が信頼につながる職種』向けの宣材写真パック",
+        "七五三・成人式など日本の行事衣装（和装）を合成するプラン（肖像権・家族の同意設計が前提）"
+      ],
+      "pitfalls": [
+        "他人の写真を使われるリスク（本人確認・規約・削除フロー）",
+        "生成写真を本人確認書類に使うことは不可である旨の明示が必要",
+        "GPU原価が高く、無料枠を広げすぎると赤字になる"
+      ],
+      "validation": [
+        "ココナラで『AIでプロフィール写真を作ります』を出品し、1週間で何件・いくらで売れるか見る",
+        "就活生向けにX・TikTokでBefore/After動画を3本出し、LP登録率を見る"
+      ],
+      "keywordsEn": ["headshot", "profile picture", "avatar", "photo ai", "selfie", "portrait", "photoshoot"],
+      "keywordsJa": ["AI 証明写真", "AI プロフィール写真", "AI 宣材写真", "AIヘッドショット"]
+    },
+    {
+      "id": "ai-interior",
+      "name": "AIインテリア・空間デザイン",
+      "description": "部屋の写真から別スタイルのインテリア案を生成する。",
+      "scores": { "demand": 3, "openness": 3, "regulatoryLightness": 4, "languageMoat": 3, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "一般消費者の模様替え需要より、不動産・リフォーム・ホームステージングのB2B需要が強い。",
+        "competition": "海外ツールは多いが、日本の間取り（和室・LDK・狭小住宅）や家具サイズへの最適化は手薄。",
+        "language": "画像中心だが、日本の住宅事情の理解が差別化になる。",
+        "wtp": "B2Cは低め。不動産会社・工務店向けのバーチャルステージングは1枚数百〜数千円で成立しやすい。"
+      },
+      "knownCompetitors": ["海外AIインテリアツール各種", "不動産向けバーチャルホームステージング事業者"],
+      "regulations": ["real-estate", "copyright-ai", "appi", "tokushoho", "keihyo"],
+      "channels": ["short-video", "seo", "cold-outreach", "partnership", "marketplace"],
+      "pricing": { "b2c": "月額 980〜1,980円", "b2b": "月額 9,800〜29,800円（不動産・工務店）", "note": "B2Bは画像枚数課金も相性が良い。" },
+      "localizationAngles": [
+        "賃貸ポータル掲載用の『空室バーチャルステージング』を不動産仲介会社向けに",
+        "リフォーム・工務店の提案書用に、和室→洋室などの変換前後を即作成",
+        "6畳・8畳など日本の部屋サイズと国内家具ブランドのサイズ感に合わせた提案"
+      ],
+      "pitfalls": [
+        "不動産広告で実在しない家具・眺望を見せる場合は『イメージ』表示が必要（表示規約）",
+        "B2Cは単価が低く解約も早い"
+      ],
+      "validation": [
+        "地域の不動産会社10社に、空室写真3枚を無料で加工して見せ、有料化の意向を聞く"
+      ],
+      "keywordsEn": ["interior", "room design", "home staging", "virtual staging", "architecture", "renovation"],
+      "keywordsJa": ["AI インテリア", "バーチャルステージング", "AI 部屋 デザイン"]
+    },
+    {
+      "id": "chat-client",
+      "name": "AIチャットクライアント・業務AIワークスペース",
+      "description": "複数のLLMをまとめて使えるUI、チーム向けのAI利用環境。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 4, "languageMoat": 2, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "企業のAI活用は進んでいるが、情報漏えい懸念からChatGPT等の直接利用を制限する会社も多く、『管理機能付きの社内AI環境』の需要がある。",
+        "competition": "国内でも法人向け生成AI環境の提供企業が多数。大手クラウドの標準機能とも競合する。",
+        "language": "UI自体は言語障壁が低いが、日本企業の稟議・セキュリティチェックシート対応・請求書払いは国内個人の強みになり得る。",
+        "wtp": "個人は月額数百〜千円台、法人は1ユーザー月額1,000〜3,000円が目安。"
+      },
+      "knownCompetitors": ["ChatGPT Team/Enterprise", "Microsoft Copilot", "国内の法人向け生成AI環境サービス多数"],
+      "regulations": ["appi-overseas-ai", "appi", "tokushoho", "invoice", "ai-governance"],
+      "channels": ["x-build-in-public", "seo", "hacker-news", "partnership", "cold-outreach"],
+      "pricing": { "b2c": "買い切り 3,000〜9,800円 または 月額 980円", "b2b": "1ユーザー月額 1,000〜3,000円", "note": "TypingMindのような買い切り＋チーム版サブスクの二段構えは日本でも有効。" },
+      "localizationAngles": [
+        "中小企業向け『社内ルール付きAI環境』：入力NGワード検知・利用ログ・部署別上限",
+        "自治体・学校向けの利用ガイドライン同梱パッケージ",
+        "日本語プロンプトテンプレート集（議事録・稟議書・お詫び文・日報）を同梱"
+      ],
+      "pitfalls": [
+        "モデル提供元の機能追加で差別化が消えやすい",
+        "法人営業ではセキュリティチェックシート対応が必須になる"
+      ],
+      "validation": [
+        "社内でChatGPT利用が禁止・制限されている会社員10人にヒアリングし、困りごとと決裁者を特定する"
+      ],
+      "keywordsEn": ["chatgpt ui", "chat client", "llm client", "gpt wrapper", "ai workspace", "byok", "mac app"],
+      "keywordsJa": ["法人向け 生成AI 環境", "ChatGPT 社内利用 ツール"]
+    },
+    {
+      "id": "support-chatbot",
+      "name": "AIチャットボット（自社データ学習・CS自動化）",
+      "description": "Webサイトや社内文書を読み込ませて顧客対応を自動化する。",
+      "scores": { "demand": 5, "openness": 2, "regulatoryLightness": 4, "languageMoat": 4, "wtp": 4, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "人手不足で問い合わせ対応の自動化ニーズは非常に強い。中小企業・自治体・EC・クリニックなど裾野が広い。",
+        "competition": "国内に既存チャットボット企業が多く、生成AI対応も進んでいる。ただし中小向けの『すぐ使える低価格品』は余地がある。",
+        "language": "日本語の敬語・言い回し、LINE連携、日本のECカート連携が参入障壁になり、国内個人に有利。",
+        "wtp": "法人は月額1〜5万円でも導入実績がある。小規模店舗は月額3,000〜9,800円帯。"
+      },
+      "knownCompetitors": ["PKSHA", "KARAKURI", "Helpfeel", "チャットプラス", "各種LINE連携ボット"],
+      "regulations": ["appi", "appi-overseas-ai", "external-transmission", "tokushoho", "invoice", "ai-governance", "keihyo"],
+      "channels": ["seo", "free-tools", "partnership", "cold-outreach", "marketplace"],
+      "pricing": { "b2c": "—", "b2b": "月額 4,980〜29,800円（回答数・ページ数で段階）", "note": "請求書払い・年払い割引・導入支援（有償）をセットにすると日本企業に売りやすい。" },
+      "localizationAngles": [
+        "LINE公式アカウントにそのまま繋がるAI応答（日本の顧客接点はLINE中心）",
+        "クリニック・美容院・士業事務所など業種別テンプレート（予約・料金・アクセスの定型FAQ）",
+        "自治体・学校向けに『回答根拠の出典表示＋誤答時の有人エスカレーション』を標準装備"
+      ],
+      "pitfalls": [
+        "誤回答（ハルシネーション）時の責任分界を規約で明確にする",
+        "SiteGPTの事例のように初月の解約が多い。導入支援で定着させる"
+      ],
+      "validation": [
+        "近所の店舗・クリニック5件のサイトを読み込ませたデモを作って見せ、月額いくらなら使うか聞く"
+      ],
+      "keywordsEn": ["chatbot", "customer support", "support bot", "train on your data", "knowledge base", "helpdesk", "ai agent for website"],
+      "keywordsJa": ["AI チャットボット 中小企業", "生成AI 問い合わせ 自動化", "LINE AI 自動応答"]
+    },
+    {
+      "id": "document-ai",
+      "name": "文書・PDF・帳票のAI処理",
+      "description": "PDFとの対話、帳票の読み取り、銀行明細の変換などのドキュメント処理。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 3, "languageMoat": 5, "wtp": 4, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "日本は紙・PDF・FAX文化が根強く、請求書・通帳・名刺・申込書のデータ化需要が大きい。",
+        "competition": "AI-OCRや会計ソフトの自動取込が普及している一方、業界別の細かい帳票（不動産の重要事項説明書、医療の紹介状、建設の見積書等）は手薄。",
+        "language": "縦書き・和暦・手書き・日本独自の帳票レイアウトは海外勢に難しく、国内個人の強みになる。",
+        "wtp": "業務時間削減に直結するためB2Bの支払意欲は高い。士業・経理代行は月額数千〜数万円が成立する。"
+      },
+      "knownCompetitors": ["freee・マネーフォワード等の会計ソフトの自動取込", "各社AI-OCRサービス"],
+      "regulations": ["appi", "appi-overseas-ai", "zeirishi52", "tokushoho", "invoice", "ai-governance"],
+      "channels": ["free-tools", "seo", "partnership", "marketplace", "cold-outreach"],
+      "pricing": { "b2c": "従量 500〜1,980円（数十ページ）", "b2b": "月額 2,980〜19,800円（ページ数）", "note": "Bank Statement Converterのような『ページ数課金』は日本の経理担当者にも理解されやすい。" },
+      "localizationAngles": [
+        "通帳・ネットバンクの明細PDFを会計ソフト取込用CSV（freee/マネーフォワード/弥生形式）に変換",
+        "和暦・縦書き・手書きの申込書を構造化データにする業界特化ツール",
+        "税理士事務所・社労士事務所向けに顧客から届く資料を自動仕分け"
+      ],
+      "pitfalls": [
+        "金融・医療情報など機微情報を扱うため、保存しない設計（処理後即削除）が売りになる",
+        "税務判断に踏み込むと税理士法の論点が出る"
+      ],
+      "validation": [
+        "税理士・経理代行事務所5件に、実際の明細PDFで無料変換を試してもらい精度と価格感を聞く"
+      ],
+      "keywordsEn": ["pdf", "document", "ocr", "bank statement", "invoice", "receipt", "contract", "extract data", "chat with pdf"],
+      "keywordsJa": ["通帳 PDF CSV 変換", "AI-OCR 帳票", "PDF 要約 AI"]
+    },
+    {
+      "id": "spreadsheet-ai",
+      "name": "表計算・データ分析AI",
+      "description": "Excel/スプレッドシートの関数生成、データ分析、レポート自動化。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 5, "languageMoat": 3, "wtp": 3, "soloFeasibility": 5 },
+      "notes": {
+        "demand": "日本の事務職はExcel依存度が高く、関数・VBA・GAS作成の需要は大きい。",
+        "competition": "Microsoft Copilot・Gemini in Sheets と競合するが、利用できない中小企業・個人は多い。",
+        "language": "日本語での『こういう表にしたい』の指示理解、和暦・全角半角・祝日計算など日本固有の処理で差別化。",
+        "wtp": "個人は月額500〜1,500円、法人チームは月額数千円。"
+      },
+      "knownCompetitors": ["Microsoft Copilot", "Gemini in Google Sheets"],
+      "regulations": ["appi-overseas-ai", "tokushoho", "ai-governance"],
+      "channels": ["seo", "free-tools", "youtube", "x-build-in-public"],
+      "pricing": { "b2c": "月額 680〜1,480円", "b2b": "チーム 月額 4,980円〜", "note": "Formula Botの$6.99/月は日本でも1,000円前後に相当し受け入れられやすい。" },
+      "localizationAngles": [
+        "Excel関数・VBA・GAS（Google Apps Script）を日本語で生成し、解説付きで返す",
+        "和暦変換・祝日判定・全角半角統一・住所正規化など日本の事務あるある処理のテンプレ",
+        "勤怠・シフト表・請求書台帳など日本の定番帳票の自動作成"
+      ],
+      "pitfalls": [
+        "汎用AIの性能向上で単機能ツールは陳腐化しやすい。テンプレ・解説・学習コンテンツを厚くする"
+      ],
+      "validation": [
+        "『Excel 関数 〇〇 やり方』系キーワードで無料生成ツールを公開し、1か月の検索流入と登録率を見る"
+      ],
+      "keywordsEn": ["excel", "spreadsheet", "google sheets", "formula", "sql", "data analysis", "csv"],
+      "keywordsJa": ["Excel 関数 AI 生成", "GAS AI 生成", "スプレッドシート AI"]
+    },
+    {
+      "id": "voice-notes",
+      "name": "音声メモ・文字起こし・議事録",
+      "description": "話した内容を文字起こしし、要約・整形する。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 4, "languageMoat": 4, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "会議の議事録、営業日報、医療・介護の記録、取材・インタビューの文字起こしなど業務需要が大きい。",
+        "competition": "国内でも議事録AIが多数。汎用の議事録は競争が激しいため職種特化が必要。",
+        "language": "日本語の話し言葉（フィラー、方言、敬語）の整形品質と、日本の書式（議事録・日報・介護記録）への変換が参入障壁。",
+        "wtp": "個人は月額1,000〜2,000円、法人は1ユーザー月額1,500〜3,000円が目安。"
+      },
+      "knownCompetitors": ["Notta", "Rimo Voice", "スマート書記", "AmiVoice系サービス"],
+      "regulations": ["appi", "appi-overseas-ai", "portrait-rights", "tokushoho", "ai-governance"],
+      "channels": ["seo", "app-store", "x-build-in-public", "youtube", "partnership"],
+      "pricing": { "b2c": "月額 980〜1,980円 または 買い切り", "b2b": "1ユーザー月額 1,500〜3,000円", "note": "MacWhisper型の買い切りデスクトップアプリは日本のMacユーザーにも売れやすい。" },
+      "localizationAngles": [
+        "介護・看護記録、営業日報、不動産の内見メモなど『職種別フォーマット』への自動整形",
+        "オンライン商談の内容をCRM（kintone・Salesforce）に自動入力",
+        "ローカル処理（端末内で文字起こし）を売りにした機密対応版"
+      ],
+      "pitfalls": [
+        "録音時の相手への告知・同意の設計",
+        "汎用議事録市場は大手が強い。業界を絞る"
+      ],
+      "validation": [
+        "介護・営業など特定職種の5人に1週間使ってもらい、手入力時間の削減を計測する"
+      ],
+      "keywordsEn": ["transcription", "voice notes", "dictation", "whisper", "speech to text", "meeting notes", "audio"],
+      "keywordsJa": ["AI 議事録", "文字起こし アプリ", "音声入力 日報"]
+    },
+    {
+      "id": "short-video",
+      "name": "動画編集・ショート動画生成",
+      "description": "字幕付け、切り抜き、ショート動画の自動生成。",
+      "scores": { "demand": 5, "openness": 2, "regulatoryLightness": 3, "languageMoat": 4, "wtp": 3, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "TikTok・YouTubeショート・Instagramリールの運用需要は日本でも大きく、切り抜き・テロップ文化が特に強い。",
+        "competition": "海外ツールに加え、国内でもテロップ自動化ツールが普及している。",
+        "language": "日本語テロップの改行位置・フォント・装飾（いわゆる『テロップ芸』）や、日本語音声の高精度な認識が差別化要因。",
+        "wtp": "クリエイター個人は月額1,000〜3,000円、企業のSNS運用は月額1〜3万円。"
+      },
+      "knownCompetitors": ["Vrew", "CapCut", "各種切り抜き自動化ツール"],
+      "regulations": ["copyright-ai", "portrait-rights", "appi-overseas-ai", "tokushoho", "keihyo"],
+      "channels": ["short-video", "youtube", "affiliate", "influencer", "x-build-in-public"],
+      "pricing": { "b2c": "月額 1,480〜2,980円", "b2b": "月額 9,800〜29,800円（運用代行会社向け）", "note": "動画処理は原価が重いので、分数・本数で上限を設ける。" },
+      "localizationAngles": [
+        "日本のバラエティ風テロップ（色・縁取り・効果音）を自動で付ける",
+        "長尺のYouTube・ウェビナーから日本語の『切り抜き』を自動作成",
+        "店舗・不動産・採用向けの縦型動画を写真と原稿から自動生成"
+      ],
+      "pitfalls": [
+        "他人の動画を無断で切り抜く用途への悪用（著作権）を規約で禁止する",
+        "GPU・処理コストが高く、価格設計を誤ると赤字"
+      ],
+      "validation": [
+        "TikTok運用代行会社3社に、既存案件の素材で無料デモを作り、外注費との比較で価格を聞く"
+      ],
+      "keywordsEn": ["video", "captions", "subtitles", "shorts", "tiktok", "reels", "clips", "faceless", "ugc"],
+      "keywordsJa": ["テロップ 自動 AI", "切り抜き 動画 AI", "ショート動画 自動生成"]
+    },
+    {
+      "id": "seo-content",
+      "name": "SEO・コンテンツ制作の自動化",
+      "description": "記事作成、キーワード調査、内部リンクなどSEO業務の自動化。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 4, "languageMoat": 4, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "中小企業・オウンドメディア・アフィリエイターの需要は大きい。生成AI検索（AIO/GEO）対策への関心も高まっている。",
+        "competition": "国内でもAIライティングツールは多数。汎用記事生成は飽和気味。",
+        "language": "日本語の自然な文章・日本の検索事情（Yahoo!はGoogleエンジン、知恵袋・ブログ文化）への最適化が必要。",
+        "wtp": "個人は月額2,000〜5,000円、企業は月額1〜5万円。"
+      },
+      "knownCompetitors": ["Catchy", "Transcope", "SAKUBUN", "各種AIライティングツール"],
+      "regulations": ["copyright-ai", "keihyo", "appi-overseas-ai", "tokushoho"],
+      "channels": ["seo", "x-build-in-public", "affiliate", "free-tools", "youtube"],
+      "pricing": { "b2c": "月額 2,980〜4,980円", "b2b": "月額 9,800〜49,800円", "note": "記事本数よりも『検索順位・流入の改善』という成果寄りの訴求が効く。" },
+      "localizationAngles": [
+        "地域ビジネス（整骨院・工務店・士業）のローカルSEO記事とGoogleビジネスプロフィール投稿の自動化",
+        "生成AI検索に引用されやすい構造化コンテンツ（FAQ・比較表）を作るGEO対策",
+        "Outrankのような『サイト間の相互リンク網』は日本ではスパム判定リスクがあるため、一次情報取材機能で差別化"
+      ],
+      "pitfalls": [
+        "AI量産記事は検索エンジンに評価されにくく、品質訴求が必要",
+        "成果保証的な表現（必ず1位）は景表法リスク"
+      ],
+      "validation": [
+        "地域の店舗3社のブログ運用を1か月代行し、作業を自動化できる範囲と価格を見極める"
+      ],
+      "keywordsEn": ["seo", "blog", "content", "article", "backlink", "keyword", "geo", "programmatic"],
+      "keywordsJa": ["AI ライティング ツール", "SEO 記事 自動生成", "GEO 対策"]
+    },
+    {
+      "id": "social-media",
+      "name": "SNS運用・個人ブランディング",
+      "description": "SNS投稿の作成・予約・分析、個人ブランディング支援。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 4, "languageMoat": 4, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "日本はX・Instagram・LINEの利用率が高く、店舗・個人事業主・フリーランスのSNS運用ニーズが大きい。LinkedInは小さい。",
+        "competition": "予約投稿ツールは国内にもあるが、AIでの投稿案作成と運用改善まで一気通貫のものは余地がある。",
+        "language": "日本語のSNS特有の文体（改行・絵文字・ハッシュタグの使い方）と、Instagram・LINE中心の運用が海外ツールの弱点。",
+        "wtp": "個人は月額980〜2,980円、運用代行会社は月額1万円以上。"
+      },
+      "knownCompetitors": ["SocialDog", "各種SNS予約投稿ツール"],
+      "regulations": ["keihyo", "copyright-ai", "appi-overseas-ai", "tokushoho"],
+      "channels": ["x-build-in-public", "influencer", "affiliate", "short-video", "community"],
+      "pricing": { "b2c": "月額 980〜2,980円", "b2b": "月額 9,800円〜（複数アカウント）", "note": "Kleoの単一プラン$99/月は日本の個人向けには高い。法人・士業・コンサル向けにすれば成立し得る。" },
+      "localizationAngles": [
+        "LinkedInではなくX・Instagram・note向けの『経営者・士業の発信代行AI』",
+        "店舗向けにInstagram投稿・Googleビジネスプロフィール・LINE配信を1回の入力で作る",
+        "ステマ規制に対応した『PR表記チェック』を内蔵"
+      ],
+      "pitfalls": [
+        "各SNSのAPI仕様変更・料金改定に左右される（特にX API）",
+        "インフルエンサー起用時の広告表記"
+      ],
+      "validation": [
+        "地域の飲食店・美容室5店に1か月分の投稿案を無料で作り、継続意向と価格を聞く"
+      ],
+      "keywordsEn": ["linkedin", "twitter", "social media", "scheduler", "personal brand", "instagram", "content calendar", "posts"],
+      "keywordsJa": ["SNS 運用 AI", "インスタ 投稿 自動作成", "予約投稿 ツール"]
+    },
+    {
+      "id": "lead-gen",
+      "name": "集客・リード獲得の自動化",
+      "description": "見込み客の発見、営業メール・DM作成、問い合わせ獲得の自動化。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 2, "languageMoat": 4, "wtp": 4, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "中小企業の新規開拓ニーズは強いが、日本の営業手法（紹介・フォーム営業・電話）は英語圏と違う。",
+        "competition": "フォーム営業代行・営業リスト販売など国内事業者が多い。",
+        "language": "日本語の丁寧な営業文面、業界慣習の理解が必要で海外ツールが入りにくい。",
+        "wtp": "成果に直結するため法人の支払意欲は高い（月額1〜5万円）。"
+      },
+      "knownCompetitors": ["フォーム営業代行サービス各社", "営業リスト提供サービス各社"],
+      "regulations": ["spam-mail", "appi", "keihyo", "tokushoho", "invoice"],
+      "channels": ["cold-outreach", "partnership", "seo", "x-build-in-public"],
+      "pricing": { "b2c": "—", "b2b": "月額 9,800〜49,800円", "note": "従量（送信数・リスト数）＋月額の組み合わせが一般的。" },
+      "localizationAngles": [
+        "Redditの代わりに、X・知恵袋・業界掲示板で『困っている人』の投稿を見つけて返信案を作る",
+        "入札・公募情報（官公需）や補助金採択企業リストから見込み客を抽出",
+        "問い合わせフォーム営業の文面パーソナライズ（送信は人が確認）"
+      ],
+      "pitfalls": [
+        "特定電子メール法・各SNSの規約違反（自動投稿・スパム）に注意",
+        "迷惑行為と見なされるとブランド毀損が大きい"
+      ],
+      "validation": [
+        "自分の別事業か知人の会社で、手作業で1か月リード獲得を回し、成果が出る手順を確立してから自動化する"
+      ],
+      "keywordsEn": ["leads", "lead generation", "cold email", "outreach", "sales", "prospecting", "reddit marketing", "sdr"],
+      "keywordsJa": ["営業 リスト AI", "フォーム営業 自動化", "見込み客 発掘 AI"]
+    },
+    {
+      "id": "consumer-lifestyle",
+      "name": "消費者向けAIアプリ（恋愛・美容・自己改善）",
+      "description": "恋愛・外見・会話・自己改善などをAIで支援するスマホアプリ。",
+      "scores": { "demand": 3, "openness": 3, "regulatoryLightness": 3, "languageMoat": 3, "wtp": 3, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "若年層のアプリ課金は活発だが、外見評価系は文化的な受け止めが英語圏と異なる。",
+        "competition": "海外アプリがローカライズして参入してくる。広告・インフルエンサー投資が勝負を分ける。",
+        "language": "日本語の会話ニュアンス（マッチングアプリのメッセージ等）は海外勢に難しい。",
+        "wtp": "週額・月額サブスク（月額1,000〜2,000円）。トライアル→課金の設計が鍵。"
+      },
+      "knownCompetitors": ["海外のAI恋愛・外見分析アプリ", "国内マッチングアプリの付帯機能"],
+      "regulations": ["minors", "appi", "appi-overseas-ai", "health-claims", "keihyo", "tokushoho", "smartphone-act"],
+      "channels": ["short-video", "influencer", "app-store", "viral-loop"],
+      "pricing": { "b2c": "週額 480円 / 月額 1,200〜1,980円", "b2b": "—", "note": "海外のヒットアプリは週額課金が多いが、日本では月額・年額の方が受け入れられやすい傾向。" },
+      "localizationAngles": [
+        "マッチングアプリのメッセージ添削（日本の恋愛コミュニケーション文化に合わせる）",
+        "外見を点数化するのではなく、髪型・メイク・服装の『似合わせ提案』として設計",
+        "就活・面接・会話練習など、自己改善でも社会的に受け入れられやすい用途へ転用"
+      ],
+      "pitfalls": [
+        "外見の点数化は炎上・未成年への悪影響リスクが高い",
+        "TikTok依存の集客は再現性が低く、広告費が膨らむ"
+      ],
+      "validation": [
+        "TikTokで機能デモ動画を10本出し、プロフィール遷移率と事前登録数を見る"
+      ],
+      "keywordsEn": ["dating", "rizz", "looksmax", "glow up", "beauty", "self improvement", "consumer app", "ios app"],
+      "keywordsJa": ["マッチングアプリ メッセージ AI", "AI 似合う髪型", "AI メイク 提案"]
+    },
+    {
+      "id": "health-nutrition",
+      "name": "健康・食事・フィットネスAI",
+      "description": "写真からのカロリー計算、運動・睡眠のコーチングなど。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 2, "languageMoat": 4, "wtp": 3, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "ダイエット・健康管理アプリの需要は大きく、写真で食事記録する文化も定着している。",
+        "competition": "国内には写真解析付きの定番食事管理アプリが既に強い。",
+        "language": "日本食（定食・弁当・コンビニ商品・外食チェーン）の認識精度と栄養データベースが参入障壁。",
+        "wtp": "月額480〜980円帯が中心。国内定番アプリと同水準以下が求められる。"
+      },
+      "knownCompetitors": ["あすけん", "カロミル"],
+      "regulations": ["medical", "health-claims", "appi", "appi-overseas-ai", "minors", "tokushoho", "smartphone-act"],
+      "channels": ["app-store", "short-video", "influencer", "seo"],
+      "pricing": { "b2c": "月額 480〜980円 / 年額 4,800〜7,800円", "b2b": "健康経営向け 1人月額 300〜500円", "note": "Cal AIの価格帯は日本ではやや高く感じられる。年額プランの訴求が効く。" },
+      "localizationAngles": [
+        "コンビニ・外食チェーンの商品を高精度で認識する『日本食特化』",
+        "健康経営（企業の従業員向け）として法人契約で売る",
+        "減塩・糖質管理など特定ニーズ（高血圧予備群・妊娠中）に絞る（医療的表現は避ける）"
+      ],
+      "pitfalls": [
+        "医療機器該当性・効果表現の規制が最も厳しいカテゴリの一つ",
+        "定番アプリと正面から戦わない"
+      ],
+      "validation": [
+        "特定ニーズの20人に2週間テストしてもらい、継続率（D14）と課金意向を測る"
+      ],
+      "keywordsEn": ["calorie", "nutrition", "diet", "fitness", "workout", "health", "meal", "sleep", "food"],
+      "keywordsJa": ["食事 写真 カロリー アプリ", "AI 食事管理", "健康経営 アプリ"]
+    },
+    {
+      "id": "education-writing",
+      "name": "学習・学術・ライティング支援",
+      "description": "論文・レポート作成支援、学習支援、教員向けツール。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 4, "languageMoat": 5, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "大学生のレポート、社会人の資格学習、英語学習、教員の教材作成など需要は多様。教育熱心な家庭の課金意欲もある。",
+        "competition": "英語学習AIは競合が多いが、日本の資格試験・受験・学習指導要領に沿ったツールは手薄。",
+        "language": "日本の教育制度・資格試験・学習指導要領に沿う必要があり、海外勢が入りにくい。",
+        "wtp": "学生は月額500〜1,500円、保護者・社会人は月額1,000〜3,000円。"
+      },
+      "knownCompetitors": ["スピークバディ", "Speak", "各種AI学習アプリ"],
+      "regulations": ["minors", "appi", "appi-overseas-ai", "copyright-ai", "tokushoho", "keihyo"],
+      "channels": ["seo", "youtube", "short-video", "app-store", "community"],
+      "pricing": { "b2c": "月額 980〜1,980円", "b2b": "学校・塾向け 1ID月額 300〜1,000円", "note": "受験・資格は『合格まで』の期間限定パック（3か月・6か月）が売りやすい。" },
+      "localizationAngles": [
+        "宅建・簿記・FP・ITパスポートなど国家資格の過去問解説AI",
+        "教員の働き方改革：学習指導要領に沿った指導案・プリント・所見文の下書き",
+        "Jenni AI型の学術支援は、日本語論文の参考文献形式（SIST等）・引用ルールに対応"
+      ],
+      "pitfalls": [
+        "不正利用（代筆）の懸念。『学習支援』の設計と教育機関の方針への配慮",
+        "子ども向けは保護者同意と課金設計"
+      ],
+      "validation": [
+        "資格試験1つに絞り、過去問10問の解説を無料公開して登録率を測る"
+      ],
+      "keywordsEn": ["education", "student", "essay", "academic", "research paper", "teacher", "lesson plan", "tutor", "learning", "language learning"],
+      "keywordsJa": ["AI 資格 勉強", "AI レポート 作成 支援", "教員 AI 指導案"]
+    },
+    {
+      "id": "career",
+      "name": "キャリア・履歴書・面接対策",
+      "description": "履歴書・職務経歴書の作成、面接練習、求人応募の支援。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 3, "languageMoat": 5, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "新卒就活のエントリーシート（ES）、転職の職務経歴書、面接対策の需要は大きい。",
+        "competition": "大手転職サービスが無料で提供する機能と競合する。ES特化・業界特化に余地。",
+        "language": "ES・職務経歴書の書式、自己PR・ガクチカなど日本固有の文化が強い参入障壁。",
+        "wtp": "就活生は支払意欲が低めだが、転職者・専門職は数千円を払う。"
+      },
+      "knownCompetitors": ["大手就活・転職サービスの無料AI機能", "ES添削サービス"],
+      "regulations": ["employment-security", "appi", "appi-overseas-ai", "tokushoho", "keihyo"],
+      "channels": ["seo", "short-video", "x-build-in-public", "affiliate"],
+      "pricing": { "b2c": "単発 980〜2,980円 / 月額 980円", "b2b": "キャリアセンター・転職エージェント向け", "note": "Reziの$29/月相当は日本では高い。就活期間限定パックが有効。" },
+      "localizationAngles": [
+        "ES（ガクチカ・自己PR・志望動機）の添削と企業別の書き分け",
+        "職務経歴書を職種別テンプレートで生成（IT・営業・看護・介護など）",
+        "外国人材向けに日本式履歴書・面接マナーを母語で解説（在留外国人は増加中）"
+      ],
+      "pitfalls": [
+        "マッチング・紹介に踏み込むと職業安定法の許可・届出が必要",
+        "就活生の課金は保護者の目もある。誠実な価格設計を"
+      ],
+      "validation": [
+        "大学のキャリアセンターや就活サークルに無料提供し、利用回数と満足度を集める"
+      ],
+      "keywordsEn": ["resume", "cv", "cover letter", "job", "interview", "career", "linkedin profile", "ats"],
+      "keywordsJa": ["ES 添削 AI", "職務経歴書 AI 作成", "面接練習 AI"]
+    },
+    {
+      "id": "app-builder",
+      "name": "AIアプリ・Webサイト生成（ノーコード）",
+      "description": "自然言語の指示でアプリ・サイト・業務ツールを生成する。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 4, "languageMoat": 2, "wtp": 4, "soloFeasibility": 2 },
+      "notes": {
+        "demand": "中小企業の業務アプリ・社内ツール需要は大きく、ノーコードへの関心も高い。",
+        "competition": "海外の大型プレイヤー（資金力大）とモデル提供元自体が競合。汎用品での個人参入は難しい。",
+        "language": "汎用品は言語障壁が低い。日本の業務（kintone文化、Excel帳票、FAX）に寄せると勝機。",
+        "wtp": "法人は月額数千〜数万円を払う。"
+      },
+      "knownCompetitors": ["Base44（Wix）", "Lovable", "Bolt", "kintone等の国内ノーコード"],
+      "regulations": ["appi-overseas-ai", "tokushoho", "invoice", "ai-governance"],
+      "channels": ["x-build-in-public", "youtube", "community", "partnership"],
+      "pricing": { "b2c": "月額 2,000〜3,000円", "b2b": "月額 9,800円〜", "note": "汎用の正面勝負は避け、業界テンプレート＋導入支援で単価を上げる。" },
+      "localizationAngles": [
+        "Excel帳票・紙の申込書を渡すと業務アプリ（予約・在庫・顧客台帳）を作る中小企業特化版",
+        "kintoneアプリ・GASを日本語で生成する『社内ツール職人AI』",
+        "自治体・学校向けの申請フォーム生成"
+      ],
+      "pitfalls": [
+        "汎用生成は大手の値下げ・機能追加で一瞬で陳腐化する",
+        "生成コードの保守・セキュリティ責任"
+      ],
+      "validation": [
+        "中小企業3社の『Excelで回している業務』を1つずつアプリ化する受託から始め、共通部分をプロダクト化する"
+      ],
+      "keywordsEn": ["app builder", "no-code", "nocode", "vibe coding", "website builder", "build apps", "landing page generator"],
+      "keywordsJa": ["AI アプリ 作成 ノーコード", "kintone AI", "GAS 自動生成"]
+    },
+    {
+      "id": "ecommerce",
+      "name": "EC・商品画像・商品説明AI",
+      "description": "商品写真の背景生成、商品説明文、EC運営の自動化。",
+      "scores": { "demand": 4, "openness": 3, "regulatoryLightness": 3, "languageMoat": 4, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "楽天・Yahoo!ショッピング・Amazon・BASE・STORES・メルカリShopsなど個人〜中小EC事業者が多い。",
+        "competition": "画像生成は海外ツールも強いが、日本のモール仕様（楽天の画像ガイドライン等）対応は手薄。",
+        "language": "楽天・Yahoo!の商品ページ文化（長い縦長LP、キャッチコピー）は日本固有。",
+        "wtp": "月額1,000〜5,000円帯。成果（売上）に紐づく訴求が効く。"
+      },
+      "knownCompetitors": ["Photoroom等の海外ツール", "各EC支援SaaS"],
+      "regulations": ["keihyo", "health-claims", "copyright-ai", "tokushoho", "appi-overseas-ai"],
+      "channels": ["marketplace", "seo", "short-video", "partnership", "affiliate"],
+      "pricing": { "b2c": "月額 980〜2,980円", "b2b": "月額 4,980〜19,800円", "note": "BASE・STORES・Shopifyのアプリストア掲載で集客と課金をまとめられる。" },
+      "localizationAngles": [
+        "楽天市場の商品画像ガイドライン（テキスト占有率等）に準拠した画像を自動生成",
+        "メルカリ・ハンドメイド作家向けに、スマホ写真から映える商品写真と説明文を作る",
+        "薬機法・景表法NGワードチェック付きの商品説明文生成（化粧品・健康食品）"
+      ],
+      "pitfalls": [
+        "実物と異なる画像は優良誤認・返品トラブルの原因",
+        "モールの規約変更リスク"
+      ],
+      "validation": [
+        "BASE・メルカリの出品者10人に無料で商品写真を作り、クリック率や売上の変化を聞く"
+      ],
+      "keywordsEn": ["ecommerce", "shopify", "product photo", "product description", "amazon", "etsy", "listing", "store"],
+      "keywordsJa": ["商品画像 AI 生成", "楽天 商品ページ AI", "商品説明文 自動生成"]
+    },
+    {
+      "id": "kids-family",
+      "name": "子ども・家族向けAIコンテンツ",
+      "description": "AI絵本、読み聞かせ、知育など家族向けコンテンツ。",
+      "scores": { "demand": 3, "openness": 4, "regulatoryLightness": 3, "languageMoat": 5, "wtp": 3, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "知育・絵本への支出意欲は高いが、AI生成コンテンツへの抵抗感を持つ保護者もいる。",
+        "competition": "AI絵本サービスは国内でも散見されるがまだ小さい市場。",
+        "language": "日本語の読み聞かせ音声、ひらがな表記、日本の行事・昔話の文化背景が強い参入障壁。",
+        "wtp": "月額500〜1,500円、または紙の絵本印刷で単価を上げる。"
+      },
+      "knownCompetitors": ["国内のAI絵本・オリジナル絵本サービス"],
+      "regulations": ["minors", "appi", "copyright-ai", "portrait-rights", "tokushoho"],
+      "channels": ["short-video", "influencer", "app-store", "newsletter"],
+      "pricing": { "b2c": "月額 680〜1,280円 / 製本 3,000〜5,000円", "b2b": "保育園・幼稚園向け", "note": "海外の小規模事例（年商数十万円規模）もあり、デジタルだけでは単価が低い点に注意。" },
+      "localizationAngles": [
+        "子どもの名前・家族・地元が登場するオリジナル絵本を紙で製本（誕生日・出産祝いギフト需要）",
+        "保育士の負担軽減：おたより・連絡帳文例・季節の工作アイデア",
+        "祖父母の声で読み聞かせ（音声クローンは本人同意前提）"
+      ],
+      "pitfalls": [
+        "子どもの写真・個人情報の扱いは慎重に（保存しない設計）",
+        "デジタル単体は単価が低く、ギフト・物販との組み合わせが必要"
+      ],
+      "validation": [
+        "出産祝い・誕生日ギフトとしてオリジナル絵本をBOOTH・minne・Creemaで先行販売し反応を見る"
+      ],
+      "keywordsEn": ["kids", "children", "bedtime story", "storybook", "parents", "family", "toddler"],
+      "keywordsJa": ["AI 絵本 オリジナル", "名前入り 絵本", "保育士 AI"]
+    },
+    {
+      "id": "games-entertainment",
+      "name": "ゲーム・エンタメ（AIで高速開発）",
+      "description": "AIを使って短期間で作ったゲーム・エンタメで広告やスポンサー収益を得る。",
+      "scores": { "demand": 3, "openness": 3, "regulatoryLightness": 3, "languageMoat": 2, "wtp": 2, "soloFeasibility": 4 },
+      "notes": {
+        "demand": "日本はゲーム市場が大きいが、ブラウザゲームのスポンサー広告モデルは知名度（フォロワー）依存。",
+        "competition": "ゲームは常に供給過多。話題性で一時的に伸びても持続しにくい。",
+        "language": "言語障壁は低い。日本のネットミーム・地域ネタで差別化は可能。",
+        "wtp": "ユーザー課金は低め。企業スポンサー・広告枠の販売が中心。"
+      },
+      "knownCompetitors": ["インディーゲーム全般"],
+      "regulations": ["keihyo", "prepaid", "minors", "tokushoho", "copyright-ai"],
+      "channels": ["x-build-in-public", "short-video", "viral-loop", "pr"],
+      "pricing": { "b2c": "アイテム 300〜3,000円", "b2b": "スポンサー枠 月額数万円〜", "note": "fly.pieter.comの収益は作者の巨大フォロワーが前提。再現性は低い。" },
+      "localizationAngles": [
+        "地域・観光とのタイアップ（ご当地ブラウザゲームで自治体・地元企業がスポンサー）",
+        "企業の採用・PR向けブランデッドゲームの受託"
+      ],
+      "pitfalls": [
+        "一過性のバズで終わりやすい",
+        "ガチャ・前払いアイテムは資金決済法・景表法（コンプガチャ規制）に注意"
+      ],
+      "validation": [
+        "1週間で作ったゲームをXで公開し、プレイ数とスポンサー問い合わせの有無を見る"
+      ],
+      "keywordsEn": ["game", "multiplayer", "browser game", "vibe coded game", "sponsor", "entertainment"],
+      "keywordsJa": ["ブラウザゲーム 個人開発", "AI ゲーム 開発"]
+    },
+    {
+      "id": "media-newsletter",
+      "name": "AIメディア・ニュースレター",
+      "description": "AIの最新情報を届けるメディア。広告・スポンサー・有料会員で収益化。",
+      "scores": { "demand": 4, "openness": 2, "regulatoryLightness": 4, "languageMoat": 5, "wtp": 2, "soloFeasibility": 5 },
+      "notes": {
+        "demand": "日本語でAIの一次情報をわかりやすく届けるメディアの需要は大きい。",
+        "competition": "AI系のX発信者・note・YouTubeが非常に多い。差別化は『業界特化』か『実践の深さ』。",
+        "language": "海外情報の翻訳・解説自体が日本語の付加価値になる。",
+        "wtp": "読者課金は低め。スポンサー・法人研修・コンサルへの送客で収益化するのが現実的。"
+      },
+      "knownCompetitors": ["AI系の日本語ニュースレター・note・YouTube多数"],
+      "regulations": ["keihyo", "spam-mail", "copyright-ai", "tokushoho"],
+      "channels": ["newsletter", "x-build-in-public", "seo", "youtube"],
+      "pricing": { "b2c": "有料会員 月額 500〜1,000円", "b2b": "スポンサー枠 1回 数万円〜 / 法人研修", "note": "広告だけでなく法人研修・導入支援への送客で収益化する設計が日本では強い。" },
+      "localizationAngles": [
+        "業界特化（建設・医療・士業・自治体）のAI活用ニュースレター",
+        "海外の個人AI起業事例を日本語で解説するメディア（このツールの出力をそのままコンテンツ化できる）",
+        "読者向けの有料勉強会・テンプレ販売で収益化"
+      ],
+      "pitfalls": [
+        "海外記事の翻訳転載は著作権侵害。要約・引用ルールを守り、一次情報を足す",
+        "スポンサー記事は広告表記が必須"
+      ],
+      "validation": [
+        "noteとXで週1回の業界特化AIニュースを8週続け、購読者数と問い合わせ数を見る"
+      ],
+      "keywordsEn": ["newsletter", "media", "substack", "beehiiv", "ai news", "subscribers"],
+      "keywordsJa": ["AI ニュースレター 日本語", "AI 活用事例 メディア"]
+    },
+    {
+      "id": "ai-agency",
+      "name": "AI導入支援・自動化代行（受託）",
+      "description": "中小企業の業務をAIで自動化する受託・代行サービス。",
+      "scores": { "demand": 5, "openness": 4, "regulatoryLightness": 4, "languageMoat": 5, "wtp": 4, "soloFeasibility": 5 },
+      "notes": {
+        "demand": "日本の中小企業はAI導入を進めたいが社内に人材がいない。IT導入補助金など支援策もある。",
+        "competition": "コンサル・SIer・フリーランスが増えているが、地域・業界特化の担い手はまだ足りない。",
+        "language": "対面・日本語での業務理解と信頼関係が必要で、海外勢は入りにくい。",
+        "wtp": "初期構築10〜50万円＋月額保守1〜5万円が成立しやすい。"
+      },
+      "knownCompetitors": ["地域のITベンダー・コンサル", "フリーランスのAI導入支援"],
+      "regulations": ["appi", "appi-overseas-ai", "invoice", "freelance-act", "ai-governance", "kaigyo"],
+      "channels": ["cold-outreach", "partnership", "community", "x-build-in-public", "seo"],
+      "pricing": { "b2c": "—", "b2b": "初期 10〜50万円 ＋ 月額 1〜5万円", "note": "受託で業務を学び、繰り返し出てくる処理をSaaS化するのが個人の王道ルート。" },
+      "localizationAngles": [
+        "業界を1つに絞った『〇〇業のAI化パッケージ』（例：工務店の見積・日報、歯科の予約・問診）",
+        "商工会議所・地域金融機関と組んだAI導入セミナーからの受注",
+        "補助金・助成金の対象になりうる形で提案（制度の最新要件は要確認）"
+      ],
+      "pitfalls": [
+        "受託は労働集約になりやすい。テンプレート化して横展開する前提で設計する",
+        "成果物の責任範囲・保守範囲を契約で明確に"
+      ],
+      "validation": [
+        "知人の会社1社で無料（または実費）で1業務を自動化し、削減時間を事例化して2社目に売る"
+      ],
+      "keywordsEn": ["agency", "automation agency", "consulting", "done for you", "workflow automation", "n8n", "zapier", "make.com"],
+      "keywordsJa": ["AI 導入支援 中小企業", "業務自動化 代行", "生成AI 研修"]
+    },
+    {
+      "id": "voice-agent",
+      "name": "電話・音声AIエージェント",
+      "description": "店舗やクリニックの電話応対・予約受付をAIが代行する。",
+      "scores": { "demand": 5, "openness": 3, "regulatoryLightness": 3, "languageMoat": 5, "wtp": 4, "soloFeasibility": 3 },
+      "notes": {
+        "demand": "日本は電話予約文化が根強く、飲食店・美容室・クリニック・工務店の『電話に出られない』問題は深刻。",
+        "competition": "国内でもAI電話サービスが増加中だが、小規模店舗向けの安価で簡単なものはまだ少ない。",
+        "language": "日本語の電話応対（敬語・聞き返し・固有名詞）の品質が最大の参入障壁。",
+        "wtp": "受付スタッフ人件費との比較で月額1〜3万円が成立しやすい。"
+      },
+      "knownCompetitors": ["国内のAI電話応対サービス各社"],
+      "regulations": ["appi", "appi-overseas-ai", "telecom-notification", "tokushoho", "invoice", "ai-governance"],
+      "channels": ["cold-outreach", "partnership", "seo", "marketplace"],
+      "pricing": { "b2c": "—", "b2b": "月額 9,800〜29,800円（通話分数）", "note": "海外事例の買い切り（€99）は日本では信頼性の面で逆効果になりうる。月額＋導入設定費が無難。" },
+      "localizationAngles": [
+        "飲食店の予約電話をAIが受け、予約台帳（紙・Googleカレンダー・予約システム）に登録",
+        "クリニックの営業時間外の電話を受けて用件を要約しLINEで通知",
+        "工務店・設備業者の『現場で出られない電話』の一次受付"
+      ],
+      "pitfalls": [
+        "通話音声の録音・保存についての告知と個人情報管理",
+        "誤った予約登録のトラブル時の責任範囲"
+      ],
+      "validation": [
+        "近所の飲食店・美容室3店で、営業時間外の電話だけをAIで受けるテストを2週間行う"
+      ],
+      "keywordsEn": ["receptionist", "phone", "voice agent", "calls", "voice ai", "answering service", "appointment booking"],
+      "keywordsJa": ["AI 電話 応対", "電話 自動応答 AI 予約", "AI 受付 クリニック"]
+    },
+    {
+      "id": "content-summary",
+      "name": "要約・情報整理（ブラウザ拡張など）",
+      "description": "動画・記事・ニュースの要約、情報収集の効率化。",
+      "scores": { "demand": 3, "openness": 2, "regulatoryLightness": 4, "languageMoat": 3, "wtp": 2, "soloFeasibility": 5 },
+      "notes": {
+        "demand": "YouTube・記事の要約需要はあるが、ブラウザやOS標準の要約機能に吸収されつつある。",
+        "competition": "無料の要約機能が増え、単機能の課金は難しくなっている。",
+        "language": "日本語動画の要約精度は差別化になり得るが、決定打になりにくい。",
+        "wtp": "個人の支払意欲は低め（月額500円前後）。"
+      },
+      "knownCompetitors": ["ブラウザ・OS標準のAI要約", "各種要約拡張機能"],
+      "regulations": ["copyright-ai", "appi-overseas-ai", "tokushoho"],
+      "channels": ["seo", "marketplace", "free-tools", "x-build-in-public"],
+      "pricing": { "b2c": "月額 480〜980円", "b2b": "業界ニュースの要約配信 月額数千円〜", "note": "汎用要約より、特定業界の情報収集（法改正・入札・特許）に絞ると法人課金が狙える。" },
+      "localizationAngles": [
+        "官公庁の発表・法改正・入札情報を業界別に要約して配信",
+        "日本語のセミナー動画・ウェビナーから社内共有用の要約資料を作る"
+      ],
+      "pitfalls": [
+        "プラットフォーム標準機能に置き換えられやすい"
+      ],
+      "validation": [
+        "業界を1つ選び、要約配信を4週間無料で続けて継続希望率を測る"
+      ],
+      "keywordsEn": ["summary", "summarize", "chrome extension", "youtube summary", "reader", "digest"],
+      "keywordsJa": ["YouTube 要約 AI", "業界ニュース 要約"]
+    }
+  ]
+}

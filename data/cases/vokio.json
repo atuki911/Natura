@@ -1,0 +1,76 @@
+{
+  "id": "vokio",
+  "name": "Vokio",
+  "url": "https://www.indiehackers.com/post/i-built-an-ai-voice-agent-for-local-businesses-that-answers-calls-24-7-99-one-time-no-subscription-60a825cae4",
+  "tagline": "地域の店舗の電話に24時間AIが応答。スペインの個人開発者による初期段階の事例",
+  "founders": [
+    {
+      "name": "非公開（スペインの個人開発者）",
+      "country": "スペイン"
+    }
+  ],
+  "basedIn": "スペイン",
+  "teamSize": 1,
+  "teamNote": "ソロ",
+  "launched": "2025-06",
+  "status": "active",
+  "category": "voice-agent",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "小さな店舗は営業時間外・昼休み・週末の電話の30〜40%を取りこぼしている（開発者の主張）。受付スタッフの雇用は月€2,000〜4,000かかる。",
+  "solution": "飲食店・歯科・理容室などの電話にAI音声エージェントが応答し、予約や用件を受け付ける。",
+  "target": "地域の小規模店舗",
+  "pricing": {
+    "type": "one-time",
+    "plans": [
+      {
+        "name": "買い切り",
+        "usd": 105,
+        "period": "once"
+      }
+    ],
+    "note": "€99の買い切り（記事時点）。"
+  },
+  "revenue": [],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "音声AI",
+    "電話API"
+  ],
+  "channels": [
+    "cold-outreach"
+  ],
+  "growthTactics": [],
+  "lessons": [
+    "初期段階のため売上は未公表。カテゴリの方向性を示す参考事例"
+  ],
+  "risks": [
+    "通話原価が継続的にかかるのに買い切り価格は持続しにくい"
+  ],
+  "japan": {
+    "localAngle": "日本の電話予約文化に合わせ、飲食店・クリニック・工務店の電話一次受付を月額制で提供。",
+    "notes": [
+      "売上未公表の初期事例。需要の兆しとして扱う。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "I built an AI voice agent for local businesses that answers calls 24/7 (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/i-built-an-ai-voice-agent-for-local-businesses-that-answers-calls-24-7-99-one-time-no-subscription-60a825cae4",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "初期段階",
+    "店舗向け",
+    "音声"
+  ]
+}

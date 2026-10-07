@@ -1,0 +1,90 @@
+{
+  "id": "kleo",
+  "name": "Kleo",
+  "url": "https://www.kleo.so",
+  "tagline": "LinkedInの個人ブランディング投稿をAIで作る。5日で$30K MRR",
+  "founders": [
+    {
+      "name": "Cameron Trew",
+      "country": "イギリス"
+    }
+  ],
+  "basedIn": "世界各地",
+  "teamSize": 4,
+  "teamNote": "4名の共同創業者（うち複数がLinkedInの人気発信者）",
+  "launched": "2024-01",
+  "status": "active",
+  "category": "social-media",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "LinkedInで継続的に質の高い投稿をするのは大変。",
+  "solution": "投稿のアイデア出し・執筆・画像作成・公開までをAIで支援する。",
+  "target": "LinkedInで発信するビジネスパーソン・創業者・コンサル",
+  "pricing": {
+    "type": "subscription",
+    "plans": [
+      {
+        "name": "単一プラン",
+        "usd": 99,
+        "period": "month"
+      }
+    ],
+    "note": "単一プランのみ（記事時点）。"
+  },
+  "revenue": [
+    {
+      "date": "2024-04",
+      "metric": "MRR",
+      "usd": 62000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "5日で$30K MRR、3か月で$62K MRR"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM API",
+    "Chrome拡張"
+  ],
+  "channels": [
+    "influencer",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "共同創業者自身がLinkedInの大型インフルエンサーで、初日から配信力があった"
+  ],
+  "lessons": [
+    "プロダクトより先に「配信力（オーディエンス）」を持つ人と組む戦略"
+  ],
+  "risks": [
+    "LinkedInの仕様変更"
+  ],
+  "japan": {
+    "localAngle": "日本ではLinkedInが弱い。X・note・Instagramで発信する経営者・士業・コンサル向けに置き換える。",
+    "notes": [
+      "$99/月は日本の個人には高い。法人・士業の経費として売る設計に。"
+    ],
+    "scoreAdjust": {
+      "demand": -1
+    }
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "From $0 to $62k MRR in three months (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/tech/from-0-to-62k-mrr-in-three-months-mUPVSYOlJAC2iogGK7d4",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "オーディエンス先行",
+    "共同創業",
+    "SNS"
+  ]
+}

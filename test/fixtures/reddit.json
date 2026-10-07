@@ -1,0 +1,20 @@
+{
+  "data": {
+    "children": [
+      {
+        "data": {
+          "id": "abc123",
+          "subreddit": "SideProject",
+          "title": "My GPT-powered resume tool hit $12k/month, bootstrapped and solo",
+          "selftext": "Started 6 months ago. ChatGPT API + Next.js. Revenue is $12,000 per month now.",
+          "url": "https://www.reddit.com/r/SideProject/comments/abc123/my_gpt_powered_resume_tool/",
+          "permalink": "/r/SideProject/comments/abc123/my_gpt_powered_resume_tool/",
+          "author": "maker42",
+          "score": 340,
+          "num_comments": 88,
+          "created_utc": 1791100000
+        }
+      }
+    ]
+  }
+}

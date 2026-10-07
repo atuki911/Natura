@@ -1,0 +1,339 @@
+{
+  "updated": "2026-10-07T09:00:00.000Z",
+  "items": [
+    {
+      "id": "69b45f46",
+      "title": "8 solo founders who quietly hit $20K–$62K MRR in the last 6 months",
+      "url": "https://medium.com/@tamimbuilds/8-solo-founders-who-quietly-hit-20k-62k-mrr-in-the-last-6-months-5032e610badc",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Roundup of solo founders of AI SaaS including Kleo ($62K MRR), Leadmore AI ($30K MRR) and Mentions ($20K MRR).",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": null,
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": [
+          {
+            "usd": 62000,
+            "metric": "MRR",
+            "text": "$62K MRR"
+          },
+          {
+            "usd": 30000,
+            "metric": "MRR",
+            "text": "$30K MRR"
+          },
+          {
+            "usd": 20000,
+            "metric": "MRR",
+            "text": "$20K MRR"
+          }
+        ]
+      },
+      "bestMonthlyUsd": 62000,
+      "score": 65,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "bd1b40b9",
+      "title": "My AI resume maker website passes $1k in MRR",
+      "url": "https://hackernoon.com/my-ai-resume-maker-website-passes-$1k-in-mrr",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "ResumeBoostAI, an AI resume maker built by a solo indie hacker, passed $1k MRR with a free ATS resume checker and resume templates.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "career",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": [
+          {
+            "usd": 1000,
+            "metric": "MRR",
+            "text": "$1k MRR"
+          }
+        ]
+      },
+      "bestMonthlyUsd": 1000,
+      "score": 58,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "f46cf410",
+      "title": "AI learning assistant offering homework help generating $5,000/month as a solo founder",
+      "url": "https://startupsfyi.beehiiv.com/p/ai-learning-assistant-offers-premium-support-chat-homework-help-generating-5000month-solo-founder",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "A solo founder runs an AI learning assistant with premium support chat and homework help for students, generating $5,000/month.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "education-writing",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": [
+          {
+            "usd": 5000,
+            "metric": "monthly",
+            "text": "$5,000/month"
+          }
+        ]
+      },
+      "bestMonthlyUsd": 5000,
+      "score": 58,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "fb3cd084",
+      "title": "This game created by AI vibe coding makes $50,000 a month. Yours probably won’t",
+      "url": "https://404media.co/this-game-created-by-ai-vibe-coding-makes-50-000-a-month-yours-probably-wont",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "A browser game made with AI vibe coding earns $50,000 a month from in-game ads and sponsors; most vibe coded games do not.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "games-entertainment",
+      "signals": {
+        "ai": true,
+        "solo": false,
+        "funded": false,
+        "revenue": [
+          {
+            "usd": 50000,
+            "metric": "monthly",
+            "text": "$50,000 a month"
+          }
+        ]
+      },
+      "bestMonthlyUsd": 50000,
+      "score": 50,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "b18852f8",
+      "title": "Descrivo – AI product descriptions for Shopify, built solo",
+      "url": "https://hunted.space/product/descrivo",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Solo developer Marin Grigoriță built an AI product description app for Shopify that detects store language and writes natively instead of translating.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "ecommerce",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 40,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "16367fc5",
+      "title": "TaleToaster – AI bedtime stories for kids",
+      "url": "https://hunted.space/product/taletoaster",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Built solo with Expo, Supabase, RevenueCat, Anthropic Claude and ElevenLabs. $9.99/mo or $59.99/yr after 2 free stories for parents and children.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "kids-family",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 40,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "b0339ab9",
+      "title": "Narrly – AI storytelling app built by a 17-year-old solo founder",
+      "url": "https://peerlist.io/ersultanm13/project/narrly",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "AI mobile app for kids stories built solo by a 17-year-old founder from Almaty, Kazakhstan.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "kids-family",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 40,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "73e39532",
+      "title": "pdftoexcel – reconcile bank statement PDFs to Excel",
+      "url": "https://producthunt.com/posts/pdftoexcel",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Built by solo founder Kyr. AI converts bank statement PDFs to Excel, including scans, and reconciles every export against the running balance. Free 15 pages per month.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "document-ai",
+      "signals": {
+        "ai": true,
+        "solo": true,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 40,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "d99803fe",
+      "title": "AI stories for kids: inside the world of Oscar Stories",
+      "url": "https://indiehackers.com/post/ai-stories-for-kids-inside-the-world-of-oscar-stories-e2bdd885d9",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Two co-founders built an AI bedtime story app for children with 50k+ downloads and 700+ subscribers.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "kids-family",
+      "signals": {
+        "ai": true,
+        "solo": false,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 25,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "52dd75c0",
+      "title": "PropPilot AI – MLS-ready real estate listing descriptions in 10 seconds",
+      "url": "https://producthunt.com/products/proppilot-ai-2/makers",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "AI generates real estate listing descriptions, buyer email subject lines and Instagram captions for agents. $49/month per agent.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "ecommerce",
+      "signals": {
+        "ai": true,
+        "solo": false,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 25,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "594428b8",
+      "title": "Vibe coding examples: 4 revenue-generating apps built with AI",
+      "url": "https://indiehackers.com/post/2NUIOp80SUWuPmmfKoS9",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "Indie hackers built revenue-generating apps with AI coding tools; case studies of vibe coded products.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "app-builder",
+      "signals": {
+        "ai": true,
+        "solo": false,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 25,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "id": "7f064f2f",
+      "title": "Teachers build AI toolkit for K-12 classroom materials — EasyClass AI",
+      "url": "https://trustmrr.com/startup/easyclass-ai?metric=mrr",
+      "discussionUrl": null,
+      "source": "seed",
+      "sourceName": "初期サンプル（2026-10-07にWeb検索で手動収集）",
+      "author": "",
+      "summary": "EasyClass AI is an AI-powered platform that streamlines lesson planning and content creation for teachers, with 63 active subscriptions verified on TrustMRR.",
+      "publishedAt": null,
+      "points": 0,
+      "comments": 0,
+      "category": "education-writing",
+      "signals": {
+        "ai": true,
+        "solo": false,
+        "funded": false,
+        "revenue": []
+      },
+      "bestMonthlyUsd": null,
+      "score": 25,
+      "status": "new",
+      "firstSeen": "2026-10-07T09:00:00.000Z",
+      "lastSeen": "2026-10-07T09:00:00.000Z"
+    }
+  ]
+}

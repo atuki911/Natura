@@ -1,0 +1,96 @@
+{
+  "id": "jenni-ai",
+  "name": "Jenni AI",
+  "url": "https://jenni.ai",
+  "tagline": "論文・レポートの執筆を支援するAI。学生の直接課金で年商$10M",
+  "founders": [
+    {
+      "name": "David Park",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 10,
+  "teamNote": "少人数チーム",
+  "launched": "2019-01",
+  "status": "active",
+  "category": "education-writing",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "論文・レポートの執筆は時間がかかり、引用管理も面倒。",
+  "solution": "続きの文章の提案、引用の挿入、参考文献の整形などで学術執筆を支援する。",
+  "target": "大学生・大学院生・研究者",
+  "pricing": {
+    "type": "freemium",
+    "plans": [],
+    "note": "月額サブスク（学生の直接課金が中心）。"
+  },
+  "revenue": [
+    {
+      "date": "2024-04",
+      "metric": "ARR",
+      "usd": 5000000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": ""
+    },
+    {
+      "date": "2025-02",
+      "metric": "ARR",
+      "usd": 10000000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": ""
+    }
+  ],
+  "traction": [],
+  "funding": "約$850Kの小規模調達のみ",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "GPT系API",
+    "エディタ"
+  ],
+  "channels": [
+    "short-video",
+    "influencer",
+    "seo"
+  ],
+  "growthTactics": [
+    "SEOコピーライティングツールから学術用途へピボット",
+    "TikTokでの学生向け発信"
+  ],
+  "lessons": [
+    "汎用ライティングより「学術」という狭いニッチの方が強い",
+    "ピボットで当たった（創業は2019年）"
+  ],
+  "risks": [
+    "学術不正への懸念",
+    "汎用AIの代替"
+  ],
+  "japan": {
+    "localAngle": "日本の大学レポート・卒論の書式、日本語論文の引用ルールに対応。資格試験学習へも展開可能。",
+    "notes": [
+      "売上規模はチームでの成果。ソロ再現は段階的に。"
+    ],
+    "scoreAdjust": {
+      "soloFeasibility": -1
+    }
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Jenni AI: the $5M/year Chegg of generative AI (Sacra)",
+      "url": "https://sacra.com/research/jenni-ai-the-chegg-of-generative-ai/",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ピボット",
+    "学術",
+    "ニッチ"
+  ]
+}

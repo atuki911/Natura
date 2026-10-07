@@ -1,0 +1,97 @@
+{
+  "id": "roomgpt",
+  "name": "RoomGPT",
+  "url": "https://www.roomgpt.io",
+  "tagline": "部屋の写真を別デザインに変換。コードはオープンソースで公開",
+  "founders": [
+    {
+      "name": "Hassan El Mghari",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "アメリカ",
+  "teamSize": 1,
+  "teamNote": "会社員（開発者アドボケイト）の副業として開始",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "ai-interior",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "部屋の模様替えのアイデアを手軽に見たい。",
+  "solution": "部屋の写真をアップロードしてテーマを選ぶと新しいデザインを生成。コードはMITライセンスで公開。",
+  "target": "一般消費者",
+  "pricing": {
+    "type": "credits",
+    "plans": [],
+    "note": "クレジット購入制。"
+  },
+  "revenue": [
+    {
+      "date": "2023-07",
+      "metric": "monthly",
+      "usd": 23000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "6か月で累計利益$168K、直近月の売上$23K"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2023-01",
+      "label": "公開48時間で月10万訪問、累計ユーザー160万",
+      "sourceId": "s2"
+    }
+  ],
+  "funding": "bootstrapped（副業）",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "Next.js",
+    "Replicate（画像生成API）",
+    "Vercel"
+  ],
+  "channels": [
+    "open-source",
+    "x-build-in-public",
+    "hacker-news"
+  ],
+  "growthTactics": [
+    "オープンソース公開で開発者コミュニティに拡散",
+    "Xでのデモ"
+  ],
+  "lessons": [
+    "コードを公開しても、ホスティング版の利便性で課金できる",
+    "副業でも短期で利益が出せる"
+  ],
+  "risks": [
+    "模倣が容易"
+  ],
+  "japan": {
+    "localAngle": "不動産・工務店向けのB2B化。オープンソースで日本語ドキュメントを整備し、ホスティング版で課金。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Case study: interior design AI SaaS that made $168k in total profit in 6 months (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/case-study-interior-design-ai-saas-company-that-made-168k-in-total-profit-in-6-months-efff542b1e",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "How Hassan grew RoomGPT to 100K monthly visitors in 48 hours (Starter Story)",
+      "url": "https://www.starterstory.com/roomgpt-breakdown",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "オープンソース",
+    "副業",
+    "ソロ"
+  ]
+}

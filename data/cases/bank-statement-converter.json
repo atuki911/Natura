@@ -1,0 +1,87 @@
+{
+  "id": "bank-statement-converter",
+  "name": "Bank Statement Converter",
+  "url": "https://bankstatementconverter.com",
+  "tagline": "銀行明細のPDFをExcel/CSVに変換するだけの「地味に便利」なツール",
+  "founders": [
+    {
+      "name": "Angus Cheng",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 1,
+  "teamNote": "ソロ",
+  "launched": "2020-01",
+  "status": "active",
+  "category": "document-ai",
+  "secondaryCategories": [
+    "spreadsheet-ai"
+  ],
+  "model": "B2B",
+  "problem": "銀行明細のPDFを会計作業で使うには手入力が必要。",
+  "solution": "PDFをアップロードすると取引明細を表として抽出しExcel/CSVで出力する。",
+  "target": "経理担当者・会計士・個人事業主",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "ページ数に応じた月額プラン。"
+  },
+  "revenue": [
+    {
+      "date": "2025-01",
+      "metric": "MRR",
+      "usd": 38000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": ""
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "PDF解析",
+    "OCR"
+  ],
+  "channels": [
+    "seo",
+    "free-tools"
+  ],
+  "growthTactics": [
+    "「bank statement to excel」という明確な検索意図をSEOで押さえる",
+    "無料枠で試してもらう"
+  ],
+  "lessons": [
+    "生成AIでなくても「書類→データ」の自動化は強い需要がある",
+    "自分の不便を解決したツール"
+  ],
+  "risks": [
+    "銀行や会計ソフトのAPI連携が進むと需要が減る"
+  ],
+  "japan": {
+    "localAngle": "日本の通帳・ネットバンク明細・クレカ明細を、freee・マネーフォワード・弥生の取込形式に変換。和暦や摘要の正規化まで。",
+    "notes": [
+      "会計ソフトの自動取込でカバーされない銀行・信用金庫・古い通帳スキャンに需要が残る。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "BankStatementConverter: $38K MRR stupidly simple PDF converter (Superframeworks)",
+      "url": "https://superframeworks.beehiiv.com/p/bankstatementconverter-38k-mrr-stupidly-simple-pdf-converter",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "地味に強い",
+    "SEO",
+    "ソロ",
+    "AI周辺"
+  ]
+}

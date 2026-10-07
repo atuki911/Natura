@@ -1,0 +1,112 @@
+{
+  "id": "boltai",
+  "name": "BoltAI",
+  "url": "https://boltai.com",
+  "tagline": "Macのどのアプリからでも呼び出せるAIクライアント。買い切りライセンスで販売",
+  "founders": [
+    {
+      "name": "Daniel Nguyen",
+      "country": "ベトナム"
+    }
+  ],
+  "basedIn": "ベトナム（ホーチミン）",
+  "teamSize": 1,
+  "teamNote": "ソロ、独学の開発者",
+  "launched": "2023-06",
+  "status": "active",
+  "category": "chat-client",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "ChatGPTとMacのアプリを行き来するのが面倒。",
+  "solution": "ショートカットでどのアプリからもAIを呼び出し、選択テキストの書き換え等ができるネイティブMacアプリ。",
+  "target": "Macのヘビーユーザー、開発者、ライター",
+  "pricing": {
+    "type": "one-time",
+    "plans": [
+      {
+        "name": "ライセンス",
+        "usd": 19,
+        "period": "once"
+      },
+      {
+        "name": "上位ライセンス",
+        "usd": 79,
+        "period": "once"
+      }
+    ],
+    "note": "1年間のアップデート付き買い切り＋Setapp経由のサブスク収益。"
+  },
+  "revenue": [
+    {
+      "date": "2024-06",
+      "metric": "monthly",
+      "usd": 30000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "最大で月$30K（大半は買い切り）"
+    },
+    {
+      "date": "2024-11",
+      "metric": "MRR",
+      "usd": 15000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "買い切り$10K/月＋継続$5K"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "Swift",
+    "SwiftUI",
+    "AppKit",
+    "SQLite",
+    "Sparkle"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "marketplace"
+  ],
+  "growthTactics": [
+    "Xでのバイラル投稿",
+    "Setappに掲載してサブスク収益を確保"
+  ],
+  "lessons": [
+    "買い切りでも「アップデート期限付き」にすると継続収益に近づく",
+    "アプリ配信プラットフォームを第二の収益源にする"
+  ],
+  "risks": [
+    "OS標準のAI機能"
+  ],
+  "japan": {
+    "localAngle": "日本語の敬語変換・ビジネスメール整形・議事録要約をワンキーで呼び出す「日本語ビジネス特化」版。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Making $30k/mo from an AI product with a perpetual license (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/cRvgt7fySrr3M76MSVas",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "How Daniel Nguyen grew Bolt AI to $15K MRR (Starter Story)",
+      "url": "https://www.starterstory.com/bolt-ai-breakdown",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "買い切り",
+    "Macアプリ",
+    "ソロ",
+    "アジア発"
+  ]
+}

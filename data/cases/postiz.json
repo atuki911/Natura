@@ -1,0 +1,103 @@
+{
+  "id": "postiz",
+  "name": "Postiz",
+  "url": "https://postiz.com",
+  "tagline": "オープンソースのSNS予約投稿ツール。AIエージェント対応で急成長",
+  "founders": [
+    {
+      "name": "Nevo David",
+      "country": "イスラエル"
+    }
+  ],
+  "basedIn": "イスラエル",
+  "teamSize": 1,
+  "teamNote": "ソロ創業",
+  "launched": "2024-09",
+  "status": "active",
+  "category": "social-media",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "SNS予約投稿ツールは高く、セルフホストしたい層もいる。",
+  "solution": "28以上のSNSに対応する予約投稿ツールをオープンソース（Apache 2.0）で公開し、クラウド版で課金。CLI・MCPサーバーでAIエージェントからも操作可能。",
+  "target": "開発者・クリエイター・エージェンシー、AIエージェント利用者",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "セルフホストは無料、クラウド版が有料。"
+  },
+  "revenue": [
+    {
+      "date": "2025-09",
+      "metric": "ARR",
+      "usd": 1300000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "2年で$1.3M ARR"
+    },
+    {
+      "date": "2026-05",
+      "metric": "MRR",
+      "usd": 145000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "AIエージェント向けにリポジショニングし4か月で7倍"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 4,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "TypeScript",
+    "NestJS",
+    "Next.js",
+    "MCPサーバー"
+  ],
+  "channels": [
+    "open-source",
+    "hacker-news",
+    "community"
+  ],
+  "growthTactics": [
+    "GitHubスターを集める「オープンソース＝集客装置」戦略",
+    "AIエージェントから使えるようMCP対応"
+  ],
+  "lessons": [
+    "OSSで信頼と認知を得て、運用の手間を省くクラウド版で稼ぐ",
+    "AIエージェントを「ユーザー」とみなす新しい販路"
+  ],
+  "risks": [
+    "SNS各社のAPI変更"
+  ],
+  "japan": {
+    "localAngle": "日本語ドキュメント・LINE・Instagram対応を強化したOSSを公開し、Zenn/Qiitaで解説記事を書いてクラウド版に誘導。",
+    "notes": [
+      "エンジニア向け。MCP対応はAIエージェント時代の差別化として日本でもまだ先行余地あり。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Growing an open-source product to $1.3M ARR in two years (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/tech/growing-an-open-source-product-to-1-3m-arr-in-two-years-hbMiXIoZsueV9D3L58DP",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "$145K MRR — the open-source scheduler that repositioned for AI agents (Superframeworks)",
+      "url": "https://superframeworks.com/case-study/postiz",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "オープンソース",
+    "MCP",
+    "AIエージェント",
+    "ソロ"
+  ]
+}

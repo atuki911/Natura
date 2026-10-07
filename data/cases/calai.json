@@ -1,0 +1,117 @@
+{
+  "id": "calai",
+  "name": "Cal AI",
+  "url": "https://www.calai.app",
+  "tagline": "食事の写真を撮るだけでカロリーと栄養を推定するアプリ。10代の創業者がMyFitnessPalに売却",
+  "founders": [
+    {
+      "name": "Zach Yadegari",
+      "country": "アメリカ"
+    },
+    {
+      "name": "Henry Langmack",
+      "country": "アメリカ"
+    }
+  ],
+  "basedIn": "アメリカ",
+  "teamSize": 17,
+  "teamNote": "高校生2人で創業、2025年1月に17名規模",
+  "launched": "2024-05",
+  "status": "acquired",
+  "category": "health-nutrition",
+  "secondaryCategories": [
+    "consumer-lifestyle"
+  ],
+  "model": "B2C",
+  "problem": "食事記録アプリは手入力が面倒で続かない。",
+  "solution": "写真を撮るとAIが料理を認識してカロリー・PFCを推定し記録する。",
+  "target": "ダイエット・体づくりをしたい若年層",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "トライアル付きのアプリ内サブスク。"
+  },
+  "revenue": [
+    {
+      "date": "2024-11",
+      "metric": "MRR",
+      "usd": 1000000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "12名体制で$1M MRR"
+    },
+    {
+      "date": "2025-12",
+      "metric": "ARR",
+      "usd": 50000000,
+      "sourceId": "s2",
+      "confidence": "low",
+      "note": "売却時点で約$50M ARRとの報道"
+    }
+  ],
+  "traction": [
+    {
+      "date": "2025",
+      "label": "MyFitnessPalへ売却",
+      "sourceId": "s2"
+    }
+  ],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 4,
+  "aiDependency": "high",
+  "techStack": [
+    "iOS/Android",
+    "画像認識LLM API"
+  ],
+  "channels": [
+    "influencer",
+    "short-video",
+    "app-store",
+    "paid-ads"
+  ],
+  "growthTactics": [
+    "TikTok・Instagramのインフルエンサー施策を大量に回す",
+    "オンボーディングとペイウォールの徹底的な最適化"
+  ],
+  "lessons": [
+    "消費者アプリは配信（インフルエンサー・広告）の勝負",
+    "ソロでは回らず早期にチーム化した"
+  ],
+  "risks": [
+    "広告費の高騰",
+    "健康表示の規制"
+  ],
+  "japan": {
+    "localAngle": "日本には写真解析付きの定番食事管理アプリが既にある。日本食・コンビニ商品の認識精度か、健康経営（法人）で差別化。",
+    "notes": [
+      "ソロではなく早期にチーム化した事例として参考に。"
+    ],
+    "scoreAdjust": {
+      "soloFeasibility": -1
+    }
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Two high schoolers founded Cal AI (YPulse)",
+      "url": "https://www.ypulse.com/newsfeed/2025/03/20/two-high-schoolers-founded-cal-ai-a-calorie-tracking-app-with-millions-of-downloads-and-2m-in-revenue/",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "$50M exit at 19: Cal AI (Superframeworks)",
+      "url": "https://superframeworks.beehiiv.com/p/50m-exit-at-19-cal-ai",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "モバイルアプリ",
+    "インフルエンサー",
+    "売却",
+    "若手創業者"
+  ]
+}

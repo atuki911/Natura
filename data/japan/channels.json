@@ -1,0 +1,185 @@
+{
+  "updated": "2026-10-07",
+  "items": [
+    {
+      "id": "x-build-in-public",
+      "name": "Xでの開発公開（Build in Public）",
+      "jpEquivalent": "X（日本語）＋ note 連載",
+      "jpFit": 4,
+      "cost": "無料",
+      "howTo": "#個人開発 タグで開発の過程・数字・失敗を毎日発信。日本では売上の生数字を出す文化は弱めなので、出すだけで目立ちやすい。noteで月次レポートを書き、Xで要点を流す二段構えが定番。",
+      "kpi": "フォロワー増加数／投稿経由の登録数"
+    },
+    {
+      "id": "product-hunt",
+      "name": "Product Hunt ローンチ",
+      "jpEquivalent": "Product Hunt（英語圏向け同時展開）＋ はてなブックマーク ＋ 個人開発系コミュニティ",
+      "jpFit": 2,
+      "cost": "無料",
+      "howTo": "日本語ユーザーはほぼ流入しない。日本向けには『個人開発したサービスを紹介する記事』をZenn/Qiita/noteに書き、はてブのホットエントリを狙う方が効く。",
+      "kpi": "ローンチ週の登録数"
+    },
+    {
+      "id": "hacker-news",
+      "name": "Hacker News（Show HN）",
+      "jpEquivalent": "Zenn・Qiita の技術記事 ＋ はてなブックマーク",
+      "jpFit": 3,
+      "cost": "無料",
+      "howTo": "技術選定や実装の裏側を記事化し、末尾でサービスを紹介する。エンジニア向けツールなら最強の無料チャネル。",
+      "kpi": "記事のいいね数／はてブ数／流入"
+    },
+    {
+      "id": "reddit",
+      "name": "Reddit コミュニティ",
+      "jpEquivalent": "Xコミュニティ・Discord・業界別Facebookグループ・Yahoo!知恵袋",
+      "jpFit": 2,
+      "cost": "無料",
+      "howTo": "日本にはRedditほど大きい掲示板型コミュニティがないため、ターゲットが集まる場所（業界Discord、オンラインサロン、地域の経営者グループ）を個別に探して価値提供から入る。",
+      "kpi": "コミュニティ経由の登録数"
+    },
+    {
+      "id": "seo",
+      "name": "SEO（検索流入）",
+      "jpEquivalent": "日本語SEO（ロングテール・比較記事・使い方記事）",
+      "jpFit": 4,
+      "cost": "無料（時間）",
+      "howTo": "英語圏で埋まっているキーワードも、日本語では手薄なことが多い。『〇〇 AI 無料』『〇〇 自動化 やり方』等のロングテールを狙う。AI生成の量産記事は評価されにくいので一次情報を混ぜる。",
+      "kpi": "オーガニック流入／検索経由の登録率"
+    },
+    {
+      "id": "free-tools",
+      "name": "無料ツールでの集客（Engineering as Marketing）",
+      "jpEquivalent": "日本語の無料ミニツール群（変換・診断・テンプレ生成）",
+      "jpFit": 5,
+      "cost": "無料",
+      "howTo": "本体機能の一部を登録不要の無料ツールとして切り出し、各ツールを検索キーワードに対応させる。日本語の無料ツールは競合が少なく、SEOとSNS拡散の両方に効く。",
+      "kpi": "無料ツール利用数→登録率"
+    },
+    {
+      "id": "short-video",
+      "name": "TikTok・ショート動画",
+      "jpEquivalent": "TikTok・Instagramリール・YouTubeショート",
+      "jpFit": 4,
+      "cost": "無料（制作時間）",
+      "howTo": "Before/Afterが映えるサービス（画像・動画・インテリア・写真）と相性が良い。顔出しなしの画面録画＋テロップでも成立する。",
+      "kpi": "再生数／プロフィール遷移率"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube（長尺）",
+      "jpEquivalent": "YouTube（解説・使い方・比較）",
+      "jpFit": 3,
+      "cost": "無料（制作時間）",
+      "howTo": "『〇〇の作り方』『〇〇を自動化してみた』系の解説動画で検索流入を取る。",
+      "kpi": "チャンネル経由の登録数"
+    },
+    {
+      "id": "app-store",
+      "name": "App Store / Google Play（ASO）",
+      "jpEquivalent": "App Store / Google Play（日本はiPhoneシェアが高い）",
+      "jpFit": 4,
+      "cost": "Apple Developer Program 年額費用あり",
+      "howTo": "日本語のアプリ名・サブタイトル・スクリーンショットでASOを最適化。ペイウォールはトライアル型が主流。",
+      "kpi": "インストール数／トライアル開始率／課金転換率"
+    },
+    {
+      "id": "affiliate",
+      "name": "アフィリエイト・紹介プログラム",
+      "jpEquivalent": "A8.net・もしもアフィリエイト等のASP、または自前の紹介報酬",
+      "jpFit": 4,
+      "cost": "成果報酬",
+      "howTo": "日本はアフィリエイトブロガー・比較サイトの影響力が大きい。ASP掲載は初期費用がかかる場合があるので、まず自前の紹介コード（Stripe・Rewardful等）で始める。ステマ規制により『PR』表記が必要。",
+      "kpi": "紹介経由売上比率"
+    },
+    {
+      "id": "influencer",
+      "name": "インフルエンサー起用",
+      "jpEquivalent": "X・YouTube・Instagramのマイクロインフルエンサー",
+      "jpFit": 3,
+      "cost": "有償または無償提供",
+      "howTo": "フォロワー1〜5万人規模の業界特化アカウントに無料アカウントを提供してレビューを依頼。2023年10月からのステマ規制で広告表記が必須。",
+      "kpi": "投稿経由の登録数"
+    },
+    {
+      "id": "paid-ads",
+      "name": "有料広告",
+      "jpEquivalent": "Google広告・Meta広告・LINEヤフー広告",
+      "jpFit": 3,
+      "cost": "有料（少額テストから）",
+      "howTo": "LTVが見えてから。最初は日額1,000〜3,000円でLPの訴求テストに使うのが現実的。",
+      "kpi": "CPA／ROAS"
+    },
+    {
+      "id": "cold-outreach",
+      "name": "コールドメール・DM営業",
+      "jpEquivalent": "問い合わせフォーム営業・電話・展示会・商工会議所・業界団体・知人紹介",
+      "jpFit": 3,
+      "cost": "無料（時間）",
+      "howTo": "日本の中小企業は英語圏ほどメールを読まない一方、紹介・対面・電話の信頼が強い。業界を1つに絞り、地域の勉強会や業界団体経由で最初の10社を取る。特定電子メール法に注意。",
+      "kpi": "商談化率／受注率"
+    },
+    {
+      "id": "community",
+      "name": "コミュニティ運営",
+      "jpEquivalent": "Discord・Slack・オンラインサロン・connpass勉強会",
+      "jpFit": 3,
+      "cost": "無料",
+      "howTo": "ユーザー同士が成果を共有できる場を作る。日本では『使い方勉強会』の開催が導入の後押しになりやすい。",
+      "kpi": "アクティブ参加者数"
+    },
+    {
+      "id": "newsletter",
+      "name": "ニュースレター・メール",
+      "jpEquivalent": "LINE公式アカウント・note・メルマガ",
+      "jpFit": 4,
+      "cost": "無料枠あり",
+      "howTo": "日本の一般消費者にはメールよりLINEが届く。B2Cは LINE公式アカウント、B2Bはメルマガとnoteを併用する。",
+      "kpi": "購読者数／開封率／購読者からの有料転換"
+    },
+    {
+      "id": "open-source",
+      "name": "オープンソース公開",
+      "jpEquivalent": "GitHub公開 ＋ Zenn/Qiitaでの解説",
+      "jpFit": 3,
+      "cost": "無料",
+      "howTo": "セルフホスト版を公開し、運用の手間を省くホスティング版で課金する。日本語ドキュメントの整備が差別化になる。",
+      "kpi": "GitHubスター／クラウド版転換率"
+    },
+    {
+      "id": "marketplace",
+      "name": "マーケットプレイス・ストア掲載",
+      "jpEquivalent": "ココナラ・ランサーズ・ストアカ・BOOTH・Chrome ウェブストア・Shopify App Store・kintone連携サービス一覧",
+      "jpFit": 4,
+      "cost": "販売手数料",
+      "howTo": "日本ではココナラ等で『AI＋人の手』のサービスとして先に売ると、需要と単価を最短で検証できる。業務SaaSならkintone・freee・マネーフォワード等の連携ストア掲載が強い。",
+      "kpi": "出品経由の受注数"
+    },
+    {
+      "id": "viral-loop",
+      "name": "生成物による口コミ拡散",
+      "jpEquivalent": "生成物のSNSシェア（透かし・シェアボタン）",
+      "jpFit": 4,
+      "cost": "無料",
+      "howTo": "無料版の生成物に小さくサービス名を入れる、シェア用の画像を自動生成するなど、使うほど広まる仕掛けを作る。",
+      "kpi": "シェア数／シェア経由登録"
+    },
+    {
+      "id": "partnership",
+      "name": "提携・連携",
+      "jpEquivalent": "業界団体・士業・地域金融機関・SaaSベンダーとの提携",
+      "jpFit": 4,
+      "cost": "レベニューシェア等",
+      "howTo": "日本のB2Bは『誰の紹介か』が強く効く。業界の既存ベンダーや士業事務所と組み、顧客基盤に乗せてもらう。",
+      "kpi": "提携経由の商談数"
+    },
+    {
+      "id": "pr",
+      "name": "PR・メディア掲載",
+      "jpEquivalent": "PR TIMES・業界紙・Webメディアへの売り込み",
+      "jpFit": 3,
+      "cost": "PR TIMESは原則有料（スタートアップ向け優遇制度は要確認）",
+      "howTo": "『個人開発で〇〇を作った』『海外で話題の〇〇を日本向けに』という切り口はメディアに取り上げられやすい。",
+      "kpi": "掲載数／掲載経由流入"
+    }
+  ]
+}

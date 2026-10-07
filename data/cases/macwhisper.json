@@ -1,0 +1,92 @@
+{
+  "id": "macwhisper",
+  "name": "MacWhisper",
+  "url": "https://goodsnooze.gumroad.com/l/macwhisper",
+  "tagline": "Mac上でローカルに音声を文字起こしするアプリ。オープンソースのWhisperを製品化",
+  "founders": [
+    {
+      "name": "Jordi Bruin",
+      "country": "オランダ"
+    }
+  ],
+  "basedIn": "オランダ",
+  "teamSize": 1,
+  "teamNote": "ソロのインディーアプリ開発者",
+  "launched": "2023-02",
+  "status": "active",
+  "category": "voice-notes",
+  "secondaryCategories": [],
+  "model": "Prosumer",
+  "problem": "会議・インタビュー・ポッドキャストの文字起こしをクラウドに上げずに行いたい。",
+  "solution": "OpenAIのWhisper（オープンソース）をMac上で動かし、ドラッグ＆ドロップで文字起こしできるネイティブアプリにした。",
+  "target": "ライター・研究者・ポッドキャスター・機密を扱うビジネスパーソン",
+  "pricing": {
+    "type": "one-time",
+    "plans": [],
+    "note": "Gumroadで買い切り販売（無料版あり）。"
+  },
+  "revenue": [
+    {
+      "date": "2023-06",
+      "metric": "total",
+      "usd": 100000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "約$100Kの売上、ダウンロード57,574件（記事時点）"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "Swift",
+    "whisper.cpp（ローカル推論）"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "marketplace"
+  ],
+  "growthTactics": [
+    "オープンソースのモデルを使いやすいネイティブアプリに包む",
+    "「2-2-2メソッド」で小さく速く出す"
+  ],
+  "lessons": [
+    "ローカル推論ならAI原価ゼロで買い切りでも成立",
+    "既存OSSに「使いやすさ」を足すだけで価値になる"
+  ],
+  "risks": [
+    "OS標準機能（音声入力・文字起こし）の進化"
+  ],
+  "japan": {
+    "localAngle": "機密情報をクラウドに出せない日本企業・医療・士業向けに「完全ローカル文字起こし＋日本語の議事録整形」。",
+    "notes": [
+      "日本のMacユーザー・クリエイターは買い切りアプリへの支払いに抵抗が少ない。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "~$100,000 Revenue with a simple Mac app (Startups newsletter)",
+      "url": "https://startupsemail.substack.com/p/100000-revenue-with-a-simple-mac",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Ship apps fast using Jordi Bruin’s 2-2-2 method (RevenueCat)",
+      "url": "https://www.revenuecat.com/events/ship-apps-fast-using-jordi-bruins-2-2-2-method",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "ローカルAI",
+    "買い切り",
+    "Macアプリ",
+    "ソロ"
+  ]
+}

@@ -1,0 +1,35 @@
+# 週1回、無料の公開ソースから新着候補を集めて data/candidates.json を更新する。
+# APIキー・シークレットは不要。公開リポジトリでは無料、非公開リポジトリでも1回1分程度で
+# GitHub Actions の無料枠内に収まる（支払い方法を登録していなければ課金は発生しない）。
+name: collect-leads
+
+on:
+  schedule:
+    - cron: "17 0 * * 1"   # 毎週月曜 9:17 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - run: npm run collect
+      - name: Commit updated candidates
+        run: |
+          if git diff --quiet -- data/candidates.json app/data.js; then
+            echo "変更なし"
+            exit 0
+          fi
+          git config user.name "natura-bot"
+          git config user.email "natura-bot@users.noreply.github.com"
+          git add data/candidates.json app/data.js
+          git commit -m "chore: 新着候補を更新"
+          git push

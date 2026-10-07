@@ -1,0 +1,100 @@
+{
+  "id": "fly-pieter",
+  "name": "fly.pieter.com",
+  "url": "https://fly.pieter.com",
+  "tagline": "AIで数時間で作ったブラウザのフライトシミュレーター。広告枠販売で17日で年換算$1M",
+  "founders": [
+    {
+      "name": "Pieter Levels",
+      "country": "オランダ"
+    }
+  ],
+  "basedIn": "拠点を持たないデジタルノマド",
+  "teamSize": 1,
+  "teamNote": "1人",
+  "launched": "2025-02",
+  "status": "declined",
+  "category": "games-entertainment",
+  "secondaryCategories": [],
+  "model": "B2B2C",
+  "problem": "（明確な課題解決ではなく）話題性のあるエンタメ。",
+  "solution": "無料のマルチプレイヤー飛行ゲーム。ゲーム内の広告枠・飛行船広告を企業に販売し、プレイヤーには機体アップグレードを販売。",
+  "target": "広告主（スタートアップ等）とゲームプレイヤー",
+  "pricing": {
+    "type": "ads",
+    "plans": [
+      {
+        "name": "機体アップグレード",
+        "usd": 29.99,
+        "period": "once"
+      }
+    ],
+    "note": "主な収益は企業向けのゲーム内広告枠。"
+  },
+  "revenue": [
+    {
+      "date": "2025-03",
+      "metric": "MRR",
+      "usd": 87000,
+      "sourceId": "s1",
+      "confidence": "high",
+      "note": "開始17日で年換算$1M（本人ブログ）。その後、話題が落ち着くと大きく減少したとの報道"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 2,
+  "nocodePossible": false,
+  "initialCost": 1,
+  "aiDependency": "low",
+  "techStack": [
+    "AIコーディング（バイブコーディング）",
+    "Three.js",
+    "WebSocket"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "viral-loop"
+  ],
+  "growthTactics": [
+    "開発の様子をXでリアルタイム公開",
+    "「AIで作ったゲーム」という話題性"
+  ],
+  "lessons": [
+    "話題性による広告収益は持続しない（継続課金ではない）",
+    "巨大フォロワーが前提のため再現性は低い"
+  ],
+  "risks": [
+    "一過性",
+    "広告主の離脱"
+  ],
+  "japan": {
+    "localAngle": "自治体・地元企業がスポンサーになる「ご当地ブラウザゲーム」や企業の採用PRゲームの受託として転用。",
+    "notes": [
+      "失敗・減衰も含めた教訓として掲載。真似る場合は継続収益の柱を別に持つこと。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "fly.pieter.com, my first vibecoded flight simulator which reached $1M ARR in 17 days (levels.io)",
+      "url": "https://levels.io/full-multiplayer-python-websockets-game-ai",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "He built a flight simulator in three hours and hit $1M a year in 17 days. Then it went to zero (DEV)",
+      "url": "https://dev.to/promptway/he-built-a-flight-simulator-in-three-hours-and-hit-1m-a-year-in-17-days-then-it-went-to-zero-1b1l",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "バイブコーディング",
+    "広告モデル",
+    "一過性",
+    "失敗からの教訓"
+  ]
+}

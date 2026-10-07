@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Product Hunt</title>
+  <entry>
+    <title>InteriorGenie — AI room redesign for renters</title>
+    <link rel="alternate" type="text/html" href="https://www.producthunt.com/posts/interiorgenie"/>
+    <published>2026-10-06T12:00:00Z</published>
+    <content type="html">&lt;p&gt;Upload a photo of your room and get interior design ideas.&lt;/p&gt;</content>
+    <author><name>Maker</name></author>
+  </entry>
+</feed>

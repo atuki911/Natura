@@ -1,0 +1,86 @@
+{
+  "id": "outrank",
+  "name": "Outrank",
+  "url": "https://www.outrank.so",
+  "tagline": "SEO記事の作成から被リンクまで自動化する「自律型SEO」",
+  "founders": [
+    {
+      "name": "Tibo Louis-Lucas",
+      "country": "フランス"
+    },
+    {
+      "name": "Eugene Zolotarenko",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "フランス",
+  "teamSize": 2,
+  "teamNote": "共同創業者2名",
+  "launched": "2024-01",
+  "status": "active",
+  "category": "seo-content",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "SEOで集客したいが、記事作成と被リンク獲得に手が回らない。",
+  "solution": "キーワード選定・記事生成・公開・会員サイト間の相互リンクまでを自動で行う。",
+  "target": "SaaS・中小企業・個人ブロガー",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額サブスク。"
+  },
+  "revenue": [
+    {
+      "date": "2026-04",
+      "metric": "MRR",
+      "usd": 300000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "$300 MRRから15か月で$300K MRR"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM",
+    "CMS連携"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "affiliate",
+    "seo"
+  ],
+  "growthTactics": [
+    "「AIブログ生成」から「自律型SEO」へのリポジショニングで急成長（旧名ContentPie）"
+  ],
+  "lessons": [
+    "同じ機能でも、成果（集客）を約束する位置づけに変えると売れ方が変わる"
+  ],
+  "risks": [
+    "相互リンク網は検索エンジンのスパム判定リスク"
+  ],
+  "japan": {
+    "localAngle": "日本ではローカルSEO（店舗・士業）やGEO（生成AI検索対策）に特化。相互リンク網は避け、一次情報の取材支援で差別化。",
+    "notes": [
+      "「作る」ではなく「集客する」と訴求するリポジショニングは日本でも有効。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Outrank ARR hit $3M: $300 to $300K MRR in 15 months (ARR Club)",
+      "url": "https://www.arr.club/outrank/outrank-arr-hit-3m-300-300k-mrr-in-15-months-",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "リポジショニング",
+    "SEO"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "leadmore",
+  "name": "Leadmore AI",
+  "url": "https://www.leadmore.ai",
+  "tagline": "Redditで見込み客を見つけて、コンテンツ経由の集客を自動化するB2Bツール",
+  "founders": [
+    {
+      "name": "Richard Wang",
+      "country": "非公開"
+    }
+  ],
+  "basedIn": "非公開",
+  "teamSize": 2,
+  "teamNote": "少人数（創業者は複数プロダクトを並行）",
+  "launched": "2024-09",
+  "status": "active",
+  "category": "lead-gen",
+  "secondaryCategories": [],
+  "model": "B2B",
+  "problem": "Redditには購買意欲の高い議論が多いが、手動で見つけて参加するのは大変。",
+  "solution": "関連スレッドを見つけ、価値ある返信・投稿の作成を支援してRedditからの集客を自動化する（クレジット制）。",
+  "target": "SaaS・D2Cのマーケター",
+  "pricing": {
+    "type": "credits",
+    "plans": [],
+    "note": "クレジット制。"
+  },
+  "revenue": [
+    {
+      "date": "2025-06",
+      "metric": "MRR",
+      "usd": 30000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": ""
+    }
+  ],
+  "traction": [],
+  "funding": "非公開",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "LLM",
+    "Reddit API"
+  ],
+  "channels": [
+    "reddit",
+    "seo"
+  ],
+  "growthTactics": [
+    "自社ツールで自社を集客するドッグフーディング"
+  ],
+  "lessons": [
+    "SNS上の会話からニーズを拾うのがアイデア源"
+  ],
+  "risks": [
+    "Redditの規約・API方針の変更",
+    "スパム扱いのリスク"
+  ],
+  "japan": {
+    "localAngle": "日本にはRedditの代替がないため、X・Yahoo!知恵袋・業界掲示板で「困っている人」を見つけ、返信案を作る（投稿は人が確認）。",
+    "notes": [
+      "自動投稿は規約違反・炎上のリスク。人の確認を必須に。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Hitting $30k MRR with an AI marketing product (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/hitting-30k-mrr-with-an-ai-marketing-product-n59ORJCYjnZC61Q096UL",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "B2B",
+    "Reddit",
+    "マーケティング"
+  ]
+}

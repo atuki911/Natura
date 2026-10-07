@@ -1,0 +1,107 @@
+{
+  "id": "photoai",
+  "name": "Photo AI",
+  "url": "https://photoai.com",
+  "tagline": "自撮り写真を学習させ、どんなシーンの写真でも生成できるAIフォトスタジオ",
+  "founders": [
+    {
+      "name": "Pieter Levels",
+      "country": "オランダ"
+    }
+  ],
+  "basedIn": "拠点を持たないデジタルノマド",
+  "teamSize": 1,
+  "teamNote": "完全に1人で開発・運営",
+  "launched": "2023-02",
+  "status": "active",
+  "category": "ai-photo",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "SNS・プロフィール・宣材用の写真を撮るには撮影場所・カメラマン・時間が必要。",
+  "solution": "自撮りを十数枚アップロードすると本人のAIモデルを学習し、テキスト指示でさまざまな場所・服装・ポーズの写真を生成する。",
+  "target": "SNS用写真が欲しい個人、インフルエンサー、マッチングアプリ利用者、プロフィール写真が必要な人",
+  "pricing": {
+    "type": "subscription",
+    "plans": [],
+    "note": "月額サブスク（複数プラン）。価格は時期により変動するため公式サイトで確認。"
+  },
+  "revenue": [
+    {
+      "date": "2024-09",
+      "metric": "MRR",
+      "usd": 132000,
+      "sourceId": "s1",
+      "confidence": "medium",
+      "note": "18か月で$132K MRRに到達したとするケーススタディ"
+    },
+    {
+      "date": "2025-09",
+      "metric": "MRR",
+      "usd": 150000,
+      "sourceId": "s2",
+      "confidence": "medium",
+      "note": "過去最高の月次売上として報道。その後$100K前後に変動"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped（外部資金なし）",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 3,
+  "aiDependency": "high",
+  "techStack": [
+    "PHP",
+    "jQuery",
+    "SQLite",
+    "外部の画像生成モデルAPI（Replicate等）"
+  ],
+  "channels": [
+    "x-build-in-public",
+    "viral-loop",
+    "seo"
+  ],
+  "growthTactics": [
+    "Xの大規模フォロワーに向けて開発過程と売上を公開（Build in Public）",
+    "生成した写真そのものが広告になる（SNSで共有される）",
+    "シンプルな技術構成で高速に機能追加し、話題のモデルをすぐ取り込む"
+  ],
+  "lessons": [
+    "70以上のプロジェクトを試した末のヒット。数を打つことが前提",
+    "利益率が高いのは1人運営で人件費がないため",
+    "売上は月によって大きく変動し、ピークが続くとは限らない"
+  ],
+  "risks": [
+    "画像生成モデルの進化で参入障壁が下がる",
+    "他人の写真の悪用リスク",
+    "GPU原価の変動"
+  ],
+  "japan": {
+    "localAngle": "汎用のAIフォトではなく、日本固有の写真需要（就活の証明写真、士業・営業職の宣材、マッチングアプリ）に絞る。",
+    "notes": [
+      "Pieter Levels本人の発信力（数十万フォロワー）が集客の前提にある点は日本で再現しにくい。SEOと無料ツールで代替する。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Photo AI by Pieter Levels: Complete case study, 0 to $132K MRR in 18 months (Indie Hackers)",
+      "url": "https://www.indiehackers.com/post/photo-ai-by-pieter-levels-complete-dive-case-study-0-to-132k-mrr-in-18-months-3a9a2b1579",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "How one photo AI app generates $132K monthly after 70 failed startups (PPC Land)",
+      "url": "https://ppc.land/how-one-photo-ai-app-generates-132k-monthly-after-70-failed-startups/",
+      "kind": "press",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "画像生成",
+    "ソロ",
+    "Build in Public",
+    "高利益率"
+  ]
+}

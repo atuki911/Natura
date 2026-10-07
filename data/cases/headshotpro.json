@@ -1,0 +1,93 @@
+{
+  "id": "headshotpro",
+  "name": "HeadshotPro",
+  "url": "https://www.headshotpro.com",
+  "tagline": "自撮りからビジネス用のプロ品質ヘッドショットを生成",
+  "founders": [
+    {
+      "name": "Danny Postma",
+      "country": "オランダ"
+    }
+  ],
+  "basedIn": "インドネシア（バリ）など",
+  "teamSize": 1,
+  "teamNote": "ソロ創業（後に少人数体制との情報もあり）",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "ai-photo",
+  "secondaryCategories": [],
+  "model": "B2C",
+  "problem": "LinkedInや会社のプロフィール用の写真をスタジオで撮るのは高く、手間がかかる。",
+  "solution": "自撮りをアップロードすると、背景・服装・ライティングを整えたビジネスヘッドショットを数十枚生成。チーム一括撮影プランもある。",
+  "target": "ビジネスパーソン、リモートワーク企業（チーム一括）",
+  "pricing": {
+    "type": "one-time",
+    "plans": [],
+    "note": "単発パッケージ課金（サブスクではない）。価格は公式サイトで確認。"
+  },
+  "revenue": [
+    {
+      "date": "2024-06",
+      "metric": "monthly",
+      "usd": 300000,
+      "sourceId": "s1",
+      "confidence": "low",
+      "note": "インディー系まとめ記事で「月$300K」と紹介"
+    }
+  ],
+  "traction": [],
+  "funding": "bootstrapped",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 3,
+  "aiDependency": "high",
+  "techStack": [
+    "画像生成モデルのファインチューニング",
+    "Webアプリ"
+  ],
+  "channels": [
+    "seo",
+    "affiliate",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "SEOで「AI headshot」系キーワードを押さえる",
+    "企業向けチームプランで客単価を上げる",
+    "前作（ProfilePicture.AI、Headlime等）で得た知見とブランドを活用"
+  ],
+  "lessons": [
+    "「退屈だが確実に需要がある」用途に絞った",
+    "連続起業でヒットの確率を上げている"
+  ],
+  "risks": [
+    "同様のサービスの乱立",
+    "他人の写真の悪用"
+  ],
+  "japan": {
+    "localAngle": "日本では「LinkedIn用」より「就活の証明写真」「社員紹介ページ用の統一写真」の方が需要が明確。",
+    "notes": [],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Headshot Pro $300K/month (aibusiness.vc)",
+      "url": "https://aibusiness.vc/solo/headshot-pro-300k-month",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Danny Postma — An Indie Hacker’s Business Evolution (The Bootstrapped Founder)",
+      "url": "https://www.thebootstrappedfounder.com/danny-postma/",
+      "kind": "aggregator",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "画像生成",
+    "ソロ",
+    "SEO",
+    "単発課金"
+  ]
+}

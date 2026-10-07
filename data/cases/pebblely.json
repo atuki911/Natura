@@ -1,0 +1,92 @@
+{
+  "id": "pebblely",
+  "name": "Pebblely",
+  "url": "https://pebblely.com",
+  "tagline": "商品写真から背景を生成して、EC用の映える商品画像を作る",
+  "founders": [
+    {
+      "name": "Alfred Lua",
+      "country": "シンガポール"
+    },
+    {
+      "name": "Swee Kiat Lim",
+      "country": "シンガポール"
+    }
+  ],
+  "basedIn": "シンガポール",
+  "teamSize": 3,
+  "teamNote": "共同創業者2名＋エンジニア1名＋非常勤AI研究者（2023年8月時点）",
+  "launched": "2023-01",
+  "status": "active",
+  "category": "ecommerce",
+  "secondaryCategories": [
+    "ai-photo"
+  ],
+  "model": "B2B",
+  "problem": "小規模EC事業者は商品撮影にお金をかけられない。",
+  "solution": "背景を切り抜いた商品写真から、テーマに合わせた背景・小物を生成する。",
+  "target": "小規模EC事業者・D2Cブランド",
+  "pricing": {
+    "type": "freemium",
+    "plans": [],
+    "note": "無料枠＋月額プラン。"
+  },
+  "revenue": [],
+  "traction": [
+    {
+      "date": "2023-08",
+      "label": "ローンチ7か月で登録100万人、100か国以上に有料顧客",
+      "sourceId": "s1"
+    }
+  ],
+  "funding": "当初bootstrapped（後に資金調達の情報あり）",
+  "buildComplexity": 3,
+  "nocodePossible": false,
+  "initialCost": 2,
+  "aiDependency": "high",
+  "techStack": [
+    "画像生成モデル"
+  ],
+  "channels": [
+    "seo",
+    "viral-loop",
+    "x-build-in-public"
+  ],
+  "growthTactics": [
+    "2日で作って公開し、反応を見ながら改善"
+  ],
+  "lessons": [
+    "元EC事業者の課題感が強みになった"
+  ],
+  "risks": [
+    "Photoroom等の大手、EC基盤の標準機能化"
+  ],
+  "japan": {
+    "localAngle": "楽天市場の画像ガイドライン準拠、メルカリShops・BASE・STORES出品者向けのスマホ完結版。",
+    "notes": [
+      "売上は非公開。ユーザー数のみ公表。"
+    ],
+    "scoreAdjust": {}
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Pebblely hits one million signups (Pebblely blog)",
+      "url": "https://pebblely.com/blog/one-million-signups/",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    },
+    {
+      "id": "s2",
+      "title": "Chat with Pebblely co-founder Alfred Lua (Aspire)",
+      "url": "https://aspireapp.com/blog/chat-with-pebbley-co-founder-alfred-lua",
+      "kind": "founder",
+      "accessed": "2026-10-07"
+    }
+  ],
+  "tags": [
+    "EC",
+    "アジア発",
+    "少人数"
+  ]
+}
