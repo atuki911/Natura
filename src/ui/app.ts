@@ -491,8 +491,15 @@ export class App {
       d.quality = q.dataset.q as 'high' | 'low'; save(); this.applyQuality();
       m.querySelectorAll('[data-q]').forEach((x) => x.classList.toggle('on', x === q));
     });
-    (m.querySelector('[data-act=reset]') as HTMLElement).onclick = () => {
-      if (!confirm('セーブデータをすべて消去しますか?')) return;
+    const resetBtn = m.querySelector('[data-act=reset]') as HTMLElement;
+    resetBtn.onclick = () => {
+      // two-step confirmation inside the page (browser dialogs can be blocked)
+      if (resetBtn.dataset.armed !== '1') {
+        resetBtn.dataset.armed = '1';
+        resetBtn.textContent = 'もう一度押すと消去';
+        audio.play('deny');
+        return;
+      }
       resetSave();
       this.data = load();
       location.reload();
