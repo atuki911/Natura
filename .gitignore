@@ -3,3 +3,4 @@ dist/
 test-results/
 screenshots/
 .DS_Store
+.claude/worktrees/
