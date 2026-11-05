@@ -52,6 +52,10 @@ export class BootScene extends Phaser.Scene {
       this.scene.start('battle', config);
       return;
     }
+    if (params.has('upgrades')) {
+      this.scene.start('upgrades');
+      return;
+    }
     if (params.has('map')) {
       this.scene.start('map');
       return;
