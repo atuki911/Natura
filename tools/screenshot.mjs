@@ -26,9 +26,12 @@ const scenes = opt('url', null)
   ? [{ name: opt('name', 'shot'), url: opt('url'), wait: Number(opt('wait', 5000)) }]
   : [
       { name: '01-title', url: '?', wait: 6000 },
-      { name: '02-early', url: '?autoplay&seed=2&speed=2', wait: 9000 },
-      { name: '03-midgame', url: '?autoplay&seed=3&wave=6&speed=2', wait: 14000 },
-      { name: '04-boss', url: '?autoplay&seed=4&wave=10&speed=2', wait: 16000 },
+      { name: '02-map', url: '?map', wait: 3000 },
+      { name: '03-tutorial', url: '?play&stage=1-1', wait: 4000 },
+      { name: '04-region1-boss', url: '?autoplay&stage=1-3&seed=4&wave=10&speed=2', wait: 16000 },
+      { name: '05-region2', url: '?autoplay&stage=2-1&seed=3&wave=3&speed=2', wait: 14000 },
+      { name: '06-region2-boss', url: '?autoplay&stage=2-3&seed=3&wave=10&speed=2', wait: 16000 },
+      { name: '07-region3-boss', url: '?autoplay&stage=3-3&seed=3&wave=10&speed=2', wait: 16000 },
     ];
 
 const server = await createServer({ server: { port: 5199, strictPort: false }, logLevel: 'error' });

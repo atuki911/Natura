@@ -47,8 +47,13 @@ export class BootScene extends Phaser.Scene {
         seed: params.has('seed') ? Number(params.get('seed')) : undefined,
         speed: params.has('speed') ? Number(params.get('speed')) : undefined,
         startWave: params.has('wave') ? Number(params.get('wave')) : undefined,
+        stageId: params.get('stage') ?? undefined,
       };
       this.scene.start('battle', config);
+      return;
+    }
+    if (params.has('map')) {
+      this.scene.start('map');
       return;
     }
     this.scene.start('title');

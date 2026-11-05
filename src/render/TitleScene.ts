@@ -38,10 +38,8 @@ export class TitleScene extends Phaser.Scene {
     play.root.setDepth(DEPTH.overlay);
     this.tweens.add({ targets: play.root, scale: 1.06, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
 
-    const best = loadSave().bestStars.stage1 ?? 0;
-    label(this, VIEW.width / 2, 362, `${L.stage1}   ${'★'.repeat(best)}${'☆'.repeat(3 - best)}`, { size: 17, color: '#ffe28a' }).setDepth(
-      DEPTH.overlay,
-    );
+    const total = Object.values(loadSave().bestStars).reduce((a, b) => a + b, 0);
+    label(this, VIEW.width / 2, 362, `★ ${total} / 27`, { size: 18, color: '#ffe28a' }).setDepth(DEPTH.overlay);
 
     const lang = button(this, 60, 670, 'btn_stone', getLang() === 'ja' ? 'English' : '日本語', () => {
       setLang(getLang() === 'ja' ? 'en' : 'ja');
@@ -67,6 +65,6 @@ export class TitleScene extends Phaser.Scene {
   private start(): void {
     sfx.unlock();
     this.scene.stop('battle');
-    this.scene.start('battle', { mode: 'play' });
+    this.scene.start('map');
   }
 }

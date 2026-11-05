@@ -65,6 +65,7 @@ export class Hud {
   private castleText: Phaser.GameObjects.Text;
   private bossRoot: Phaser.GameObjects.Container;
   private bossBar: Phaser.GameObjects.Graphics;
+  private bossName: Phaser.GameObjects.Text;
   private bossTrail = 1;
   private castleTrail = 1;
   private shownGold = 0;
@@ -96,7 +97,7 @@ export class Hud {
     root.add([this.goldText, this.manaText, this.manaBar, this.waveText]);
 
     // ユニットのカード
-    UNIT_ORDER.forEach((unit, i) => {
+    UNIT_ORDER.filter((u) => world.stage.units.includes(u)).forEach((unit, i) => {
       const card = this.makeCard(unit, 291 + i * 92, 662, i + 1, () => actions.spawn(unit));
       root.add(card.root);
       this.cards.push(card);
@@ -144,7 +145,8 @@ export class Hud {
     // 上: ボスの体力
     this.bossRoot = scene.add.container(0, 0).setDepth(DEPTH.hud).setVisible(false);
     this.bossBar = scene.add.graphics();
-    this.bossRoot.add([this.bossBar, label(scene, 640, 20, L.enemies.mireMaw, { size: 20, color: '#ffd0f0' })]);
+    this.bossName = label(scene, 640, 20, '', { size: 20, color: '#ffd0f0' });
+    this.bossRoot.add([this.bossBar, this.bossName]);
 
     // 説明の吹き出し
     this.tooltip = scene.add.container(0, 0).setDepth(DEPTH.hud + 10).setVisible(false);
@@ -332,6 +334,8 @@ export class Hud {
     const boss = w.boss();
     if (boss) {
       if (!this.bossRoot.visible) {
+        const names = L.enemies as Record<string, string>;
+        this.bossName.setText(names[boss.def.id] ?? '');
         this.bossRoot.setVisible(true).setAlpha(0);
         this.scene.tweens.add({ targets: this.bossRoot, alpha: 1, duration: 400 });
         this.bossTrail = 1;

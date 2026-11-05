@@ -5,6 +5,7 @@ import { BattleScene } from './render/BattleScene.ts';
 import { BootScene } from './render/BootScene.ts';
 import { CANVAS } from './render/layout.ts';
 import { sfx } from './render/sfx.ts';
+import { MapScene } from './render/MapScene.ts';
 import { TitleScene } from './render/TitleScene.ts';
 import { loadSave } from './save.ts';
 
@@ -27,7 +28,7 @@ async function start(): Promise<void> {
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     render: { antialias: true, roundPixels: false },
     input: { activePointers: 2 },
-    scene: [BootScene, TitleScene, BattleScene],
+    scene: [BootScene, TitleScene, MapScene, BattleScene],
   });
   // 検証ツール(tools/screenshot.mjs)から状態を読めるようにする
   (window as unknown as { __natura: Phaser.Game }).__natura = game;

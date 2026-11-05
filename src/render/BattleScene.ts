@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { STAGES } from '../data/stages.ts';
+import { nextStage, STAGES } from '../data/stages.ts';
+import { UNIT_ORDER } from '../data/units.ts';
 import { METEOR_DELAY, METEOR_RADIUS, TOWERS, TOWER_ORDER } from '../data/towers.ts';
 import { UNITS } from '../data/units.ts';
 import { t } from '../i18n.ts';
@@ -19,6 +20,7 @@ import { ATTACK_STRIKE, drawRagdoll, drawStickman, type StickKind } from './stic
 import { button, label } from './widgets.ts';
 import { attachDebugPanel } from './debugPanel.ts';
 import { TreeLayer } from './TreeLayer.ts';
+import { Tutorial } from './Tutorial.ts';
 
 const S = 1 / ART_SCALE;
 
@@ -83,6 +85,7 @@ export class BattleScene extends Phaser.Scene {
   private bot: Bot | null = null;
   private fx!: Fx;
   private trees!: TreeLayer;
+  private tutorial: Tutorial | null = null;
   private hud: Hud | null = null;
   private accumulator = 0;
   private speed = 1;
@@ -125,6 +128,7 @@ export class BattleScene extends Phaser.Scene {
     this.resultShown = false;
     this.hud = null;
     this.hint = null;
+    this.tutorial = null;
   }
 
   get isAttract(): boolean {
@@ -133,7 +137,7 @@ export class BattleScene extends Phaser.Scene {
 
   create(): void {
     setupCamera(this);
-    const stage = STAGES.find((s) => s.id === this.config.stageId) ?? STAGES[0];
+    const stage = STAGES.find((s) => s.id === this.config.stageId) ?? STAGES.find((s) => s.id === '1-3') ?? STAGES[0];
     const seed = this.config.seed ?? Math.floor(Math.random() * 1e9);
     this.world = new World(stage, seed);
     if (this.config.startWave && this.config.startWave > 1) {
@@ -167,6 +171,10 @@ export class BattleScene extends Phaser.Scene {
       this.hud.muteText.setText(loadSave().muted ? 'OFF' : 'ON');
       this.bindKeys();
       platform.gameplayStart();
+      const firstUnit = UNIT_ORDER.find((u) => this.world.stage.units.includes(u)) ?? 'sword';
+      if (this.world.stage.tutorial && !this.config.autoplay && !loadSave().tutorialDone) {
+        this.tutorial = new Tutorial(this, this.world, this.hud.cardPosition(firstUnit));
+      }
     }
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onFieldClick(p));
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => this.onPointerMove(p));
@@ -178,9 +186,15 @@ export class BattleScene extends Phaser.Scene {
   // ---- 背景・建物 ----
 
   private buildScenery(): void {
-    this.add.image(0, 0, 'bg_stage1').setOrigin(0, 0).setScale(S).setDepth(DEPTH.sky);
-    // 雲
-    const cloudKeys = ['cloud_0', 'cloud_1', 'cloud_2', 'cloud_0', 'cloud_blight'];
+    const bg = this.textures.exists(this.world.stage.background) ? this.world.stage.background : 'bg_stage1';
+    this.add.image(0, 0, bg).setOrigin(0, 0).setScale(S).setDepth(DEPTH.sky);
+    // 雲(地域ごとに色を変える)
+    const region = this.world.stage.region;
+    const regionCloud = region === 2 ? 'cloud_dusk' : region === 3 ? 'cloud_storm' : null;
+    const cloudKeys =
+      regionCloud && this.textures.exists(regionCloud)
+        ? [regionCloud, regionCloud, regionCloud, regionCloud, regionCloud]
+        : ['cloud_0', 'cloud_1', 'cloud_2', 'cloud_0', 'cloud_blight'];
     const cloudPos: [number, number][] = [
       [120, 60],
       [520, 120],
@@ -233,7 +247,7 @@ export class BattleScene extends Phaser.Scene {
   private bindKeys(): void {
     const kb = this.input.keyboard;
     if (!kb) return;
-    const units: UnitId[] = ['sword', 'archer', 'mage', 'bomber'];
+    const units: UnitId[] = UNIT_ORDER.filter((u) => this.world.stage.units.includes(u));
     units.forEach((unit, i) => kb.on(`keydown-${['ONE', 'TWO', 'THREE', 'FOUR'][i]}`, () => this.trySpawn(unit)));
     kb.on('keydown-Q', () => this.tryAbility('heal'));
     kb.on('keydown-W', () => this.tryAbility('meteor'));
@@ -445,6 +459,7 @@ export class BattleScene extends Phaser.Scene {
     const animDt = this.paused ? 0 : dt * (this.fx.hitstop > 0 ? 0.05 : Math.min(this.speed, 2));
     this.syncFighters(animDt);
     this.trees.update(animDt);
+    this.tutorial?.update(dt);
     this.syncProjectiles();
     this.animateScenery(dt, animDt);
     this.hud?.update(dt);
@@ -454,6 +469,7 @@ export class BattleScene extends Phaser.Scene {
   private handleEvents(events: SimEvent[]): void {
     const L = t();
     for (const e of events) {
+      this.tutorial?.onEvent(e);
       if (this.trees.handleEvent(e)) continue;
       switch (e.t) {
         case 'spawn': {
@@ -935,6 +951,8 @@ export class BattleScene extends Phaser.Scene {
     platform.gameplayStop();
     const ratio = this.world.castle.hp / this.world.castle.maxHp;
     const stars = victory ? (ratio >= 0.9 ? 3 : ratio >= 0.5 ? 2 : 1) : 0;
+    const next = victory ? nextStage(this.world.stage.id) : undefined;
+    const finale = victory && !next;
     if (victory) {
       updateSave((d) => {
         d.bestStars[this.world.stage.id] = Math.max(d.bestStars[this.world.stage.id] ?? 0, stars);
@@ -945,7 +963,11 @@ export class BattleScene extends Phaser.Scene {
     const dim = this.add.rectangle(VIEW.width / 2, VIEW.height / 2, VIEW.width, VIEW.height, 0x0a0812, 0).setInteractive();
     this.tweens.add({ targets: dim, fillAlpha: 0.55, duration: 300 });
     const panel = this.add.image(VIEW.width / 2, 340, 'panel').setScale(S);
-    const title = label(this, VIEW.width / 2, 210, victory ? L.victory : L.defeat, { size: 60, color: victory ? '#ffd640' : '#ff6a6a', stroke: 12 });
+    const title = label(this, VIEW.width / 2, 210, finale ? L.finale : victory ? L.victory : L.defeat, {
+      size: finale ? 46 : 60,
+      color: victory ? '#ffd640' : '#ff6a6a',
+      stroke: 12,
+    });
     root.add([dim, panel, title]);
     if (victory) {
       for (let i = 0; i < 3; i++) {
@@ -958,9 +980,22 @@ export class BattleScene extends Phaser.Scene {
       ? `${L.kills}: ${this.world.stats.kills}\n${L.deployed}: ${this.world.stats.unitsDeployed}`
       : `${L.reached}: ${this.world.wavesStarted} / ${this.world.totalWaves}\n${L.kills}: ${this.world.stats.kills}`;
     root.add(label(this, VIEW.width / 2, victory ? 372 : 330, lines, { size: 20, color: '#d8e4ff' }));
-    const retry = button(this, VIEW.width / 2 - 125, 460, 'btn_green', L.retry, () => this.scene.restart({ ...this.config, seed: undefined }), { width: 220, height: 54 });
-    const home = button(this, VIEW.width / 2 + 125, 460, 'btn_stone', L.title, () => this.goTitle(), { width: 220, height: 54 });
-    root.add([retry.root, home.root]);
+    const retry = () => this.scene.restart({ ...this.config, seed: undefined });
+    const buttons = next
+      ? [
+          button(this, VIEW.width / 2 - 170, 466, 'btn_stone', L.retry, retry, { width: 150, height: 54, size: 20 }),
+          button(this, VIEW.width / 2, 466, 'btn_green', L.nextStage, () => this.scene.restart({ ...this.config, stageId: next.id, seed: undefined }), {
+            width: 180,
+            height: 54,
+            size: 20,
+          }),
+          button(this, VIEW.width / 2 + 170, 466, 'btn_stone', L.map, () => this.goMap(), { width: 150, height: 54, size: 20 }),
+        ]
+      : [
+          button(this, VIEW.width / 2 - 125, 466, victory ? 'btn_stone' : 'btn_green', L.retry, retry, { width: 220, height: 54 }),
+          button(this, VIEW.width / 2 + 125, 466, victory ? 'btn_green' : 'btn_stone', L.map, () => this.goMap(), { width: 220, height: 54 }),
+        ];
+    root.add(buttons.map((b) => b.root));
     root.setAlpha(0);
     this.tweens.add({ targets: root, alpha: 1, duration: 300 });
     this.overlay = root;
@@ -975,13 +1010,13 @@ export class BattleScene extends Phaser.Scene {
     const items: [string, string, () => void][] = [
       [L.resume, 'btn_green', () => this.togglePause()],
       [L.restart, 'btn_gold', () => this.scene.restart({ ...this.config, seed: undefined })],
-      [L.title, 'btn_stone', () => this.goTitle()],
+      [L.map, 'btn_stone', () => this.goMap()],
     ];
     items.forEach(([text, key, action], i) => root.add(button(this, VIEW.width / 2, 300 + i * 64, key, text, action, { width: 230, height: 54 }).root));
     this.overlay = root;
   }
 
-  private goTitle(): void {
-    this.scene.start('title');
+  private goMap(): void {
+    this.scene.start('map', { focus: this.world.stage.id });
   }
 }

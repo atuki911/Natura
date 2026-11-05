@@ -20,6 +20,12 @@ const en = {
   victory: 'VICTORY!',
   defeat: 'DEFEAT',
   retry: 'RETRY',
+  nextStage: 'NEXT',
+  map: 'MAP',
+  finale: 'THE REALM IS SAVED!',
+  locked: 'Locked',
+  back: 'BACK',
+  selectStage: 'Choose a battle',
   kills: 'Enemies defeated',
   deployed: 'Units deployed',
   reached: 'Reached wave',
@@ -59,6 +65,15 @@ const en = {
   },
   enemies: {
     mireMaw: 'THE MIRE MAW',
+    sporeMother: 'THE SPORE MOTHER',
+    blightHeart: 'HEART OF THE BLIGHT',
+  },
+  tut: {
+    spawn: 'Tap a card to send a soldier',
+    fight: 'Soldiers march right and fight. Protect the castle!',
+    tree: 'Fallen soldiers become trees that keep fighting!',
+    harvest: 'Brush over a ripe tree to harvest it',
+    nextWave: 'Call the next wave early for bonus gold',
   },
 };
 
@@ -84,6 +99,12 @@ const ja: Dict = {
   victory: '勝利！',
   defeat: '敗北',
   retry: 'もう一度',
+  nextStage: '次へ',
+  map: '地図',
+  finale: '王国は救われた！',
+  locked: 'まだ行けない',
+  back: 'もどる',
+  selectStage: '戦う場所を選ぶ',
   kills: '倒した敵',
   deployed: '出したユニット',
   reached: '到達ウェーブ',
@@ -123,6 +144,15 @@ const ja: Dict = {
   },
   enemies: {
     mireMaw: '泥沼の大口',
+    sporeMother: '胞子の母',
+    blightHeart: '穢れの心臓',
+  },
+  tut: {
+    spawn: 'カードを押して兵を出そう',
+    fight: '兵は右へ進んで戦う。城を守りきれば勝ち!',
+    tree: '倒れた兵は木になって、戦い続ける!',
+    harvest: '実った木をなでると収穫できる',
+    nextWave: '次のウェーブを早く呼ぶとボーナス',
   },
 };
 
