@@ -229,12 +229,12 @@ export class BattleScene extends Phaser.Scene {
     kb.on('keydown-Q', () => this.tryAbility('heal'));
     kb.on('keydown-W', () => this.tryAbility('meteor'));
     kb.on('keydown-SPACE', () => this.world.command({ type: 'nextWave' }));
-    kb.on('keydown-ESC', () => {
+    // Esc は提出先(CrazyGames)の決まりで使わない。取り消しは右クリック、一時停止は P。
+    kb.on('keydown-P', () => {
       if (this.targeting) this.cancelTargeting();
       else if (this.buildMenu) this.closeBuildMenu();
       else this.togglePause();
     });
-    kb.on('keydown-P', () => this.togglePause());
     kb.on('keydown-F', () => this.cycleSpeed());
   }
 

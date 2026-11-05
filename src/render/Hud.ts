@@ -131,7 +131,7 @@ export class Hud {
     });
     this.speedText = label(scene, 1186, 698, 'x1', { size: 15 });
     this.muteText = label(scene, 1244, 698, 'ON', { size: 15 });
-    root.add([label(scene, 1128, 698, 'Esc', { size: 13, color: '#c8d4ea' }), this.speedText, this.muteText]);
+    root.add([label(scene, 1128, 698, 'P', { size: 13, color: '#c8d4ea' }), this.speedText, this.muteText]);
     void smallButtons;
 
     // 上: 城の体力
