@@ -7,6 +7,7 @@ import { ICON } from './icons.ts';
 import { rigPortrait, towerPortrait } from './portraits.ts';
 import { audio } from '../audio/audio.ts';
 import { Guide, rectTarget, type GuideTarget } from './guide.ts';
+import { uiScale } from './scale.ts';
 import { ITEMS, ITEM, type ItemId } from '../data/items.ts';
 
 export interface HudHost {
@@ -42,7 +43,7 @@ type TutStep = '' | 'spot1' | 'pick1' | 'conf1' | 'wave' | 'w1' | 'spot2' | 'pic
 const el = (tag: string, cls = '', html = '') => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
 const fmt = (n: number) => Math.round(n).toString();
 const pct = (v: number) => Math.round(v * 100) + '%';
-const small = () => window.innerHeight < 520 || window.innerWidth < 700;
+const small = () => false;
 
 export class Hud {
   root: HTMLElement;
@@ -63,6 +64,7 @@ export class Hud {
   private selOpt: string | null = null;
   private targeting: 'meteor' | 'reinforce' | 'rally' | 'bomb' | null = null;
   private itemBtns: { id: ItemId; el: HTMLElement }[] = [];
+  private bagBtn!: HTMLElement;
   private tipCol: HTMLElement;
   private tipQueue = new Set<string>();
   private waveArmed = -1;
@@ -85,17 +87,18 @@ export class Hud {
     this.root.style.cssText = 'position:absolute;inset:0;';
     ui.appendChild(this.root);
 
-    const top = el('div', 'hud-top');
-    this.livesEl = el('div', 'hud-chip outlined', ICON.heart + '<span></span>');
-    this.goldEl = el('div', 'hud-chip outlined', ICON.coin + '<span></span>');
-    this.waveEl = el('div', 'hud-chip outlined', ICON.wave + '<span></span>');
-    top.append(this.livesEl, this.goldEl, this.waveEl);
+    const top = el('div', 'hud-stats outlined');
+    this.livesEl = el('span', 'st', ICON.heart + '<b></b>');
+    this.goldEl = el('span', 'st', ICON.coin + '<b></b>');
+    this.waveEl = el('span', 'st wave', ICON.skull + '<b></b>');
+    const row1 = el('div', 'st-row'); row1.append(this.livesEl, this.goldEl);
+    const row2 = el('div', 'st-row'); row2.append(this.waveEl);
+    top.append(row1, row2);
     this.root.appendChild(top);
-
     const right = el('div', 'hud-right');
-    this.speedBtn = el('button', 'btn iconbtn wood outlined', '') as HTMLButtonElement;
+    this.speedBtn = el('button', 'sqbtn outlined', '') as HTMLButtonElement;
     this.speedBtn.onclick = () => { audio.play('click'); this.host.speed = this.host.speed >= 3 ? 1 : this.host.speed + 1; this.refreshSpeed(); };
-    const pause = el('button', 'btn iconbtn wood', ICON.pause);
+    const pause = el('button', 'sqbtn', ICON.pause);
     pause.onclick = () => { audio.play('click'); this.host.openPauseMenu(); };
     right.append(this.speedBtn, pause);
     this.root.appendChild(right);
@@ -112,20 +115,23 @@ export class Hud {
     const items = el('div', 'itembar');
     const art: Record<ItemId, string> = { bomb: ICON.itemBomb, frost: ICON.itemFrost, goldsack: ICON.itemGold, heart: ICON.itemHeart, thunder: ICON.itemThunder };
     for (const it of ITEMS) {
-      const b = el('div', 'itembtn', `${art[it.id]}<span class="icount outlined"></span>`);
+      const b = el('div', 'itembtn', `${art[it.id]}<span class="icount outlined"></span><span class="iname outlined">${it.name}</span>`);
       b.title = it.name + ': ' + it.desc;
       b.onclick = () => this.onItem(it.id);
       items.appendChild(b);
       this.itemBtns.push({ id: it.id, el: b });
     }
-    br.appendChild(items);
+    const bag = el('div', 'spell bag', `<div class="spell-face">${ICON.bag}</div><span class="bagcount outlined"></span><div class="spell-name outlined">道具</div>`);
+    bag.onclick = () => { audio.play('click'); items.classList.toggle('open'); };
+    this.bagBtn = bag;
+    br.append(items, bag);
+    this.root.appendChild(br);
     if (game.hero) {
       const h = game.hero;
       this.heroBtn = el('div', 'spell hero', `<div class="spell-face"><img src="${rigPortrait(h.model)}"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lvbadge outlined"></div><div class="herohp"><i></i></div>`);
       this.heroBtn.onclick = () => this.onHeroButton();
-      br.appendChild(this.heroBtn);
+      this.root.appendChild(this.heroBtn);
     }
-    this.root.appendChild(br);
     this.tipCol = el('div', 'tipcol');
     this.root.appendChild(this.tipCol);
     this.refreshItems();
@@ -156,7 +162,7 @@ export class Hud {
     this.host.world.heroSelected = false;
   }
 
-  private refreshSpeed() { this.speedBtn.innerHTML = `<span style="font-size:20px">x${this.host.speed}</span>`; }
+  private refreshSpeed() { this.speedBtn.innerHTML = `<span>x${this.host.speed}</span>`; }
 
   // ───────────────────────── input ─────────────────────────
   private onHeroButton() {
@@ -303,6 +309,7 @@ export class Hud {
     this.closeRadial();
     this.sel = null;
     if (ITEM[id].target) { audio.play('click'); this.targeting = this.targeting === 'bomb' ? null : 'bomb'; this.refreshTargetBar(); return; }
+    this.itemBtns[0].el.parentElement?.classList.remove('open');
     if (g.useItem(id)) {
       this.host.consumeItem(id);
       this.refreshItems();
@@ -313,6 +320,9 @@ export class Hud {
   }
 
   private refreshItems() {
+    let total = 0;
+    for (const { id } of this.itemBtns) total += this.host.itemCount(id);
+    if (this.bagBtn) (this.bagBtn.querySelector('.bagcount') as HTMLElement).textContent = String(total);
     for (const { id, el: e } of this.itemBtns) {
       const n = this.host.itemCount(id);
       (e.querySelector('.icount') as HTMLElement).textContent = String(n);
@@ -361,7 +371,7 @@ export class Hud {
     this.closeRadial();
     const r = el('div', 'radial');
     r.appendChild(el('div', 'ring'));
-    const k = small() ? 0.92 : 1;
+    const k = uiScale();
     for (const o of opts) {
       const b = el('div', 'ropt' + (o.disabled ? ' lockline' : '') + (o.maxed ? ' maxed' : ''), o.html + `<div class="confirm">${ICON.check}</div>`);
       b.dataset.key = o.key;
@@ -418,11 +428,11 @@ export class Hud {
     const confirmHint = !o.instant && !o.disabled ? `<div class="tip-confirm">${this.selOpt === o.key ? 'もう一度タップで決定!' : 'タップで選択 → もう一度で決定'}</div>` : '';
     this.tooltip.innerHTML = o.info() + confirmHint;
     this.tooltip.style.display = 'block';
-    const tw = Math.min(small() ? 220 : 270, window.innerWidth - 24);
+    const tw = Math.min(340 * uiScale(), window.innerWidth - 24);
     this.tooltip.style.width = tw + 'px';
     const rr = this.radial?.getBoundingClientRect();
     const cx = rr ? rr.left : window.innerWidth / 2, cy = rr ? rr.top : window.innerHeight / 2;
-    const reach = small() ? 112 : 128;
+    const reach = 165 * uiScale();
     const th = this.tooltip.offsetHeight;
     let x: number, y: number;
     const roomR = window.innerWidth - (cx + reach), roomL = cx - reach;
@@ -451,7 +461,7 @@ export class Hud {
 
   private openBuild(spotId: number) {
     const g = this.game;
-    const corners = [[-66, -66], [66, -66], [-66, 66], [66, 66]];
+    const corners = [[-88, -88], [88, -88], [-88, 88], [88, 88]];
     const opts: Option[] = LINES.map((line, i) => {
       const def = TOWER[LINE_INFO[line].base];
       const cost = g.towerCost(def);
@@ -488,12 +498,12 @@ export class Hud {
     if (next.length === 1) {
       const def = TOWER[next[0]];
       const cost = g.towerCost(def);
-      opts.push({ key: 'up', dx: 0, dy: -88, cost, range: def.range, html: `<div class="obg up"></div>${ICON.up}<div class="olabel outlined">強化</div><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
+      opts.push({ key: 'up', dx: 0, dy: -118, cost, range: def.range, html: `<div class="obg up"></div>${ICON.up}<div class="olabel outlined">強化</div><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
     } else if (next.length === 2) {
       next.forEach((nid, i) => {
         const def = TOWER[nid];
         const cost = g.towerCost(def);
-        opts.push({ key: 'br' + i, dx: i ? 68 : -68, dy: -68, cost, range: def.range, html: `<img src="${towerPortrait(def.model, 4)}"><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
+        opts.push({ key: 'br' + i, dx: i ? 92 : -92, dy: -92, cost, range: def.range, html: `<img src="${towerPortrait(def.model, 4)}"><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
       });
     } else if (t.def.abilities) {
       t.def.abilities.forEach((ab, i) => {
@@ -501,7 +511,7 @@ export class Hud {
         const cost = g.abilityCost(t, ab.id);
         const pips = ab.costs.map((_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
         opts.push({
-          key: 'ab' + i, dx: i ? 68 : -68, dy: -68, cost: cost ?? undefined, maxed: cost == null,
+          key: 'ab' + i, dx: i ? 92 : -92, dy: -92, cost: cost ?? undefined, maxed: cost == null,
           html: `<div class="obg ${i ? 'ab2' : 'ab1'}"></div>${i ? ICON.magic : ICON.sword}<div class="pips">${pips}</div><div class="cost">${cost == null ? 'MAX' : cost}</div>`,
           info: () => `<h4>${ab.name} Lv${lv}${cost != null ? ' → ' + (lv + 1) : ''}</h4>${ab.desc}<div class="stats"><b>効果</b><span>${ab.values.map((v, k) => (k === lv ? `<u>${fmtVal(v)}</u>` : fmtVal(v))).join(' / ')}</span>${cost != null ? `<b>費用</b><span>${cost} G</span>` : '<b>状態</b><span>最大レベル</span>'}</div>`,
           onConfirm: () => {
@@ -514,9 +524,9 @@ export class Hud {
       });
     }
     const sv = g.sellValue(t);
-    opts.push({ key: 'sell', dx: 0, dy: 90, html: `<div class="obg sell"></div>${ICON.sell}<div class="cost">+${sv}</div>`, info: () => `<h4>売却</h4>このタワーを売って ${sv} G を受け取ります。`, onConfirm: () => { g.sell(t); this.select(null); return true; } });
+    opts.push({ key: 'sell', dx: 0, dy: 120, html: `<div class="obg sell"></div>${ICON.sell}<div class="cost">+${sv}</div>`, info: () => `<h4>売却</h4>このタワーを売って ${sv} G を受け取ります。`, onConfirm: () => { g.sell(t); this.select(null); return true; } });
     if (t.def.soldiers) {
-      opts.push({ key: 'rally', dx: 80, dy: 36, instant: true, html: `<div class="obg rally"></div>${ICON.flag}`, info: () => `<h4>集合地点</h4>兵士の集合場所を変更します。`, onConfirm: () => {
+      opts.push({ key: 'rally', dx: 110, dy: 50, instant: true, html: `<div class="obg rally"></div>${ICON.flag}`, info: () => `<h4>集合地点</h4>兵士の集合場所を変更します。`, onConfirm: () => {
         this.closeRadial();
         this.targeting = 'rally';
         this.refreshTargetBar();
@@ -547,9 +557,10 @@ export class Hud {
       x = t.x; y = t.y; h = 1.6;
     }
     const p = this.host.world.project(x, h, y);
-    const m = small() ? 100 : 112;
-    const px = Math.max(m, Math.min(window.innerWidth - m, p.x));
-    const py = Math.max(m + 10, Math.min(window.innerHeight - m, p.y));
+    const S = uiScale();
+    // keep the whole ring on screen and clear of the corner buttons
+    const px = Math.max(160 * S, Math.min(window.innerWidth - 160 * S, p.x));
+    const py = Math.max(200 * S, Math.min(window.innerHeight - 170 * S, p.y));
     this.radial.style.left = px + 'px';
     this.radial.style.top = py + 'px';
   }
@@ -564,7 +575,7 @@ export class Hud {
       if (this.lastLives > 0 && g.lives < this.lastLives) { this.livesEl.classList.remove('flash'); void this.livesEl.offsetWidth; this.livesEl.classList.add('flash'); }
       this.lastLives = g.lives;
     }
-    (this.waveEl.lastChild as HTMLElement).textContent = `ウェーブ ${Math.max(0, g.waveIdx + 1)}/${g.waves.length}`;
+    (this.waveEl.lastChild as HTMLElement).textContent = `敵部隊 ${Math.max(0, g.waveIdx + 1)}/${g.waves.length}`;
     this.cdButton(this.meteorBtn, g.meteorCd, g.spellMeteorMax, this.targeting === 'meteor');
     this.cdButton(this.reinfBtn, g.reinforceCd, g.spellReinforceMax, this.targeting === 'reinforce');
     const h = g.hero;
@@ -646,9 +657,10 @@ export class Hud {
       b.classList.toggle('first', g.waveIdx === -1);
       b.classList.toggle('armed', this.waveArmed === i);
       const p = this.host.world.project(s.x + s.dx * 3, 0.5, s.y + s.dy * 3);
-      const m = 48;
-      const x = Math.max(m, Math.min(window.innerWidth - m - 120, p.x));
-      const y = Math.max(m + 64, Math.min(window.innerHeight - m - 110, p.y));
+      const S = uiScale();
+      const m = 50 * S;
+      const x = Math.max(m, Math.min(window.innerWidth - m - 160 * S, p.x));
+      const y = Math.max(220 * S, Math.min(window.innerHeight - 230 * S, p.y));
       b.style.left = x + 'px';
       b.style.top = y + 'px';
       const ring = b.querySelector('.ring') as HTMLElement;
@@ -817,7 +829,8 @@ export class Hud {
     this.tutSpots = [a, near(0.5, [a])];
     this.tut = 'spot1';
     this.host.guide.onSkip = () => this.endTutorial(false);
-    this.host.world.focus(0, 1);
+    const s0 = g.spots[a];
+    this.host.world.focus(s0.x * 0.6, s0.y * 0.6);
   }
 
   private endTutorial(celebrate: boolean) {

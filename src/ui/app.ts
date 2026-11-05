@@ -228,13 +228,17 @@ export class App {
       return b;
     };
     const avail = totalStars(d) - spentStars(d);
-    const ub = mk('強化', ICON.up, 'gold', () => this.showUpgrades());
+    const ub = mk('アップグレード', ICON.up, 'gold', () => this.showUpgrades());
     if (avail > 0) ub.insertAdjacentHTML('beforeend', `<span class="dk-badge outlined">${avail}</span>`);
     mk('ショップ', ICON.shop, 'red', () => this.showShop());
-    mk('ヒーロー', ICON.hero, 'blue', () => this.showHeroes());
+    mk('英雄の部屋', ICON.hero, 'blue', () => this.showHeroes());
     mk('図鑑', ICON.book, 'purple', () => this.showEncyclopedia());
-    mk('設定', ICON.gear, 'wood', () => this.showSettings());
     s.appendChild(bottom);
+    const corner = el('div', 'map-corner');
+    const gear = el('button', 'dockbtn plain', `<span class="dk-ic">${ICON.gear}</span><span class="dk-lb outlined">設定</span>`);
+    gear.onclick = () => { audio.play('click'); this.showSettings(); };
+    corner.appendChild(gear);
+    s.appendChild(corner);
     if (this.preTutorial) this.preTutorial = 'map';
   }
 
@@ -434,75 +438,71 @@ export class App {
   // ───────────────────────── upgrades ─────────────────────────
   showUpgrades() {
     const d = this.data;
-    let sel: { t: number; l: number } | null = null;
-    const { m } = this.modal('upg2', '');
-    const art = (id: string) => {
-      switch (id) {
-        case 'archer': return `<img src="${towerPortrait('archer', 3)}">`;
-        case 'barracks': return `<img src="${towerPortrait('barracks', 3)}">`;
-        case 'mage': return `<img src="${towerPortrait('mage', 3)}">`;
-        case 'artillery': return `<img src="${towerPortrait('artillery', 3)}">`;
-        case 'meteor': return `<div class="ug-svg meteor">${ICON.meteorArt}</div>`;
-        default: return `<img src="${rigPortrait('chick_reinf')}">`;
-      }
+    let sel: { t: number; l: number } = { t: 0, l: Math.min(4, d.upgrades.archer) };
+    const { m, ov } = this.modal('upg3', '', false);
+    // one picture per upgrade, so the board reads like a tech tree
+    const icons: Record<string, string[]> = {
+      archer: [ICON.flag, ICON.sword, ICON.up, ICON.fast, ICON.star],
+      barracks: [ICON.heart, ICON.retry, ICON.shield, ICON.sword, ICON.itemHeart],
+      mage: [ICON.magic, ICON.flag, ICON.coin, ICON.skull, ICON.magic],
+      artillery: [ICON.itemBomb, ICON.sword, ICON.flag, ICON.coin, ICON.itemFrost],
+      meteor: [ICON.retry, ICON.meteorArt, ICON.itemBomb, ICON.meteorArt, ICON.itemThunder],
+      reinforce: [ICON.heart, ICON.sword, ICON.shield, ICON.chickArt, ICON.retry],
+    };
+    const cat: Record<string, string> = {
+      archer: `<img src="${towerPortrait('archer', 1)}">`, barracks: `<img src="${towerPortrait('barracks', 1)}">`, mage: `<img src="${towerPortrait('mage', 1)}">`,
+      artillery: `<img src="${towerPortrait('artillery', 1)}">`, meteor: ICON.meteorArt, reinforce: ICON.chickArt,
     };
     const render = (burst?: { t: number; l: number }) => {
       const avail = totalStars(d) - spentStars(d);
-      const total = totalStars(d);
-      if (!sel) {
-        // preselect the first thing the player can afford
-        for (let ti = 0; ti < UPGRADES.length && !sel; ti++) {
-          const lv = d.upgrades[UPGRADES[ti].id];
-          if (lv < 5 && UPGRADES[ti].levels[lv].cost <= avail) sel = { t: ti, l: lv };
-        }
-        sel ??= { t: 0, l: Math.min(4, d.upgrades.archer) };
-      }
       m.querySelector('.ucontent')?.remove();
       const c = el('div', 'ucontent');
       const T = UPGRADES[sel.t], L = T.levels[sel.l];
       const owned = d.upgrades[T.id] > sel.l;
       const isNext = d.upgrades[T.id] === sel.l;
       const canBuy = isNext && avail >= L.cost;
-      c.innerHTML = `
-        <div class="ug-top"><div class="ribbon">研究所</div>
-          <div class="ug-stars outlined">${ICON.star}<b>${avail}</b><small>/ ${total}</small></div></div>
-        <div class="ug-grid">${UPGRADES.map((t, ti) => {
-          const lv = d.upgrades[t.id];
-          return `<div class="ug-card ${sel!.t === ti ? 'on' : ''}" data-card="${ti}">
-            <div class="ug-art">${art(t.id)}</div>
-            <div class="ug-info"><div class="ug-name">${t.name}</div><div class="ug-lv">Lv ${lv}/5</div></div>
-            <div class="ug-track">${t.levels.map((lvd, li) => {
-              const o = lv > li, nx = lv === li;
-              const cls = o ? 'owned' : nx ? (avail >= lvd.cost ? 'avail' : 'next') : 'lock';
-              return `<div class="ug-node ${cls} ${sel!.t === ti && sel!.l === li ? 'sel' : ''} ${burst && burst.t === ti && burst.l === li ? 'burst' : ''}" data-t="${ti}" data-l="${li}">${o ? ICON.check : `<span>${li + 1}</span>`}</div>`;
-            }).join('<i class="ug-link"></i>')}</div>
-          </div>`;
-        }).join('')}</div>
-        <div class="ug-detail">
-          <div class="ug-dart">${art(T.id)}</div>
-          <div class="ug-dtext"><div class="ug-dname">${T.name} ${sel.l + 1} ・ ${L.name}</div><div>${L.desc}</div>
-            ${!owned && !isNext ? `<div class="ug-note">前のレベルを先に習得しよう</div>` : ''}</div>
-          <div class="ug-dact">
-            <button class="btn ${owned ? 'gray' : canBuy ? 'gold big' : 'gray'}" data-act="buy">${owned ? '習得済み' : `${ICON.star.replace('<svg', '<svg width="22" height="22"')} ${L.cost} 習得`}</button>
-            <button class="btn small wood" data-act="reset">★を返してやり直す</button>
+      let grid = '';
+      for (let lv = 4; lv >= 0; lv--) {
+        for (let ti = 0; ti < UPGRADES.length; ti++) {
+          const t = UPGRADES[ti];
+          const have = d.upgrades[t.id] > lv, nx = d.upgrades[t.id] === lv;
+          const cls = have ? 'owned' : nx ? (avail >= t.levels[lv].cost ? 'avail' : 'next') : 'lock';
+          grid += `<button class="ut ${cls} ${sel.t === ti && sel.l === lv ? 'sel' : ''} ${burst && burst.t === ti && burst.l === lv ? 'burst' : ''}" data-t="${ti}" data-l="${lv}">${icons[t.id][lv]}<span class="ut-cost outlined">${ICON.star}${t.levels[lv].cost}</span></button>`;
+        }
+      }
+      for (const t of UPGRADES) grid += `<div class="ut-cat">${cat[t.id]}</div>`;
+      c.innerHTML = `<div class="ug3">
+          <div class="ug3-board">${grid}</div>
+          <div class="ug3-side">
+            <div class="ug3-stars outlined">${ICON.star}<b>${avail}</b></div>
+            <div class="ug3-parch">
+              <div class="ug3-icon ${owned ? 'owned' : ''}">${icons[T.id][sel.l]}</div>
+              <div class="ug3-cost outlined">${ICON.star}${L.cost}</div>
+              <div class="ug3-name">${L.name}</div>
+              <div class="ug3-track">${T.name} Lv${sel.l + 1}</div>
+              <div class="ug3-desc">${L.desc}</div>
+              ${owned ? '<div class="ug3-note ok">習得済み</div>' : isNext ? '' : '<div class="ug3-note">下の段から順に習得</div>'}
+              <button class="plank ${canBuy ? 'go' : 'gray'}" data-act="buy">${owned ? '習得済み' : '習得する'}</button>
+            </div>
+            <div class="ug3-btns"><button class="plank sq" data-act="reset" title="★を返してやり直す">${ICON.retry}</button><button class="plank sq go" data-act="ok" title="閉じる">${ICON.check}</button></div>
           </div>
         </div>`;
       m.appendChild(c);
-      c.querySelectorAll<HTMLElement>('.ug-node').forEach((n) => n.onclick = (e) => { e.stopPropagation(); audio.play('click'); sel = { t: Number(n.dataset.t), l: Number(n.dataset.l) }; render(); });
-      c.querySelectorAll<HTMLElement>('.ug-card').forEach((n) => n.onclick = () => {
-        audio.play('click');
-        const ti = Number(n.dataset.card);
-        sel = { t: ti, l: Math.min(4, d.upgrades[UPGRADES[ti].id]) };
-        render();
+      c.querySelectorAll<HTMLElement>('.ut').forEach((n) => n.onclick = () => {
+        const t = Number(n.dataset.t), l = Number(n.dataset.l);
+        // tapping the selected, affordable tile buys it (quick path, like the reference)
+        if (sel.t === t && sel.l === l && canBuy) { (c.querySelector('[data-act=buy]') as HTMLElement).click(); return; }
+        audio.play('click'); sel = { t, l }; render();
       });
       (c.querySelector('[data-act=buy]') as HTMLElement).onclick = () => {
         if (!canBuy) { audio.play('deny'); return; }
         d.upgrades[T.id]++; save(); audio.play('upgrade');
-        const done = { ...sel! };
-        if (sel!.l < 4) sel = { t: sel!.t, l: sel!.l + 1 };
+        const done = { ...sel };
+        if (sel.l < 4) sel = { t: sel.t, l: sel.l + 1 };
         render(done);
       };
-      (c.querySelector('[data-act=reset]') as HTMLElement).onclick = () => { audio.play('sell'); d.upgrades = emptyUpgrades(); save(); sel = null; render(); };
+      (c.querySelector('[data-act=reset]') as HTMLElement).onclick = () => { audio.play('sell'); d.upgrades = emptyUpgrades(); save(); sel = { t: sel.t, l: 0 }; render(); };
+      (c.querySelector('[data-act=ok]') as HTMLElement).onclick = () => { audio.play('click'); ov.remove(); };
     };
     render();
   }

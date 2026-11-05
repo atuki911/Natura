@@ -55,7 +55,8 @@ export class World {
   target = new THREE.Vector2(0, 1);
   dist = 60;
   fitDist = 60;
-  pitch = 0.86;
+  pitch = 1.04;
+  playDist = 40;
   private towerRigCache = new Map<string, TowerRig>();
   private nestHen: Rig | null = null;
   private projGeo = new Map<string, THREE.BufferGeometry>();
@@ -175,9 +176,12 @@ export class World {
     this.nestHen.root.position.set(-0.5, 3.0, -0.9);
     this.nestHen.root.scale.setScalar(0.85);
     this.env.castle.add(this.nestHen.root);
-    this.target.set(0, 1);
+    // start framed on the build area (like the reference: about half the stage on screen)
+    const cx = game.spots.reduce((a, p) => a + p.x, 0) / Math.max(1, game.spots.length);
+    const cy = game.spots.reduce((a, p) => a + p.y, 0) / Math.max(1, game.spots.length);
+    this.target.set(cx, cy);
     this.resize();
-    this.dist = this.fitDist;
+    this.dist = this.playDist;
   }
 
   clearStage() {
@@ -216,18 +220,21 @@ export class World {
     outlineUniforms.uOutline.value = Math.max(1.2, Math.min(2.4, h / 420));
     this.pNormal.uniforms.uScale.value = this.pAdd.uniforms.uScale.value = h * 1.1;
     const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    const wantW = 72, wantH = 48;
-    const dW = wantW / (2 * t * this.camera.aspect), dH = wantH / (2 * t) * 0.78;
-    const prevFit = this.fitDist;
-    this.fitDist = Math.min(110, Math.max(32, Math.max(dW, dH)));
-    this.dist = Math.min(this.maxDist(), Math.max(this.minDist(), this.dist * (this.fitDist / prevFit)));
+    const fitW = (w: number) => w / (2 * t * this.camera.aspect);
+    const prevPlay = this.playDist;
+    // overview distance shows the whole island; play distance shows ~46 units across (towers ~7% of the width)
+    this.fitDist = Math.min(130, Math.max(32, fitW(76), 50 / (2 * t) * 0.8));
+    this.playDist = Math.min(this.fitDist, Math.max(26, fitW(46), 30 / (2 * t)));
+    this.dist = Math.min(this.maxDist(), Math.max(this.minDist(), this.dist * (this.playDist / prevPlay)));
   }
-  minDist() { return Math.max(22, this.fitDist * 0.42); }
-  maxDist() { return this.fitDist * 1.08; }
+  minDist() { return this.playDist * 0.7; }
+  maxDist() { return this.fitDist * 1.05; }
 
   private updateCamera() {
-    const lim = 1 - (this.dist - this.minDist()) / Math.max(1, this.maxDist() - this.minDist());
-    const lx = 6 + 26 * lim, ly = 4 + 16 * lim;
+    // pan freely but never past the island edge
+    const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
+    const halfW = this.dist * t * this.camera.aspect, halfH = this.dist * t / Math.sin(this.pitch);
+    const lx = Math.max(0, 37 - halfW * 0.92), ly = Math.max(0, 23 - halfH * 0.85);
     this.target.x = Math.max(-lx, Math.min(lx, this.target.x));
     this.target.y = Math.max(-ly + 1, Math.min(ly + 1, this.target.y));
     const sx = (Math.random() - 0.5) * this.shake, sy = (Math.random() - 0.5) * this.shake;
