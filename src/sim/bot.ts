@@ -19,6 +19,8 @@ export interface BotStyle {
   useAbilities: boolean;
   /** 休憩を切り上げて次のウェーブを呼ぶか。 */
   callEarly: boolean;
+  /** 木の実・花の蜜を摘み、枯れかけの木を引き抜くか。 */
+  tendTrees: boolean;
 }
 
 export const BOT_STYLES: Record<string, BotStyle> = {
@@ -30,6 +32,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: true,
     useAbilities: true,
     callEarly: false,
+    tendTrees: true,
   },
   /** 近接で押す作戦。剣士と爆弾兵が中心。 */
   rush: {
@@ -39,6 +42,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: false,
     useAbilities: true,
     callEarly: false,
+    tendTrees: true,
   },
   /** 遠距離とタワーで守る作戦。 */
   ranged: {
@@ -48,6 +52,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: true,
     useAbilities: true,
     callEarly: false,
+    tendTrees: true,
   },
   /** 魔法と能力に頼る作戦。 */
   magic: {
@@ -57,6 +62,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: false,
     useAbilities: true,
     callEarly: false,
+    tendTrees: true,
   },
   /** 剣士だけを出す、考えない人。勝てないくらいがよい。 */
   swordOnly: {
@@ -66,6 +72,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: false,
     useAbilities: false,
     callEarly: false,
+    tendTrees: false,
   },
   /** 何もしない。城の弓兵だけで勝ててはいけない。 */
   idle: {
@@ -75,8 +82,11 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     buildTowers: false,
     useAbilities: false,
     callEarly: false,
+    tendTrees: false,
   },
 };
+
+const CHEAPEST_GOLD = Math.min(...Object.values(UNITS).map((u) => u.cost.gold));
 
 export class Bot {
   private timer = 0;
@@ -94,6 +104,7 @@ export class Bot {
     this.timer = this.style.thinkEvery;
     const style = this.style;
 
+    if (style.tendTrees) this.tendTrees(world);
     if (style.useAbilities) this.useAbilities(world);
 
     if (style.buildTowers && world.wavesStarted >= 2) {
@@ -138,6 +149,16 @@ export class Bot {
       }
     }
     return best;
+  }
+
+  /** 実や蜜のたまった木を摘み、枯れかけの木は引き抜いてゴールドにする。 */
+  private tendTrees(world: World): void {
+    // 人と同じく、手が空いた時(何も買えない時)か、実があふれそうな時に摘む。
+    const waiting = world.gold < CHEAPEST_GOLD;
+    const ripe = world.harvestable().find((t) => waiting || t.nectar >= t.def.nectar!.cap - 0.5);
+    if (ripe) world.command({ type: 'harvest', tree: ripe.id });
+    const dying = world.aliveTrees().find((t) => t.growing <= 0 && t.hp < t.maxHp * 0.2 && !t.def.pod);
+    if (dying) world.command({ type: 'uproot', tree: dying.id });
   }
 
   private useAbilities(world: World): void {

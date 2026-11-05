@@ -14,10 +14,15 @@ const stage = STAGES[0];
 interface RunStats {
   win: boolean;
   seconds: number;
-  /** 何も買えず、能力も使えない時間の割合(戦闘中)。 */
+  /** 何も買えず、能力も使えず、摘める花もない時間の割合(戦闘中)。 */
   idle: number;
-  /** 1分あたりの操作の回数。 */
+  /** 元の定義(木を数えない: 何も買えず、能力も使えない)の待ち時間。 */
+  idleOld: number;
+  treesGrown: number;
+  /** 1分あたりの操作の回数(木を摘む・抜くは含めない)。 */
   actionsPerMin: number;
+  /** 1分あたりの、木を摘む・抜く操作の回数。 */
+  treeActionsPerMin: number;
   /** 城が半分以下になったか。 */
   wasLow: boolean;
   spawns: Partial<Record<UnitId, number>>;
@@ -29,7 +34,9 @@ function play(seed: number, style: string): RunStats {
   let ticks = 0;
   let waveTicks = 0;
   let idleTicks = 0;
+  let idleOldTicks = 0;
   let actions = 0;
+  let treeActions = 0;
   let wasLow = false;
   const spawns: Partial<Record<UnitId, number>> = {};
   const cheapest = Math.min(...Object.values(UNITS).map((u) => u.cost.gold));
@@ -44,11 +51,14 @@ function play(seed: number, style: string): RunStats {
         if (f) spawns[f.def.id as UnitId] = (spawns[f.def.id as UnitId] ?? 0) + 1;
       }
       if (e.t === 'towerBuilt' || e.t === 'meteorCast' || e.t === 'heal') actions++;
+      if (e.t === 'harvest' || e.t === 'uproot') treeActions++;
     }
     if (world.phase === 'wave') {
       waveTicks++;
-      const canAct = world.gold >= cheapest || world.canUseAbility('heal') || world.canUseAbility('meteor');
+      const canActOld = world.gold >= cheapest || world.canUseAbility('heal') || world.canUseAbility('meteor');
+      const canAct = canActOld || world.harvestable().length > 0;
       if (!canAct) idleTicks++;
+      if (!canActOld) idleOldTicks++;
     }
     if (world.castle.hp < world.castle.maxHp * 0.5) wasLow = true;
   }
@@ -57,7 +67,10 @@ function play(seed: number, style: string): RunStats {
     win: world.phase === 'victory',
     seconds,
     idle: waveTicks ? idleTicks / waveTicks : 0,
+    idleOld: waveTicks ? idleOldTicks / waveTicks : 0,
+    treesGrown: world.stats.treesGrown,
     actionsPerMin: actions / (seconds / 60),
+    treeActionsPerMin: treeActions / (seconds / 60),
     wasLow,
     spawns,
   };
@@ -65,7 +78,9 @@ function play(seed: number, style: string): RunStats {
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const report: Record<string, unknown> = {};
-for (const style of ['standard', 'rush', 'ranged', 'magic', 'swordOnly', 'idle']) {
+const styles = ['standard', 'rush', 'ranged', 'magic', 'swordOnly', 'idle'];
+for (const extra of Object.keys(BOT_STYLES)) if (!styles.includes(extra)) styles.push(extra);
+for (const style of styles) {
   const rs: RunStats[] = [];
   for (let seed = 1; seed <= runs; seed++) rs.push(play(seed, style));
   const wins = rs.filter((r) => r.win);
@@ -77,10 +92,13 @@ for (const style of ['standard', 'rush', 'ranged', 'magic', 'swordOnly', 'idle']
     idle: avg((r) => r.idle),
     actionsPerMin: avg((r) => r.actionsPerMin),
     comebackShare: comeback,
+    idleOld: avg((r) => r.idleOld),
+    trees: avg((r) => r.treesGrown),
+    treeActionsPerMin: avg((r) => r.treeActionsPerMin),
   };
   report[style] = row;
   console.log(
-    `${style.padEnd(10)} 勝率 ${pct(row.winRate).padStart(4)}  長さ ${row.minutes.toFixed(1)}分  待ち ${pct(row.idle).padStart(4)}  操作 ${row.actionsPerMin.toFixed(1)}/分  逆転勝ち ${pct(row.comebackShare)}`,
+    `${style.padEnd(10)} 勝率 ${pct(row.winRate).padStart(4)}  長さ ${row.minutes.toFixed(1)}分  待ち ${pct(row.idle).padStart(4)}  操作 ${row.actionsPerMin.toFixed(1)}/分  逆転勝ち ${pct(row.comebackShare).padStart(4)}  (待ち・旧 ${pct(row.idleOld)}  木 ${row.trees.toFixed(1)}本  摘む・抜く ${row.treeActionsPerMin.toFixed(1)}/分)`,
   );
 }
 const viable = ['rush', 'ranged', 'magic', 'standard'].map((s) => (report[s] as { winRate: number }).winRate);

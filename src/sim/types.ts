@@ -9,6 +9,7 @@ export type UnitId = 'sword' | 'archer' | 'mage' | 'bomber';
 export type EnemyId = 'blightling' | 'gnasher' | 'tuskbeast' | 'wisp' | 'rollereye' | 'mireMaw';
 export type TowerId = 'arrowTower' | 'cannonTower';
 export type AbilityId = 'heal' | 'meteor';
+export type TreeId = 'thornBush' | 'watchTree' | 'manaFlower' | 'seedPod';
 
 export interface Cost {
   gold: number;
@@ -32,6 +33,8 @@ export interface CombatStats {
   splash: number;
   /** 物理ダメージの軽減率(0〜1)。魔法には効かない。 */
   armor: number;
+  /** 魔法ダメージの軽減率(0〜1)。物理には効かない。 */
+  ward: number;
   /** 魔法攻撃なら防具を無視する。 */
   magic: boolean;
   /** 空を飛ぶ相手に攻撃が届くか。 */
@@ -74,6 +77,47 @@ export interface TowerDef {
   splash: number;
   hitsFlying: boolean;
   hitsGround: boolean;
+}
+
+/** 倒れた兵から生える木。 */
+export interface TreeDef {
+  id: TreeId;
+  hp: number;
+  /** 芽が出てから働き始めるまでの秒数。芽の間は何もせず、狙われもしない。 */
+  growTime: number;
+  /** 1秒ごとに自然に枯れていく HP。 */
+  decayPerSecond: number;
+  /** 木の幅の半分。この範囲に立つ敵が木を踏む・茨に触れる。 */
+  radius: number;
+  /** 地上の敵がここで足を止めて木を攻撃するか(空を飛ぶ敵は止まらない)。 */
+  blocks: boolean;
+  /** 上に立つ地上の敵1体ごとに、1秒で減る HP(穢れに踏まれて枯れる)。 */
+  trampleDps: number;
+  thorn: { damage: number; interval: number; slowMult: number; slowTime: number } | null;
+  shooter: { range: number; damage: number; interval: number } | null;
+  /** 蜜。1秒に perSecond たまり、cap まで。minHarvest 以上で摘める。 */
+  nectar: { perSecond: number; cap: number; minHarvest: number; manaPer: number; goldPer: number } | null;
+  /** 敵が trigger 以内に来るとはじける。 */
+  pod: { trigger: number; damage: number; splash: number; knockback: number } | null;
+  /** 引き抜いた時にもらえるゴールド(残り HP の割合をかける)。 */
+  uprootGold: number;
+}
+
+export interface Tree {
+  id: number;
+  def: TreeDef;
+  /** どの兵から生えたか。 */
+  from: UnitId;
+  x: number;
+  row: number;
+  hp: number;
+  maxHp: number;
+  alive: boolean;
+  /** 芽の残り秒数。0以下なら育っている。 */
+  growing: number;
+  cooldown: number;
+  nectar: number;
+  age: number;
 }
 
 export interface AbilityDef {
@@ -131,6 +175,11 @@ export interface Fighter {
   summonTimer: number;
   /** 出てからの秒数。 */
   age: number;
+  /** 与えたダメージの合計(倒れた時に木になるかを決める)。 */
+  dealt: number;
+  /** 茨で遅くなっている残り秒数。 */
+  slowTimer: number;
+  slowMult: number;
 }
 
 export const CASTLE_TARGET = -1;
@@ -154,9 +203,12 @@ export interface Projectile {
   magic: boolean;
   hitsFlying: boolean;
   hitsGround: boolean;
-  /** 発射元。タワーなら 'tower'、城なら 'castle'。 */
-  source: 'fighter' | 'tower' | 'castle';
+  /** 発射元。タワーなら 'tower'、城なら 'castle'、見張りの木なら 'tree'。 */
+  source: 'fighter' | 'tower' | 'castle' | 'tree';
+  /** タワーならスロット番号、木なら木の id。 */
   sourceSlot: number;
+  /** 撃った兵の id(与えたダメージを数える)。兵でなければ -1。 */
+  ownerId: number;
 }
 
 export interface Tower {
@@ -180,6 +232,10 @@ export type Command =
   | { type: 'build'; slot: number; tower: TowerId }
   | { type: 'ability'; ability: AbilityId; x?: number }
   | { type: 'nextWave' }
+  /** 木の実・花の蜜を摘む。 */
+  | { type: 'harvest'; tree: number }
+  /** 木を引き抜いてゴールドにする。 */
+  | { type: 'uproot'; tree: number }
   // ここから下は検証用(デバッグパネル)。
   | { type: 'debugGold'; amount: number }
   | { type: 'debugMana'; amount: number }
@@ -206,6 +262,16 @@ export type SimEvent =
   | { t: 'waveStart'; wave: number; boss: boolean }
   | { t: 'waveClear'; wave: number }
   | { t: 'earlyBonus'; gold: number }
+  | { t: 'treeSeed'; id: number; tree: TreeId; x: number }
+  | { t: 'treeGrow'; id: number; tree: TreeId; x: number }
+  | { t: 'treeReinforce'; id: number; amount: number }
+  | { t: 'treeHit'; id: number; amount: number }
+  | { t: 'treeDie'; id: number; tree: TreeId; x: number; reason: 'destroyed' | 'withered' | 'replaced' | 'uprooted' | 'burst' }
+  | { t: 'thornHit'; treeId: number; id: number; amount: number }
+  | { t: 'treeShot'; treeId: number; projectileId: number }
+  | { t: 'podBurst'; treeId: number; x: number; radius: number }
+  | { t: 'harvest'; treeId: number; mana: number; gold: number }
+  | { t: 'uproot'; treeId: number; gold: number }
   | { t: 'victory' }
   | { t: 'defeat' };
 
@@ -214,4 +280,6 @@ export interface Stats {
   unitsDeployed: number;
   goldEarned: number;
   towersBuilt: number;
+  treesGrown: number;
+  harvests: number;
 }

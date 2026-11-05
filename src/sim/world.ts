@@ -8,6 +8,7 @@ import {
   METEOR_RADIUS,
   TOWERS,
 } from '../data/towers.ts';
+import { TREE_OF_UNIT, TREE_RULES, TREES } from '../data/trees.ts';
 import { UNITS } from '../data/units.ts';
 import { CASTLE_ARCHER, DT, ECONOMY, FIELD, TOWER_SLOTS } from './constants.ts';
 import { Rng } from './rng.ts';
@@ -28,6 +29,7 @@ import {
   type StageDef,
   type Stats,
   type Tower,
+  type Tree,
   type UnitId,
   type WorldPhase,
 } from './types.ts';
@@ -74,6 +76,9 @@ export class World {
   projectiles: Projectile[] = [];
   towers: (Tower | null)[] = TOWER_SLOTS.map(() => null);
   meteors: PendingMeteor[] = [];
+  /** 倒れた兵から生えた木。 */
+  trees: Tree[] = [];
+  private treeById = new Map<number, Tree>();
 
   unitCooldowns: Record<UnitId, number> = { sword: 0, archer: 0, mage: 0, bomber: 0 };
   abilityCooldowns: Record<AbilityId, number> = { heal: 0, meteor: 0 };
@@ -81,7 +86,7 @@ export class World {
   /** この step で起きたこと。描画側が読んでエフェクトを出す。 */
   events: SimEvent[] = [];
   private commands: Command[] = [];
-  stats: Stats = { kills: 0, unitsDeployed: 0, goldEarned: 0, towersBuilt: 0 };
+  stats: Stats = { kills: 0, unitsDeployed: 0, goldEarned: 0, towersBuilt: 0, treesGrown: 0, harvests: 0 };
   god = false;
   private nextId = 1;
 
@@ -141,6 +146,19 @@ export class World {
     return !this.ended && this.abilityCooldowns[ability] <= 0 && this.mana >= ABILITIES[ability].mana;
   }
 
+  getTree(id: number): Tree | undefined {
+    return this.treeById.get(id);
+  }
+
+  aliveTrees(): Tree[] {
+    return this.trees.filter((t) => t.alive);
+  }
+
+  /** 今摘める木(実や蜜がたまった木)。 */
+  harvestable(): Tree[] {
+    return this.trees.filter((t) => t.alive && t.growing <= 0 && t.def.nectar && t.nectar >= t.def.nectar.minHarvest);
+  }
+
   /** 1/60 秒進める。 */
   step(): void {
     this.events = [];
@@ -159,12 +177,17 @@ export class World {
     for (const f of this.fighters) if (f.alive) this.updateFighter(f);
     this.updateTowers();
     this.updateCastle();
+    this.updateTrees();
     this.updateProjectiles();
     this.updateMeteors();
 
     this.fighters = this.fighters.filter((f) => {
       if (!f.alive) this.byId.delete(f.id);
       return f.alive;
+    });
+    this.trees = this.trees.filter((t) => {
+      if (!t.alive) this.treeById.delete(t.id);
+      return t.alive;
     });
   }
 
@@ -201,6 +224,7 @@ export class World {
           for (const f of this.allies()) f.hp = Math.min(f.maxHp, f.hp + f.maxHp * HEAL_UNIT_RATIO);
           const castleAmount = Math.round(Math.min(this.castle.maxHp - this.castle.hp, this.castle.maxHp * HEAL_CASTLE_RATIO));
           this.castle.hp += castleAmount;
+          for (const t of this.aliveTrees()) t.hp = Math.min(t.maxHp, t.hp + t.maxHp * TREE_RULES.healRatio);
           this.events.push({ t: 'heal', castleAmount });
         } else {
           const x = Math.max(FIELD.castleX, Math.min(FIELD.portalX, cmd.x ?? FIELD.rallyX));
@@ -217,6 +241,29 @@ export class World {
           this.events.push({ t: 'earlyBonus', gold: bonus });
         }
         this.startWave();
+        return;
+      }
+      case 'harvest': {
+        const tree = this.treeById.get(cmd.tree);
+        const nectar = tree?.def.nectar;
+        if (!tree || !tree.alive || !nectar || tree.growing > 0 || tree.nectar < nectar.minHarvest) return;
+        const n = Math.floor(tree.nectar);
+        tree.nectar -= n;
+        const mana = n * nectar.manaPer;
+        const gold = n * nectar.goldPer;
+        this.mana = Math.min(ECONOMY.maxMana, this.mana + mana);
+        this.gold += gold;
+        this.stats.harvests++;
+        this.events.push({ t: 'harvest', treeId: tree.id, mana, gold });
+        return;
+      }
+      case 'uproot': {
+        const tree = this.treeById.get(cmd.tree);
+        if (!tree || !tree.alive) return;
+        const gold = Math.round(tree.def.uprootGold * (tree.growing > 0 ? 0.5 : tree.hp / tree.maxHp));
+        this.gold += gold;
+        this.events.push({ t: 'uproot', treeId: tree.id, gold });
+        this.removeTree(tree, 'uprooted');
         return;
       }
       case 'debugGold':
@@ -313,6 +360,9 @@ export class World {
       charged: false,
       summonTimer: special?.type === 'summon' ? special.every * 0.6 : 0,
       age: 0,
+      dealt: 0,
+      slowTimer: 0,
+      slowMult: 1,
     };
     this.fighters.push(fighter);
     this.byId.set(fighter.id, fighter);
@@ -323,6 +373,7 @@ export class World {
   private updateFighter(f: Fighter): void {
     f.age += DT;
     f.cooldown -= DT;
+    if (f.slowTimer > 0) f.slowTimer -= DT;
 
     const special = isEnemyDef(f.def) ? f.def.special : null;
     if (special?.type === 'summon') {
@@ -371,8 +422,9 @@ export class World {
         f.state = 'idle';
       }
     } else {
-      const slow = special?.type === 'charge' && f.charged ? special.slowAfter : 1;
-      f.x = Math.max(FIELD.castleX, f.x - f.def.speed * slow * DT);
+      const charged = special?.type === 'charge' && f.charged ? special.slowAfter : 1;
+      const thorned = f.slowTimer > 0 ? f.slowMult : 1;
+      f.x = Math.max(FIELD.castleX, f.x - f.def.speed * charged * thorned * DT);
       f.state = 'walk';
     }
   }
@@ -392,6 +444,20 @@ export class World {
         bestDist = dist;
       }
     }
+    // 地上の敵は、行く手をふさぐ木(茨)で足を止めて攻撃する。
+    let bestTree: Tree | null = null;
+    if (f.side === 'enemy' && !f.def.flying) {
+      for (const t of this.trees) {
+        if (!t.alive || t.growing > 0 || !t.def.blocks) continue;
+        if (f.x - t.x < -12) continue;
+        const dist = Math.abs(t.x - f.x);
+        if (dist <= f.def.range && dist < bestDist) {
+          bestTree = t;
+          bestDist = dist;
+        }
+      }
+    }
+    if (bestTree) return bestTree.id;
     if (best) return best.id;
     if (f.side === 'enemy' && f.x - FIELD.castleX <= f.def.range) return CASTLE_TARGET;
     return null;
@@ -403,7 +469,7 @@ export class World {
     f.state = 'idle';
 
     if (def.attack === 'bomb') {
-      this.areaDamage(f.side, f.x, def.splash, def.damage, false, false, true, 'bomb', def.knockback);
+      this.areaDamage(f.side, f.x, def.splash, def.damage, false, false, true, 'bomb', def.knockback, true, f.id);
       this.events.push({ t: 'explode', x: f.x, row: f.row, radius: def.splash, kind: 'bomb' });
       this.kill(f);
       return;
@@ -422,9 +488,20 @@ export class World {
 
     if (f.targetId === CASTLE_TARGET) {
       if (isRanged(def.attack)) {
-        this.launch(f.side, def.attack, f.x, f.row, CASTLE_TARGET, damage, crit, 0, def.magic, false, true, 'fighter', -1);
+        this.launch(f.side, def.attack, f.x, f.row, CASTLE_TARGET, damage, crit, 0, def.magic, false, true, 'fighter', -1, f.id);
       } else {
         this.damageCastle(damage, f.x);
+      }
+      return;
+    }
+
+    const tree = f.targetId === null ? undefined : this.treeById.get(f.targetId);
+    if (tree) {
+      if (!tree.alive) return;
+      this.damageTree(tree, damage);
+      if (def.splash > 0) {
+        this.areaDamage(f.side, tree.x, def.splash, damage, def.magic, crit, def.hitsFlying, def.attack, knockback, true, f.id);
+        this.events.push({ t: 'explode', x: tree.x, row: tree.row, radius: def.splash, kind: 'slam' });
       }
       return;
     }
@@ -447,16 +524,17 @@ export class World {
         true,
         'fighter',
         -1,
+        f.id,
       );
       return;
     }
 
     if (Math.abs(target.x - f.x) > def.range * 1.6) return;
     if (def.splash > 0) {
-      this.areaDamage(f.side, target.x, def.splash, damage, def.magic, crit, def.hitsFlying, def.attack, knockback);
+      this.areaDamage(f.side, target.x, def.splash, damage, def.magic, crit, def.hitsFlying, def.attack, knockback, true, f.id);
       this.events.push({ t: 'explode', x: target.x, row: target.row, radius: def.splash, kind: 'slam' });
     } else {
-      this.applyDamage(target, damage, def.magic, crit, def.attack, knockback);
+      this.applyDamage(target, damage, def.magic, crit, def.attack, knockback, f.id);
     }
   }
 
@@ -467,9 +545,15 @@ export class World {
     crit: boolean,
     kind: AttackKind,
     knockback: number,
+    ownerId = -1,
   ): void {
     if (!target.alive) return;
-    const amount = Math.max(1, Math.round(raw * (magic ? 1 : 1 - target.def.armor)));
+    const amount = Math.max(1, Math.round(raw * (magic ? 1 - target.def.ward : 1 - target.def.armor)));
+    // 与えたダメージを数える(倒しすぎた分は数えない)。
+    if (ownerId >= 0) {
+      const owner = this.byId.get(ownerId);
+      if (owner) owner.dealt += Math.min(amount, target.hp);
+    }
     target.hp -= amount;
     this.events.push({ t: 'hit', id: target.id, x: target.x, amount, crit, kind, magic });
     const immune = isEnemyDef(target.def) && target.def.boss;
@@ -497,11 +581,12 @@ export class World {
     kind: AttackKind,
     knockback: number,
     hitsGround = true,
+    ownerId = -1,
   ): void {
     for (const o of this.fighters) {
       if (!o.alive || o.side === attackerSide) continue;
       if (o.def.flying ? !hitsFlying : !hitsGround) continue;
-      if (Math.abs(o.x - x) <= radius) this.applyDamage(o, damage, magic, crit, kind, knockback);
+      if (Math.abs(o.x - x) <= radius) this.applyDamage(o, damage, magic, crit, kind, knockback, ownerId);
     }
   }
 
@@ -516,6 +601,140 @@ export class World {
     }
     if (f.side === 'enemy') this.stats.kills++;
     this.events.push({ t: 'death', id: f.id, side: f.side, x: f.x, bounty });
+    if (f.side === 'ally' && !isEnemyDef(f.def)) this.seedTree(f.def.id, f);
+  }
+
+  // ---- 木 ----
+
+  /**
+   * 倒れた兵の跡に木の芽を出す。戦った兵(与えたダメージが足りた兵)だけが木になる。
+   * 近くに同じ種類の木があれば、新しく生やさずにその木を太らせる。
+   */
+  private seedTree(unit: UnitId, f: Fighter): void {
+    if (f.dealt < TREE_RULES.minDamageDealt[unit]) return;
+    const def = TREES[TREE_OF_UNIT[unit]];
+    const near = this.trees.find((t) => t.alive && Math.abs(t.x - f.x) < TREE_RULES.minSpacing);
+    if (near) {
+      if (near.def.id !== def.id) return;
+      const amount = Math.round(Math.min(near.maxHp - near.hp, near.maxHp * TREE_RULES.reinforceRatio));
+      near.hp += amount;
+      this.events.push({ t: 'treeReinforce', id: near.id, amount });
+      return;
+    }
+    const alive = this.aliveTrees();
+    if (alive.length >= TREE_RULES.maxTrees) {
+      const oldest = alive.reduce((a, b) => (a.age >= b.age ? a : b));
+      this.removeTree(oldest, 'replaced');
+    }
+    const tree: Tree = {
+      id: this.nextId++,
+      def,
+      from: unit,
+      x: f.x,
+      row: f.row,
+      hp: def.hp,
+      maxHp: def.hp,
+      alive: true,
+      growing: def.growTime,
+      cooldown: 0,
+      nectar: 0,
+      age: 0,
+    };
+    this.trees.push(tree);
+    this.treeById.set(tree.id, tree);
+    this.stats.treesGrown++;
+    this.events.push({ t: 'treeSeed', id: tree.id, tree: def.id, x: tree.x });
+  }
+
+  private removeTree(tree: Tree, reason: 'destroyed' | 'withered' | 'replaced' | 'uprooted' | 'burst'): void {
+    if (!tree.alive) return;
+    tree.alive = false;
+    tree.hp = 0;
+    this.events.push({ t: 'treeDie', id: tree.id, tree: tree.def.id, x: tree.x, reason });
+  }
+
+  private damageTree(tree: Tree, raw: number): void {
+    if (!tree.alive) return;
+    const amount = Math.max(1, Math.round(raw));
+    tree.hp -= amount;
+    this.events.push({ t: 'treeHit', id: tree.id, amount });
+    if (tree.hp <= 0) this.removeTree(tree, 'destroyed');
+  }
+
+  private updateTrees(): void {
+    for (const tree of this.trees) {
+      if (!tree.alive) continue;
+      tree.age += DT;
+      if (tree.growing > 0) {
+        tree.growing -= DT;
+        if (tree.growing <= 0) this.events.push({ t: 'treeGrow', id: tree.id, tree: tree.def.id, x: tree.x });
+        continue;
+      }
+      const def = tree.def;
+      // 上に立つ地上の敵。穢れに踏まれると枯れていく。
+      const onTop = this.fighters.filter(
+        (e) => e.alive && e.side === 'enemy' && !e.def.flying && Math.abs(e.x - tree.x) <= def.radius,
+      );
+      tree.hp -= (def.decayPerSecond + def.trampleDps * onTop.length) * DT;
+      if (tree.hp <= 0) {
+        this.removeTree(tree, 'withered');
+        continue;
+      }
+      tree.cooldown -= DT;
+
+      if (def.thorn) {
+        for (const e of onTop) {
+          e.slowTimer = def.thorn.slowTime;
+          e.slowMult = def.thorn.slowMult;
+        }
+        if (tree.cooldown <= 0 && onTop.length > 0) {
+          tree.cooldown = def.thorn.interval;
+          for (const e of onTop) {
+            const before = e.hp;
+            this.applyDamage(e, def.thorn.damage, false, false, 'melee', 0);
+            this.events.push({ t: 'thornHit', treeId: tree.id, id: e.id, amount: before - Math.max(0, e.hp) });
+          }
+        }
+      }
+
+      if (def.shooter && tree.cooldown <= 0) {
+        let target: Fighter | null = null;
+        for (const e of this.fighters) {
+          if (!e.alive || e.side !== 'enemy') continue;
+          if (Math.abs(e.x - tree.x) > def.shooter.range) continue;
+          if (!target || e.x < target.x) target = e;
+        }
+        if (target) {
+          tree.cooldown = def.shooter.interval;
+          const projectileId = this.launch(
+            'ally',
+            'arrow',
+            tree.x,
+            tree.row,
+            target.id,
+            def.shooter.damage,
+            false,
+            0,
+            false,
+            true,
+            true,
+            'tree',
+            tree.id,
+          );
+          this.events.push({ t: 'treeShot', treeId: tree.id, projectileId });
+        }
+      }
+
+      if (def.nectar) tree.nectar = Math.min(def.nectar.cap, tree.nectar + def.nectar.perSecond * DT);
+
+      const pod = def.pod;
+      if (pod && onTop.some((e) => Math.abs(e.x - tree.x) <= pod.trigger)) {
+        this.areaDamage('ally', tree.x, pod.splash, pod.damage, false, false, false, 'bomb', pod.knockback);
+        this.events.push({ t: 'explode', x: tree.x, row: tree.row, radius: pod.splash, kind: 'bomb' });
+        this.events.push({ t: 'podBurst', treeId: tree.id, x: tree.x, radius: pod.splash });
+        this.removeTree(tree, 'burst');
+      }
+    }
   }
 
   private damageCastle(amount: number, x: number): void {
@@ -581,7 +800,8 @@ export class World {
     hitsGround: boolean,
     source: Projectile['source'],
     sourceSlot: number,
-  ): void {
+    ownerId = -1,
+  ): number {
     const target = targetId === CASTLE_TARGET ? undefined : this.byId.get(targetId);
     const projectile: Projectile = {
       id: this.nextId++,
@@ -603,9 +823,11 @@ export class World {
       hitsGround,
       source,
       sourceSlot,
+      ownerId,
     };
     this.projectiles.push(projectile);
     this.events.push({ t: 'shoot', projectileId: projectile.id });
+    return projectile.id;
   }
 
   private updateProjectiles(): void {
@@ -635,11 +857,11 @@ export class World {
       return;
     }
     if (p.splash > 0) {
-      this.areaDamage(p.side, p.targetX, p.splash, p.damage, p.magic, p.crit, p.hitsFlying, p.kind, 0, p.hitsGround);
+      this.areaDamage(p.side, p.targetX, p.splash, p.damage, p.magic, p.crit, p.hitsFlying, p.kind, 0, p.hitsGround, p.ownerId);
       if (p.kind === 'cannon') this.events.push({ t: 'explode', x: p.targetX, row: p.targetRow, radius: p.splash, kind: 'cannon' });
       return;
     }
-    if (target && target.alive) this.applyDamage(target, p.damage, p.magic, p.crit, p.kind, 0);
+    if (target && target.alive) this.applyDamage(target, p.damage, p.magic, p.crit, p.kind, 0, p.ownerId);
   }
 
   private updateMeteors(): void {
