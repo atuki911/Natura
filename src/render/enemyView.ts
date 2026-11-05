@@ -61,6 +61,14 @@ export function createEnemyView(scene: Phaser.Scene, id: EnemyId): EnemyView {
       return rollereye(scene);
     case 'mireMaw':
       return mireMaw(scene);
+    // 仮の見た目(専用の絵ができるまで)
+    case 'rotMoth':
+      return wisp(scene);
+    case 'burrower':
+      return gnasher(scene);
+    case 'sporeMother':
+    case 'blightHeart':
+      return mireMaw(scene);
   }
 }
 

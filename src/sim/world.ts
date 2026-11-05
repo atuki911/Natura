@@ -136,6 +136,7 @@ export class World {
   canSpawn(unit: UnitId): boolean {
     return (
       !this.ended &&
+      this.stage.units.includes(unit) &&
       this.unitCooldowns[unit] <= 0 &&
       this.canAfford(UNITS[unit].cost) &&
       this.allies().length < ECONOMY.maxAllies
@@ -364,6 +365,7 @@ export class World {
       targetId: null,
       charged: false,
       summonTimer: special?.type === 'summon' ? special.every * 0.6 : 0,
+      summonCount: 0,
       age: 0,
       dealt: 0,
       slowTimer: 0,
@@ -386,9 +388,18 @@ export class World {
       if (f.summonTimer <= 0) {
         f.summonTimer = special.every;
         for (let i = 0; i < special.count; i++) {
-          this.addFighter('enemy', ENEMIES[special.enemy], f.x - 40 - i * 18);
+          const kind = special.cycle ? special.cycle[(f.summonCount + i) % special.cycle.length] : special.enemy;
+          this.addFighter('enemy', ENEMIES[kind], f.x - 40 - i * 18);
         }
+        f.summonCount += special.count;
         this.events.push({ t: 'summon', id: f.id });
+      }
+    }
+
+    const aura = isEnemyDef(f.def) ? f.def.witherAura : undefined;
+    if (aura) {
+      for (const t of this.trees) {
+        if (t.alive && Math.abs(t.x - f.x) <= aura.radius) this.damageTree(t, aura.dps * DT);
       }
     }
 
@@ -428,7 +439,7 @@ export class World {
       }
     } else {
       const charged = special?.type === 'charge' && f.charged ? special.slowAfter : 1;
-      const thorned = f.slowTimer > 0 ? f.slowMult : 1;
+      const thorned = f.slowTimer > 0 && special?.type !== 'burrow' ? f.slowMult : 1;
       f.x = Math.max(FIELD.castleX, f.x - f.def.speed * charged * thorned * DT);
       f.state = 'walk';
     }
@@ -451,9 +462,12 @@ export class World {
     }
     // 地上の敵は、行く手をふさぐ木(茨)で足を止めて攻撃する。
     let bestTree: Tree | null = null;
-    if (f.side === 'enemy' && !f.def.flying) {
+    const special = isEnemyDef(f.def) ? f.def.special : null;
+    const hunter = special?.type === 'treeHunter';
+    if (hunter) bestDist = Infinity;
+    if (f.side === 'enemy' && (hunter || (!f.def.flying && special?.type !== 'burrow'))) {
       for (const t of this.trees) {
-        if (!t.alive || t.growing > 0 || !t.def.blocks) continue;
+        if (!t.alive || t.growing > 0 || (!t.def.blocks && !hunter)) continue;
         if (f.x - t.x < -12) continue;
         const dist = Math.abs(t.x - f.x);
         if (dist <= f.def.range && dist < bestDist) {

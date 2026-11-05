@@ -132,7 +132,14 @@ export class Bot {
 
   /** 比率に対して一番足りないユニットを選ぶ。 */
   private pickUnit(world: World): UnitId | null {
-    const mix = { ...this.style.mix };
+    const mix: Partial<Record<UnitId, number>> = {};
+    for (const [unit, weight] of Object.entries(this.style.mix) as [UnitId, number][]) {
+      if (world.stage.units.includes(unit)) mix[unit] = weight;
+    }
+    // 作戦の兵が出せないステージでは、出せる兵を均等に出す。
+    if (Object.keys(mix).length === 0 && Object.keys(this.style.mix).length > 0) {
+      for (const unit of world.stage.units) mix[unit] = 1;
+    }
     const enemies = world.enemies();
     // 硬い敵やボスがいれば魔法使いを、固まっていれば爆弾兵を増やす。
     if (enemies.some((e) => e.def.armor >= 0.3) && mix.mage) mix.mage *= 2;

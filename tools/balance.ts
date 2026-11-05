@@ -7,9 +7,10 @@ import { DT } from '../src/sim/constants.ts';
 import { World } from '../src/sim/world.ts';
 
 const runs = Number(process.argv[2] ?? 40);
-const stageId = process.argv[3] ?? STAGES[0].id;
-const stage = STAGES.find((s) => s.id === stageId);
-if (!stage) throw new Error(`ステージ ${stageId} がありません`);
+const stageArg = process.argv[3] ?? '1-3';
+const targets = stageArg === 'all' ? STAGES : STAGES.filter((s) => s.id === stageArg);
+if (targets.length === 0) throw new Error(`ステージ ${stageArg} がありません`);
+let stage = targets[0];
 
 const MAX_SECONDS = 60 * 30;
 
@@ -41,9 +42,12 @@ function play(seed: number, styleName: string): Result {
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
-console.log(`ステージ: ${stage.id} / 1つの遊び方につき ${runs} 回\n`);
+const styles = stageArg === 'all' ? ['standard', 'swordOnly', 'idle'] : Object.keys(BOT_STYLES);
+for (const target of targets) {
+stage = target;
+console.log(`\nステージ: ${stage.id} ${stage.name.ja} / 1つの遊び方につき ${runs} 回`);
 console.log('遊び方      勝率   城の残り(勝った時)  負けたウェーブ(平均)  1回の長さ');
-for (const styleName of Object.keys(BOT_STYLES)) {
+for (const styleName of styles) {
   const results: Result[] = [];
   for (let seed = 1; seed <= runs; seed++) results.push(play(seed, styleName));
   const wins = results.filter((r) => r.win);
@@ -57,5 +61,6 @@ for (const styleName of Object.keys(BOT_STYLES)) {
       losses.length ? lossWave.toFixed(1).padStart(4) : '   -'
     }                  ${Math.round(seconds / 60)}分${Math.round(seconds % 60)}秒`,
   );
+}
 }
 console.log('\n目安: standard は勝率60〜85%、swordOnly は勝ちにくく、idle は必ず負ける。');

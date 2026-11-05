@@ -6,7 +6,17 @@ export type Side = 'ally' | 'enemy';
 export type AttackKind = 'melee' | 'arrow' | 'bolt' | 'bomb' | 'spit' | 'slam' | 'cannon';
 
 export type UnitId = 'sword' | 'archer' | 'mage' | 'bomber';
-export type EnemyId = 'blightling' | 'gnasher' | 'tuskbeast' | 'wisp' | 'rollereye' | 'mireMaw';
+export type EnemyId =
+  | 'blightling'
+  | 'gnasher'
+  | 'tuskbeast'
+  | 'wisp'
+  | 'rollereye'
+  | 'mireMaw'
+  | 'rotMoth'
+  | 'burrower'
+  | 'sporeMother'
+  | 'blightHeart';
 export type TowerId = 'arrowTower' | 'cannonTower';
 export type AbilityId = 'heal' | 'meteor';
 export type TreeId = 'thornBush' | 'watchTree' | 'manaFlower' | 'seedPod';
@@ -56,13 +66,19 @@ export interface UnitDef extends CombatStats {
 
 export type EnemySpecial =
   | { type: 'charge'; damageMult: number; knockback: number; slowAfter: number }
-  | { type: 'summon'; enemy: EnemyId; count: number; every: number };
+  | { type: 'summon'; enemy: EnemyId; count: number; every: number; cycle?: EnemyId[] }
+  /** 木を見つけるとそちらを優先してかじる。 */
+  | { type: 'treeHunter' }
+  /** 地中を進み、茨に止められず、茨のとげも受けない。 */
+  | { type: 'burrow' };
 
 export interface EnemyDef extends CombatStats {
   id: EnemyId;
   bounty: number;
   boss: boolean;
   special: EnemySpecial | null;
+  /** 周りの木を枯らす力(ボス)。 */
+  witherAura?: { radius: number; dps: number };
 }
 
 export type FighterDef = UnitDef | EnemyDef;
@@ -141,8 +157,20 @@ export interface WaveDef {
   groups: SpawnGroup[];
 }
 
+export type RegionId = 1 | 2 | 3;
+
 export interface StageDef {
   id: string;
+  region: RegionId;
+  /** 地域の中の番号(1始まり)。 */
+  index: number;
+  name: { en: string; ja: string };
+  /** 背景のテクスチャの key。 */
+  background: string;
+  /** このステージで出せる兵。 */
+  units: UnitId[];
+  /** 最初の1回だけ遊び方の手引きを出す。 */
+  tutorial?: boolean;
   waves: WaveDef[];
   startGold: number;
   startMana: number;
@@ -173,6 +201,8 @@ export interface Fighter {
   /** 突進を使ったか。 */
   charged: boolean;
   summonTimer: number;
+  /** これまでに呼び出した数(呼び出す種類を順番に変える時に使う)。 */
+  summonCount: number;
   /** 出てからの秒数。 */
   age: number;
   /** 与えたダメージの合計(倒れた時に木になるかを決める)。 */
