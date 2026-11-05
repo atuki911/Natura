@@ -41,6 +41,10 @@ export function attachDebugPanel(scene: BattleScene): void {
     god = !god;
     scene.world.command({ type: 'debugGod', on: god });
   });
+  const plants = row();
+  for (const u of ['sword', 'archer', 'mage', 'bomber'] as const) {
+    btn(plants, `🌱${u}`, () => scene.world.command({ type: 'debugPlant', unit: u, x: 420 + Math.random() * 400 }));
+  }
   const speed = row();
   for (const s of [1, 2, 4, 10]) btn(speed, `x${s}`, () => scene.setSpeed(s));
   const waves = row();

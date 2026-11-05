@@ -18,6 +18,7 @@ import { sfx } from './sfx.ts';
 import { ATTACK_STRIKE, drawRagdoll, drawStickman, type StickKind } from './stickman.ts';
 import { button, label } from './widgets.ts';
 import { attachDebugPanel } from './debugPanel.ts';
+import { TreeLayer } from './TreeLayer.ts';
 
 const S = 1 / ART_SCALE;
 
@@ -81,6 +82,7 @@ export class BattleScene extends Phaser.Scene {
   world!: World;
   private bot: Bot | null = null;
   private fx!: Fx;
+  private trees!: TreeLayer;
   private hud: Hud | null = null;
   private accumulator = 0;
   private speed = 1;
@@ -144,6 +146,12 @@ export class BattleScene extends Phaser.Scene {
 
     this.buildScenery();
     this.fx = new Fx(this);
+    this.trees = new TreeLayer(this, this.world, this.fx, {
+      gold: () => this.hud?.goldIcon ?? { x: 28, y: 628 },
+      mana: () => ({ x: 28, y: 662 }),
+      onGold: () => this.hud?.pulseGold(),
+    });
+    this.trees.interactive = !this.isAttract;
     this.reticle = this.add.graphics().setDepth(DEPTH.effects - 5).setVisible(false);
 
     if (!this.isAttract) {
@@ -162,6 +170,7 @@ export class BattleScene extends Phaser.Scene {
     }
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onFieldClick(p));
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => this.onPointerMove(p));
+    this.input.on('pointerup', () => this.trees.pointerUp());
     if (this.config.debug && !this.isAttract) attachDebugPanel(this);
     this.events.once('shutdown', () => document.getElementById('debug-panel')?.remove());
   }
@@ -291,6 +300,7 @@ export class BattleScene extends Phaser.Scene {
 
   private onPointerMove(p: Phaser.Input.Pointer): void {
     if (this.targeting) this.drawReticle(p.worldX);
+    else if (!this.paused && p.worldY < HUD_TOP) this.trees.pointerMove(p.worldX, p.worldY);
   }
 
   private drawReticle(x: number): void {
@@ -321,7 +331,11 @@ export class BattleScene extends Phaser.Scene {
       this.cancelTargeting();
       return;
     }
-    if (this.buildMenu) this.closeBuildMenu();
+    if (this.buildMenu) {
+      this.closeBuildMenu();
+      return;
+    }
+    if (p.worldY < HUD_TOP) this.trees.pointerDown(p.worldX, p.worldY);
   }
 
   private openBuildMenu(slot: number): void {
@@ -430,6 +444,7 @@ export class BattleScene extends Phaser.Scene {
     }
     const animDt = this.paused ? 0 : dt * (this.fx.hitstop > 0 ? 0.05 : Math.min(this.speed, 2));
     this.syncFighters(animDt);
+    this.trees.update(animDt);
     this.syncProjectiles();
     this.animateScenery(dt, animDt);
     this.hud?.update(dt);
@@ -439,6 +454,7 @@ export class BattleScene extends Phaser.Scene {
   private handleEvents(events: SimEvent[]): void {
     const L = t();
     for (const e of events) {
+      if (this.trees.handleEvent(e)) continue;
       switch (e.t) {
         case 'spawn': {
           const f = this.world.getFighter(e.id);
@@ -749,6 +765,7 @@ export class BattleScene extends Phaser.Scene {
   private projectileY(p: World['projectiles'][number]): { y: number; startY: number; endY: number; t: number } {
     let startY: number;
     if (p.source === 'castle') startY = 382;
+    else if (p.source === 'tree') startY = groundY(Math.max(0, p.startRow)) - 84;
     else if (p.source === 'tower') startY = TOWER_BASE_Y - (p.kind === 'cannon' ? 52 : 98);
     else {
       const flyingShooter = p.side === 'enemy' && p.kind === 'spit';

@@ -242,6 +242,7 @@ export type Command =
   | { type: 'debugSpawnEnemy'; enemy: EnemyId }
   | { type: 'debugKillAll' }
   | { type: 'debugGod'; on: boolean }
+  | { type: 'debugPlant'; unit: UnitId; x: number }
   | { type: 'debugJumpWave'; wave: number };
 
 export type SimEvent =

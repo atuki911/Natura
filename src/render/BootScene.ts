@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { makeBackgroundTextures } from './art/background.ts';
 import { makeBuildingTextures } from './art/buildings.ts';
 import { makeCreatureTextures } from './art/creatures.ts';
+import { makeTreeTextures } from './art/trees.ts';
 import { makeUiTextures } from './art/ui.ts';
 import type { BattleConfig } from './BattleScene.ts';
 
@@ -33,6 +34,7 @@ export class BootScene extends Phaser.Scene {
     makeBuildingTextures(this);
     makeCreatureTextures(this);
     makeUiTextures(this);
+    makeTreeTextures(this);
 
     const params = new URLSearchParams(location.search);
     const autoplay = params.has('autoplay');

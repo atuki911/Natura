@@ -278,6 +278,11 @@ export class World {
       case 'debugKillAll':
         for (const f of this.enemies()) this.kill(f);
         return;
+      case 'debugPlant': {
+        const fake = { x: cmd.x, row: this.rng.next(), dealt: Infinity } as Fighter;
+        this.seedTree(cmd.unit, fake);
+        return;
+      }
       case 'debugGod':
         this.god = cmd.on;
         return;
