@@ -8,9 +8,10 @@ import { UPGRADES, emptyUpgrades } from '../data/upgrades.ts';
 import { load, save, resetSave, totalStars, spentStars, stageUnlocked, type SaveData } from '../save.ts';
 import { audio } from '../audio/audio.ts';
 import { ICON, starsHtml } from './icons.ts';
-import { rigPortrait, towerPortrait, initPortraits, warmPortraits, rigSilhouette } from './portraits.ts';
+import { rigPortrait, towerPortrait, initPortraits, warmPortraits, rigSilhouette, stagePreview } from './portraits.ts';
 import { Hud, armorWord, speedWord, hpWord } from './hud.ts';
 import { Guide, rectTarget } from './guide.ts';
+import { ITEMS, ITEM, TIPS, gemReward, type ItemId } from '../data/items.ts';
 import { MapView } from '../render/mapview.ts';
 
 const el = (tag: string, cls = '', html = '') => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
@@ -214,10 +215,10 @@ export class App {
       this.showBriefing(i);
     });
     const top = el('div', 'map-top');
-    top.innerHTML = `<div class="hud-chip starcount outlined">${ICON.star}<span>${totalStars(d)} / ${STAGES.length * 5}</span></div>`;
     const back = el('button', 'btn wood small', 'タイトルへ');
     back.onclick = () => { audio.play('click'); this.showTitle(); };
     top.appendChild(back);
+    top.insertAdjacentHTML('beforeend', `<div class="map-res"><div class="hud-chip outlined">${ICON.gem}<span>${d.gems}</span></div><div class="hud-chip starcount outlined">${ICON.star}<span>${totalStars(d)} / ${STAGES.length * 5}</span></div></div>`);
     s.appendChild(top);
     const bottom = el('div', 'map-dock');
     const mk = (label: string, icon: string, cls: string, fn: () => void) => {
@@ -229,6 +230,7 @@ export class App {
     const avail = totalStars(d) - spentStars(d);
     const ub = mk('強化', ICON.up, 'gold', () => this.showUpgrades());
     if (avail > 0) ub.insertAdjacentHTML('beforeend', `<span class="dk-badge outlined">${avail}</span>`);
+    mk('ショップ', ICON.shop, 'red', () => this.showShop());
     mk('ヒーロー', ICON.hero, 'blue', () => this.showHeroes());
     mk('図鑑', ICON.book, 'purple', () => this.showEncyclopedia());
     mk('設定', ICON.gear, 'wood', () => this.showSettings());
@@ -241,34 +243,51 @@ export class App {
     const d = this.data;
     const pr = d.progress[i];
     let mode: Mode = 'campaign';
-    const { m, ov } = this.modal('brief', '');
+    const { m, ov } = this.modal('brief2', '');
     ov.classList.add('brief-ov');
     if (this.preTutorial) this.preTutorial = 'brief';
     const close = m.querySelector('.close') as HTMLElement | null;
     if (close) { const prev = close.onclick; close.onclick = (e) => { if (this.preTutorial) this.preTutorial = 'map'; prev?.call(close, e); }; }
+    const preview = stagePreview(i);
     const render = () => {
       const heroicOk = pr.stars > 0, ironOk = pr.stars >= 3;
       const h = HERO[d.hero];
       m.querySelector('.bcontent')?.remove();
       const c = el('div', 'bcontent');
-      const modes = (['campaign', 'heroic', 'iron'] as Mode[]).filter((k) => k === 'campaign' || (k === 'heroic' ? heroicOk : ironOk));
-      c.innerHTML = `<div class="brief-head r${st.region}"><div class="brief-num outlined">${i + 1}</div><div><div class="brief-region">${REGIONS[st.region].name}</div><h2>${st.name}</h2></div></div>
-        <div class="brief-stars">${[0, 1, 2].map((k) => (k < pr.stars ? ICON.star : ICON.starEmpty)).join('')}</div>
-        <div class="desc">${st.desc}</div>
-        ${modes.length > 1 ? `<div class="tabs center">${modes.map((k) => `<div class="tab ${mode === k ? 'on' : ''}" data-mode="${k}">${MODE_INFO[k].name}${(k === 'heroic' && pr.heroic) || (k === 'iron' && pr.iron) ? ' ★' : ''}</div>`).join('')}</div>
-          ${mode !== 'campaign' ? `<div class="modeinfo">${MODE_INFO[mode].desc.replace(/\(.*?\)/, '')}${mode === 'iron' ? ` 使えるタワー: <b>${st.iron.map((l) => LINE_INFO[l].name).join('・')}</b>` : ''}</div>` : ''}` : ''}
-        <div class="brief-go"><button class="btn big red" data-act="go">${ICON.sword.replace('<svg', '<svg width="30" height="30"')} 出撃!</button></div>
-        <div class="brief-opts">
-          <button class="chipbtn" data-act="hero"><img src="${rigPortrait(h.model)}"><span>${h.name} Lv${heroLevelFromXp(d.heroXp[h.id] ?? 0)}</span></button>
-          <button class="chipbtn" data-act="diff"><span class="diff d${d.difficulty}">${DIFF_NAMES[d.difficulty]}</span></button>
+      const modeBtn = (k: Mode, ok: boolean, done: boolean, icon: string) =>
+        `<button class="modebtn ${mode === k ? 'on' : ''} ${ok ? '' : 'locked'}" data-mode="${k}" title="${MODE_INFO[k].name}">${ok ? icon : ICON.lock}${done ? '<i class="mdone"></i>' : ''}<span>${MODE_INFO[k].name}</span></button>`;
+      c.innerHTML = `<div class="bb-left">
+          <div class="bb-stars">${[0, 1, 2].map((k) => (k < pr.stars ? ICON.star : ICON.starEmpty)).join('')}<i class="bb-badge h ${pr.heroic ? 'on' : ''}">H</i><i class="bb-badge i ${pr.iron ? 'on' : ''}">I</i></div>
+          <div class="bb-lens"><img src="${preview}"><div class="bb-lens-shine"></div></div>
+          <div class="bb-modes">${modeBtn('campaign', true, pr.stars > 0, ICON.shield)}${modeBtn('heroic', heroicOk, pr.heroic, ICON.sword)}${modeBtn('iron', ironOk, pr.iron, ICON.gear)}</div>
+        </div>
+        <div class="bb-right">
+          <h2><span class="bb-num r${st.region} outlined">${i + 1}</span>${st.name}</h2>
+          <div class="bb-mode">${MODE_INFO[mode].name}<small>${REGIONS[st.region].name}</small></div>
+          <p class="bb-story">${mode === 'campaign' ? st.desc + '<br><br>' + REGIONS[st.region].desc : MODE_INFO[mode].desc.replace(/\(.*?\)/, '') + (mode === 'iron' ? `<br><br>使えるタワー: <b>${st.iron.map((l) => LINE_INFO[l].name).join('・')}</b>` : '')}</p>
+          <div class="bb-foot">
+            <button class="bb-hero" data-act="hero" title="ヒーロー"><img src="${rigPortrait(h.model)}"><span class="outlined">Lv${heroLevelFromXp(d.heroXp[h.id] ?? 0)}</span></button>
+            <button class="chipbtn" data-act="diff"><span class="diff d${d.difficulty}">${DIFF_NAMES[d.difficulty]}</span></button>
+            <button class="bb-play" data-act="go" title="出撃">${ICON.play}<span class="outlined">出撃!</span></button>
+          </div>
         </div>`;
       m.appendChild(c);
-      c.querySelectorAll<HTMLElement>('[data-mode]').forEach((t) => t.onclick = () => { audio.play('click'); mode = t.dataset.mode as Mode; render(); });
+      c.querySelectorAll<HTMLElement>('[data-mode]').forEach((t) => t.onclick = () => {
+        const k = t.dataset.mode as Mode;
+        if ((k === 'heroic' && !heroicOk) || (k === 'iron' && !ironOk)) { audio.play('deny'); this.toast(k === 'heroic' ? 'キャンペーンをクリアすると解放' : 'キャンペーンで★3を取ると解放'); return; }
+        audio.play('click'); mode = k; render();
+      });
       (c.querySelector('[data-act=diff]') as HTMLElement).onclick = () => { audio.play('click'); d.difficulty = (d.difficulty + 1) % 3; save(); render(); };
       (c.querySelector('[data-act=hero]') as HTMLElement).onclick = () => { audio.play('click'); this.showHeroes(() => render()); };
       (c.querySelector('[data-act=go]') as HTMLElement).onclick = () => { audio.play('horn'); ov.remove(); this.startStage(i, mode); };
     };
     render();
+  }
+
+  toast(text: string) {
+    const t = el('div', 'toast outlined', text);
+    this.ui.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
   }
 
   // ───────────────────────── gameplay ─────────────────────────
@@ -287,6 +306,7 @@ export class App {
     this.tutorial = i === 0 && mode === 'campaign' && !d.tutorialDone;
     const g = new Game({ stage: st, mode, difficulty: d.difficulty, upgrades: { ...d.upgrades }, hero: { id: d.hero, xp: d.heroXp[d.hero] ?? 0 }, seenEnemies: new Set() });
     this.game = g;
+    this.lockedSpells = i === 0 && mode === 'campaign' && d.progress[0].stars === 0 ? new Set(['meteor', 'reinforce']) : new Set();
     this.ended = false;
     this.speed = 1;
     this.screen = 'game';
@@ -307,19 +327,42 @@ export class App {
 
   finishTutorial() { this.data.tutorialDone = true; save(); }
 
+  lockedSpells = new Set<string>();
+  itemCount(id: ItemId) { return this.data.items[id] ?? 0; }
+  consumeItem(id: ItemId) { this.data.items[id] = Math.max(0, (this.data.items[id] ?? 0) - 1); save(); }
+  tipSeen(id: string) { return this.data.tipsSeen.includes(id); }
+  openTip(id: string) {
+    const tip = TIPS.find((t) => t.id === id);
+    if (!tip) return;
+    if (!this.data.tipsSeen.includes(id)) { this.data.tipsSeen.push(id); save(); }
+    this.setPaused(true, 'tip');
+    const { m, ov } = this.modal('tipcard', `<div class="tip-ic">${ICON.tip}</div><h3>${tip.title}</h3><p>${tip.body}</p><button class="btn big">わかった!</button>`, false);
+    (m.querySelector('button') as HTMLElement).onclick = () => { audio.play('click'); ov.remove(); this.setPaused(false, 'tip'); };
+  }
+
   openPauseMenu() {
     if (!this.game || this.ended) return;
     this.setPaused(true, 'menu');
-    const { m, ov } = this.modal('menu', `<div class="ribbon">一時停止</div>`, false);
-    const add = (label: string, cls: string, fn: () => void) => {
-      const b = el('button', 'btn ' + cls, label);
-      b.onclick = () => { audio.play('click'); fn(); };
-      m.appendChild(b);
-    };
-    add('再開', 'big', () => { ov.remove(); this.setPaused(false, 'menu'); });
-    add('やり直す', 'gold', () => { ov.remove(); this.startStage(this.stageIdx, this.mode); });
-    add('設定', 'wood', () => this.showSettings());
-    add('マップへ戻る', 'red', () => { ov.remove(); this.leaveGame(false); });
+    const d = this.data;
+    const { m, ov } = this.modal('board', `<div class="board-chains"></div>
+      <button class="board-x" data-act="resume">${ICON.close}</button>
+      <div class="board-title outlined">一時停止</div>
+      <div class="board-toggles">
+        <button class="tgl ${d.music > 0 ? 'on' : ''}" data-act="music">${ICON.music}<span>音楽</span></button>
+        <button class="tgl ${d.sfx > 0 ? 'on' : ''}" data-act="sfx">${ICON.sound}<span>効果音</span></button>
+        <button class="tgl ${d.quality === 'high' ? 'on' : ''}" data-act="quality">${ICON.gear}<span>${d.quality === 'high' ? '高画質' : '軽量'}</span></button>
+      </div>
+      <div class="board-btns"><button class="plank" data-act="restart">再スタート</button><button class="plank" data-act="quit">マップへ</button></div>
+      <button class="btn big" data-act="resume2">${ICON.play.replace('<svg', '<svg width="24" height="24"')} 再開</button>`, false);
+    const act = (k: string) => m.querySelector(`[data-act=${k}]`) as HTMLElement;
+    const resume = () => { audio.play('click'); ov.remove(); this.setPaused(false, 'menu'); };
+    act('resume').onclick = resume;
+    act('resume2').onclick = resume;
+    act('music').onclick = () => { d.music = d.music > 0 ? 0 : 0.5; audio.setVolumes(d.sfx, d.music); save(); act('music').classList.toggle('on', d.music > 0); };
+    act('sfx').onclick = () => { d.sfx = d.sfx > 0 ? 0 : 0.8; audio.setVolumes(d.sfx, d.music); save(); act('sfx').classList.toggle('on', d.sfx > 0); audio.play('click'); };
+    act('quality').onclick = () => { d.quality = d.quality === 'high' ? 'low' : 'high'; save(); this.applyQuality(); act('quality').classList.toggle('on', d.quality === 'high'); (act('quality').querySelector('span') as HTMLElement).textContent = d.quality === 'high' ? '高画質' : '軽量'; };
+    act('restart').onclick = () => { audio.play('click'); ov.remove(); this.startStage(this.stageIdx, this.mode); };
+    act('quit').onclick = () => { audio.play('click'); ov.remove(); this.leaveGame(false); };
   }
 
   private leaveGame(_won: boolean) {
@@ -338,12 +381,15 @@ export class App {
     const d = this.data;
     const pr = d.progress[this.stageIdx];
     const stars = g.stars();
+    const prevStars = pr.stars;
     let newStars = 0;
     if (won) {
       if (this.mode === 'campaign' && stars > pr.stars) { newStars = stars - pr.stars; pr.stars = stars; }
       if (this.mode === 'heroic' && !pr.heroic) { pr.heroic = true; newStars = 1; }
       if (this.mode === 'iron' && !pr.iron) { pr.iron = true; newStars = 1; }
     }
+    const gems = gemReward(won, this.mode, stars, prevStars, d.difficulty, g.waveIdx + 1);
+    d.gems += gems;
     const h = d.hero;
     const xpGain = Math.round(g.heroXpGained * (won ? 1 : 0.5));
     const beforeLv = heroLevelFromXp(d.heroXp[h] ?? 0);
@@ -354,28 +400,34 @@ export class App {
     const unlockHero = won ? HEROES.find((x) => x.unlockStage === this.stageIdx) : undefined;
     const next = this.stageIdx + 1 < STAGES.length;
     const shown = this.mode === 'campaign' ? 3 : 1;
-    const { m, ov } = this.modal('result', `
-      <img class="chicken" src="${rigPortrait(won ? HERO[h].model : 'chick_reinf')}">
-      <div class="ribbon ${won ? 'green' : ''}">${won ? (this.stageIdx === STAGES.length - 1 && this.mode === 'campaign' ? '王国に平和が戻った!' : 'ステージクリア!') : '卵が奪われた…'}</div>
-      <div class="bigstars">${Array.from({ length: shown }, () => ICON.star).join('')}</div>
-      <div class="line">残りライフ: <b>${Math.max(0, g.lives)}</b> / ${g.maxLives}　倒した敵: <b>${g.stats.kills}</b></div>
-      <div class="line">ヒーロー経験値 +${xpGain}${afterLv > beforeLv ? ` <b style="color:#3a78d0">レベルアップ! Lv${afterLv}</b>` : ''}</div>
-      ${newStars > 0 ? `<div class="line"><b>★ ${newStars} 獲得!</b> アップグレードに使えます</div>` : ''}
-      ${unlockHero ? `<div class="line" style="color:#7a4fd6"><b>新しいヒーロー「${unlockHero.name}」が仲間になった!</b></div>` : ''}
-      ${this.stageIdx === STAGES.length - 1 && won && this.mode === 'campaign' ? '<div class="line">九尾の魔狐は倒れ、黄金の卵は守られた。ありがとう、コッコ王国の英雄!</div>' : ''}
+    const finale = this.stageIdx === STAGES.length - 1 && won && this.mode === 'campaign';
+    const { m, ov } = this.modal('result2 ' + (won ? 'win' : 'lose'), `
+      <div class="rs-emblem"><img src="${rigPortrait(won ? HERO[h].model : 'chick_reinf')}"></div>
+      <div class="rs-banner"><span>${won ? '勝利' : '敗北'}</span></div>
+      <div class="bigstars">${won ? Array.from({ length: shown }, () => ICON.star).join('') : ''}</div>
+      <div class="rs-chest">${ICON.chest}<b class="outlined">+${gems}</b>${ICON.gem}</div>
+      <div class="rs-lines">
+        ${won ? `<div>残りライフ <b>${Math.max(0, g.lives)}</b> / ${g.maxLives}・倒した敵 <b>${g.stats.kills}</b></div>` : '<div>黄金の卵が奪われてしまった…。塔の配置を変えて再挑戦しよう!</div>'}
+        <div>ヒーロー経験値 +${xpGain}${afterLv > beforeLv ? ` <b style="color:#3a78d0">レベルアップ! Lv${afterLv}</b>` : ''}</div>
+        ${newStars > 0 ? `<div><b>★ ${newStars} 獲得!</b> 研究所で使えます</div>` : ''}
+        ${unlockHero ? `<div style="color:#7a4fd6"><b>新しいヒーロー「${unlockHero.name}」が仲間になった!</b></div>` : ''}
+        ${finale ? '<div>九尾の魔狐は倒れ、黄金の卵は守られた。ありがとう、コッコ王国の英雄!</div>' : ''}
+      </div>
       <div class="btns"></div>`, false);
     const sv = m.querySelectorAll('.bigstars svg');
     const lit = won ? (this.mode === 'campaign' ? stars : 1) : 0;
-    sv.forEach((s, k) => { if (k < lit) setTimeout(() => { s.classList.add('on'); audio.play('star'); }, 500 + k * 450); });
+    sv.forEach((st, k) => { if (k < lit) setTimeout(() => { st.classList.add('on'); audio.play('star'); }, 600 + k * 450); });
+    setTimeout(() => m.querySelector('.rs-chest')?.classList.add('open'), 700 + lit * 450);
     const btns = m.querySelector('.btns')!;
     const add = (label: string, cls: string, fn: () => void) => {
-      const b = el('button', 'btn ' + cls, label);
+      const b = el('button', 'plank ' + cls, label);
       b.onclick = () => { audio.play('click'); ov.remove(); fn(); };
       btns.appendChild(b);
     };
-    add('マップへ', 'wood', () => this.showMap());
-    add('もう一度', 'gold', () => this.startStage(this.stageIdx, this.mode));
-    if (won && next && this.mode === 'campaign') add('次のステージへ', 'big', () => { this.showMap(); this.showBriefing(this.stageIdx + 1); });
+    if (won && next && this.mode === 'campaign') add('続行', 'go', () => { this.showMap(); this.showBriefing(this.stageIdx + 1); });
+    else add(won ? '続行' : 'マップへ', 'go', () => this.showMap());
+    add('再スタート', '', () => this.startStage(this.stageIdx, this.mode));
+    if (won && next && this.mode === 'campaign') add('マップへ', '', () => this.showMap());
     audio.startMusic(0);
   }
 
@@ -458,66 +510,121 @@ export class App {
   // ───────────────────────── heroes ─────────────────────────
   showHeroes(onClose?: () => void) {
     const d = this.data;
-    const { m, ov } = this.modal('ency', '');
+    let selId = d.hero;
+    const { m } = this.modal('heroroom', '');
     const render = () => {
       m.querySelector('.hcontent')?.remove();
       const c = el('div', 'hcontent');
-      c.innerHTML = `<div class="ribbon blue">ヒーロー</div><div class="heroes">${HEROES.map((h) => {
-        const unlocked = h.unlockStage < 0 || d.progress[h.unlockStage]?.stars > 0;
-        const xp = d.heroXp[h.id] ?? 0;
-        const lv = heroLevelFromXp(xp);
-        const nextXp = HERO_XP[Math.min(HERO_MAX_LV - 1, lv)];
-        const prevXp = HERO_XP[lv - 1];
-        const f = lv >= HERO_MAX_LV ? 1 : (xp - prevXp) / (nextXp - prevXp);
-        const bar = (label: string, v: number) => `<div class="bar"><span style="width:44px">${label}</span><i><b style="width:${Math.min(100, v * 100)}%"></b></i></div>`;
-        return `<div class="herocard ${d.hero === h.id ? 'sel' : ''} ${unlocked ? '' : 'locked'}">
-          <img class="portrait" src="${rigPortrait(h.model)}">
-          <h3>${unlocked ? h.name : '???'}</h3><div class="ttl">${h.title}</div>
-          ${unlocked ? `<div>Lv ${lv}</div><div class="xpbar"><i style="width:${f * 100}%"></i></div>
-          ${bar('体力', (h.hp + h.hpLv * 9) / 1300)}${bar('攻撃', (h.dmg[1] + h.dmgLv * 9) / 60)}${bar('防御', h.armor / 0.6)}${bar('射程', h.ranged ? h.ranged.range / 8 : 0.15)}
-          <div class="desc">${h.desc}</div>
-          <div class="skills">${h.skills.map((s) => `<div>◆ <b>${s.name}</b>: ${s.desc}</div>`).join('')}</div>
-          <button class="btn small ${d.hero === h.id ? 'gray' : 'blue'}" data-h="${h.id}">${d.hero === h.id ? '選択中' : '選ぶ'}</button>`
-          : `<div class="desc">ステージ${h.unlockStage + 1}をクリアすると仲間になる</div>`}
+      const h = HERO[selId];
+      const unlocked = h.unlockStage < 0 || d.progress[h.unlockStage]?.stars > 0;
+      const xp = d.heroXp[h.id] ?? 0;
+      const lv = heroLevelFromXp(xp);
+      const nextXp = HERO_XP[Math.min(HERO_MAX_LV - 1, lv)];
+      const f = lv >= HERO_MAX_LV ? 1 : (xp - HERO_XP[lv - 1]) / (nextXp - HERO_XP[lv - 1]);
+      const pips = (v: number) => Array.from({ length: 8 }, (_, k) => `<i class="${k < Math.round(v * 8) ? 'on' : ''}"></i>`).join('');
+      c.innerHTML = `<div class="room-title outlined">英雄の部屋</div>
+        <div class="room">
+          <div class="room-grid">${HEROES.map((x) => {
+            const ok = x.unlockStage < 0 || d.progress[x.unlockStage]?.stars > 0;
+            return `<button class="room-slot ${x.id === selId ? 'sel' : ''} ${d.hero === x.id ? 'cur' : ''}" data-h="${x.id}"><img src="${ok ? rigPortrait(x.model) : rigSilhouette(x.model)}">${ok ? '' : `<span class="room-lock">${ICON.lock}</span>`}</button>`;
+          }).join('')}</div>
+          <div class="room-card ${unlocked ? '' : 'locked'}" style="--hc:${h.color}"><img src="${unlocked ? rigPortrait(h.model) : rigSilhouette(h.model)}"><div class="room-name outlined">${h.name}<small>${h.title}</small></div></div>
+          <div class="room-info">
+            <p>${h.desc}</p>
+            <div class="room-stats">
+              <span>${ICON.heart}</span><div class="pips">${pips((h.hp + h.hpLv * (lv - 1)) / 1100)}</div>
+              <span>${ICON.sword}</span><div class="pips">${pips((h.dmg[1] + h.dmgLv * (lv - 1)) / 50)}</div>
+              <span>${ICON.shield}</span><div class="pips">${pips(h.armor / 0.6)}</div>
+              <span>${ICON.flag}</span><div class="pips">${pips(h.ranged ? h.ranged.range / 8 : 0.12)}</div>
+            </div>
+            ${unlocked ? `<div class="room-lv">Lv ${lv}<div class="xpbar"><i style="width:${f * 100}%"></i></div></div>` : ''}
+            <div class="room-skills">${h.skills.map((k) => `<div><b>${k.name}</b> ${k.desc}</div>`).join('')}</div>
+          </div>
+        </div>
+        <div class="room-foot">
+          ${unlocked ? `<button class="plank ${d.hero === h.id ? 'gray' : 'go'}" data-act="pick">${d.hero === h.id ? '出撃中' : 'このヒーローで出撃'}</button>` : `<button class="plank lock">${ICON.lock.replace('<svg', '<svg width="22" height="22"')} ステージ${h.unlockStage + 1}でアンロック</button>`}
         </div>`;
-      }).join('')}</div>`;
       m.appendChild(c);
-      c.querySelectorAll<HTMLElement>('[data-h]').forEach((b) => b.onclick = () => { audio.play('cluck'); d.hero = b.dataset.h!; save(); render(); onClose?.(); });
+      c.querySelectorAll<HTMLElement>('[data-h]').forEach((b) => b.onclick = () => { audio.play('click'); selId = b.dataset.h!; render(); });
+      const pick = c.querySelector('[data-act=pick]') as HTMLElement | null;
+      if (pick) pick.onclick = () => { audio.play('cluck'); d.hero = selId; save(); render(); onClose?.(); };
     };
     render();
-    void ov;
+  }
+
+  // ───────────────────────── shop ─────────────────────────
+  showShop() {
+    const d = this.data;
+    let sel: ItemId = 'bomb';
+    const art: Record<ItemId, string> = { bomb: ICON.itemBomb, frost: ICON.itemFrost, goldsack: ICON.itemGold, heart: ICON.itemHeart, thunder: ICON.itemThunder };
+    const { m } = this.modal('shop', '');
+    let say = 'いらっしゃい!ジェムは戦いに勝つと手に入るぞ。道具は戦闘中に右下から使えるんじゃ。';
+    const render = () => {
+      m.querySelector('.scontent')?.remove();
+      const c = el('div', 'scontent');
+      const it = ITEM[sel];
+      const can = d.gems >= it.price;
+      c.innerHTML = `<div class="shop-top"><div class="hud-chip outlined">${ICON.gem}<span>${d.gems}</span></div><div class="shop-sign outlined">コケ爺の道具屋</div></div>
+        <div class="shop-body">
+          <div class="shop-keeper"><img src="${rigPortrait('merchant')}"><div class="shop-say panel">${say}</div></div>
+          <div class="shop-board">
+            <div class="shop-items">${ITEMS.map((x) => `<button class="shop-item ${x.id === sel ? 'sel' : ''}" data-i="${x.id}">${art[x.id]}<span class="tag outlined">${ICON.gem}${x.price}</span><span class="own outlined">x${d.items[x.id] ?? 0}</span></button>`).join('')}</div>
+            <div class="shop-detail"><div class="sd-art">${art[it.id]}</div><div class="sd-text"><b>${it.name}</b><div>${it.desc}</div><small>持っている数: ${d.items[it.id] ?? 0}</small></div>
+              <button class="plank ${can ? 'go' : 'gray'}" data-act="buy">${ICON.gem.replace('<svg', '<svg width="20" height="20"')} ${it.price} 購入</button></div>
+          </div>
+        </div>`;
+      m.appendChild(c);
+      c.querySelectorAll<HTMLElement>('[data-i]').forEach((b) => b.onclick = () => { audio.play('click'); sel = b.dataset.i as ItemId; render(); });
+      (c.querySelector('[data-act=buy]') as HTMLElement).onclick = () => {
+        if (d.gems < it.price) { audio.play('deny'); say = 'ジェムが足りんのう。ステージをクリアして集めておいで!'; render(); return; }
+        d.gems -= it.price; d.items[it.id] = (d.items[it.id] ?? 0) + 1; save();
+        audio.play('coin'); say = `毎度あり!「${it.name}」じゃ。いざという時に使うんじゃぞ。`;
+        render();
+      };
+    };
+    render();
   }
 
   // ───────────────────────── encyclopedia ─────────────────────────
   showEncyclopedia() {
     const d = this.data;
-    let tab: 'towers' | 'enemies' = 'towers';
+    let tab: 'home' | 'towers' | 'enemies' | 'tips' = 'home';
     let selId = 'archer1';
     const { m } = this.modal('ency', '');
     const render = () => {
       m.querySelector('.econtent')?.remove();
       const c = el('div', 'econtent');
-      const list = tab === 'towers'
-        ? TOWERS.map((t) => ({ id: t.id, img: towerPortrait(t.model, t.tier), known: true }))
-        : ENEMIES.map((e) => ({ id: e.id, img: d.seen.includes(e.id) ? rigPortrait(e.model) : rigSilhouette(e.model), known: true }));
-      let detail = '';
-      if (tab === 'towers') {
-        const t = TOWERS.find((x) => x.id === selId) ?? TOWERS[0];
-        const s = t.soldiers;
-        detail = `<img class="portrait" src="${towerPortrait(t.model, t.tier)}"><h3>${t.name}</h3><div style="font-size:12px;color:#7a4a26;font-weight:800">${LINE_INFO[t.line].name} ・ ランク${t.tier}</div><p>${t.desc}</p>
-          <div class="stats"><b>費用</b><span>${t.cost} G</span>${s ? `<b>兵士</b><span>${s.name} x${s.count}</span><b>体力</b><span>${s.hp}</span><b>攻撃</b><span>${s.dmg[0]}-${s.dmg[1]}</span><b>防御</b><span>${Math.round(s.armor * 100)}%</span><b>復活</b><span>${s.respawn}秒</span>`
-          : `<b>攻撃</b><span>${t.dmg[0]}-${t.dmg[1]} (${t.dmgType === 'magic' ? '魔法' : t.dmgType === 'explosive' ? '爆発' : '物理'})</span><b>間隔</b><span>${t.rate}秒</span><b>射程</b><span>${t.range}</span>${t.aoe ? `<b>範囲</b><span>${t.aoe}</span>` : ''}<b>対空</b><span>${t.hitsFlying ? '○' : '×'}</span>`}
-          ${t.abilities ? t.abilities.map((a) => `<b>${a.name}</b><span>${a.desc}</span>`).join('') : ''}</div>`;
+      if (tab === 'home') {
+        c.innerHTML = `<div class="ribbon purple">図鑑</div><div class="books">
+          <button class="book b1" data-tab="towers"><img src="${towerPortrait('archer', 3)}"><span class="outlined">タワー</span></button>
+          <button class="book b2" data-tab="enemies"><img src="${rigPortrait('slime')}"><span class="outlined">敵</span></button>
+          <button class="book b3" data-tab="tips"><div class="book-ic">${ICON.tip}</div><span class="outlined">ヒント</span></button>
+        </div>`;
+      } else if (tab === 'tips') {
+        c.innerHTML = `<div class="ribbon purple">ヒント</div><button class="btn small wood ebk" data-tab="home">← 本を選ぶ</button>
+          <div class="tiplist">${TIPS.map((t) => `<div class="tipitem"><b>${t.title}</b><div>${t.body}</div></div>`).join('')}</div>`;
       } else {
-        const e = ENEMY[selId] ?? ENEMIES[0];
-        const known = d.seen.includes(e.id);
-        detail = known ? `<img class="portrait" src="${rigPortrait(e.model)}"><h3>${e.name}</h3><div>${e.tags.map((t) => `<span class="tagchip">${t}</span>`).join(' ')}</div><p>${e.desc}</p>
-          <div class="stats"><b>体力</b><span>${e.hp} (${hpWord(e.hp)})</span><b>速さ</b><span>${speedWord(e.speed)}</span><b>物理防御</b><span>${armorWord(e.armor)}</span><b>魔法防御</b><span>${armorWord(e.mr)}</span><b>攻撃</b><span>${e.dmg[0]}-${e.dmg[1]}</span><b>報酬</b><span>${e.gold} G</span><b>ライフ</b><span>-${e.lives}</span><b>出現地</b><span>${REGIONS[e.region].name}</span></div>`
-          : `<img class="portrait" src="${rigSilhouette(e.model)}"><h3>???</h3><p>まだ出会っていない敵です。</p>`;
+        const list = tab === 'towers'
+          ? TOWERS.map((t) => ({ id: t.id, img: towerPortrait(t.model, t.tier) }))
+          : ENEMIES.map((e) => ({ id: e.id, img: d.seen.includes(e.id) ? rigPortrait(e.model) : rigSilhouette(e.model) }));
+        let detail = '';
+        if (tab === 'towers') {
+          const t = TOWERS.find((x) => x.id === selId) ?? TOWERS[0];
+          const sd = t.soldiers;
+          detail = `<img class="portrait" src="${towerPortrait(t.model, t.tier)}"><h3>${t.name}</h3><div style="font-size:12px;color:#7a4a26;font-weight:800">${LINE_INFO[t.line].name} ・ ランク${t.tier}</div><p>${t.desc}</p>
+            <div class="stats"><b>費用</b><span>${t.cost} G</span>${sd ? `<b>兵士</b><span>${sd.name} x${sd.count}</span><b>体力</b><span>${sd.hp}</span><b>攻撃</b><span>${sd.dmg[0]}-${sd.dmg[1]}</span><b>防御</b><span>${Math.round(sd.armor * 100)}%</span><b>復活</b><span>${sd.respawn}秒</span>`
+            : `<b>攻撃</b><span>${t.dmg[0]}-${t.dmg[1]} (${t.dmgType === 'magic' ? '魔法' : t.dmgType === 'explosive' ? '爆発' : '物理'})</span><b>間隔</b><span>${t.rate}秒</span><b>射程</b><span>${t.range}</span>${t.aoe ? `<b>範囲</b><span>${t.aoe}</span>` : ''}<b>対空</b><span>${t.hitsFlying ? '○' : '×'}</span>`}
+            ${t.abilities ? t.abilities.map((a) => `<b>${a.name}</b><span>${a.desc}</span>`).join('') : ''}</div>`;
+        } else {
+          const e = ENEMY[selId] ?? ENEMIES[0];
+          const known = d.seen.includes(e.id);
+          detail = known ? `<img class="portrait" src="${rigPortrait(e.model)}"><h3>${e.name}</h3><div>${e.tags.map((t) => `<span class="tagchip">${t}</span>`).join(' ')}</div><p>${e.desc}</p>
+            <div class="stats"><b>体力</b><span>${e.hp} (${hpWord(e.hp)})</span><b>速さ</b><span>${speedWord(e.speed)}</span><b>物理防御</b><span>${armorWord(e.armor)}</span><b>魔法防御</b><span>${armorWord(e.mr)}</span><b>攻撃</b><span>${e.dmg[0]}-${e.dmg[1]}</span><b>報酬</b><span>${e.gold} G</span><b>ライフ</b><span>-${e.lives}</span><b>出現地</b><span>${REGIONS[e.region].name}</span></div>`
+            : `<img class="portrait" src="${rigSilhouette(e.model)}"><h3>???</h3><p>まだ出会っていない敵です。</p>`;
+        }
+        c.innerHTML = `<div class="ribbon purple">${tab === 'towers' ? 'タワー' : `敵 (${d.seen.filter((x) => ENEMY[x]).length}/${ENEMIES.length})`}</div><button class="btn small wood ebk" data-tab="home">← 本を選ぶ</button>
+          <div class="ency-body"><div class="ency-grid">${list.map((x) => `<img class="portrait ${x.id === selId ? 'sel' : ''}" data-id="${x.id}" src="${x.img}">`).join('')}</div><div class="ency-detail">${detail}</div></div>`;
       }
-      c.innerHTML = `<div class="ribbon purple">図鑑</div>
-        <div class="tabs" style="margin-top:10px"><div class="tab ${tab === 'towers' ? 'on' : ''}" data-tab="towers">タワー (${TOWERS.length})</div><div class="tab ${tab === 'enemies' ? 'on' : ''}" data-tab="enemies">敵 (${d.seen.filter((x) => ENEMY[x]).length}/${ENEMIES.length})</div></div>
-        <div class="ency-body"><div class="ency-grid">${list.map((x) => `<img class="portrait ${x.known ? '' : 'unknown'} ${x.id === selId ? 'sel' : ''}" data-id="${x.id}" src="${x.img}">`).join('')}</div><div class="ency-detail">${detail}</div></div>`;
       m.appendChild(c);
       c.querySelectorAll<HTMLElement>('[data-tab]').forEach((t) => t.onclick = () => { audio.play('click'); tab = t.dataset.tab as typeof tab; selId = tab === 'towers' ? 'archer1' : ENEMIES[0].id; render(); });
       c.querySelectorAll<HTMLElement>('[data-id]').forEach((t) => t.onclick = () => { audio.play('click'); selId = t.dataset.id!; render(); });

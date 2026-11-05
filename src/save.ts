@@ -14,6 +14,10 @@ export interface SaveData {
   music: number;
   quality: 'high' | 'low';
   tutorialDone: boolean;
+  gems: number;
+  items: Record<string, number>;
+  tipsSeen: string[];
+  muted: boolean;
 }
 
 const KEY = 'kokko-fortress-save-v1';
@@ -31,6 +35,10 @@ export function defaultSave(): SaveData {
     music: 0.5,
     quality: 'high',
     tutorialDone: false,
+    gems: 60,
+    items: { bomb: 1, frost: 0, goldsack: 1, heart: 0, thunder: 0 },
+    tipsSeen: [],
+    muted: false,
   };
 }
 
@@ -43,7 +51,7 @@ export function load(): SaveData {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const p = JSON.parse(raw) as Partial<SaveData>;
-      d = { ...d, ...p, upgrades: { ...d.upgrades, ...(p.upgrades ?? {}) }, heroXp: { ...d.heroXp, ...(p.heroXp ?? {}) } };
+      d = { ...d, ...p, upgrades: { ...d.upgrades, ...(p.upgrades ?? {}) }, heroXp: { ...d.heroXp, ...(p.heroXp ?? {}) }, items: { ...d.items, ...(p.items ?? {}) } };
       while (d.progress.length < STAGES.length) d.progress.push({ stars: 0, heroic: false, iron: false });
     }
   } catch { /* storage unavailable: play without persistence */ }

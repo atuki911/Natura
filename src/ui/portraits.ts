@@ -152,3 +152,59 @@ export function rigSilhouette(model: string): string {
   img.onload = () => silCache.set(model, draw());
   return url;
 }
+
+// ───────── stage preview for the briefing lens ─────────
+import { buildEnvironment, PALETTES } from '../render/env.ts';
+import { STAGES } from '../data/stages.ts';
+import { Path } from '../sim/path.ts';
+import { computeSpots } from '../sim/game.ts';
+
+const PREV = 360;
+let prevRT: THREE.WebGLRenderTarget | null = null;
+const prevCache = new Map<number, string>();
+
+export function stagePreview(i: number): string {
+  const c = prevCache.get(i);
+  if (c) return c;
+  if (!renderer) throw new Error('portraits not initialised');
+  const st = STAGES[i];
+  const paths = st.paths.map((p) => new Path(p));
+  const env = buildEnvironment(st.region, paths, computeSpots(st, paths), st.id + 1);
+  const sc = new THREE.Scene();
+  const pal = PALETTES[st.region];
+  sc.background = new THREE.Color(pal.skyHorizon);
+  sc.add(new THREE.HemisphereLight(pal.ambient, pal.hemiGround, 1.4));
+  const sun = new THREE.DirectionalLight(pal.sun, 2.3);
+  sun.position.set(-30, 50, 30);
+  sc.add(sun, env.group);
+  const cam = new THREE.PerspectiveCamera(34, 1, 1, 400);
+  cam.position.set(0, 74, 30);
+  cam.lookAt(0, 0, 2);
+  prevRT ??= new THREE.WebGLRenderTarget(PREV, PREV, { samples: 4 });
+  prevRT.texture.colorSpace = THREE.SRGBColorSpace;
+  const prevRes = outlineUniforms.uResolution.value.clone();
+  const prevW = outlineUniforms.uOutline.value;
+  outlineUniforms.uResolution.value.set(PREV, PREV);
+  outlineUniforms.uOutline.value = 1.2;
+  const prevTarget = renderer.getRenderTarget();
+  const prevShadow = renderer.shadowMap.enabled;
+  renderer.shadowMap.enabled = false;
+  renderer.setRenderTarget(prevRT);
+  renderer.render(sc, cam);
+  const px = new Uint8Array(PREV * PREV * 4);
+  renderer.readRenderTargetPixels(prevRT, 0, 0, PREV, PREV, px);
+  renderer.setRenderTarget(prevTarget);
+  renderer.shadowMap.enabled = prevShadow;
+  outlineUniforms.uResolution.value.copy(prevRes);
+  outlineUniforms.uOutline.value = prevW;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = PREV;
+  const x = cv.getContext('2d')!;
+  const img = x.createImageData(PREV, PREV);
+  for (let y = 0; y < PREV; y++) img.data.set(px.subarray((PREV - 1 - y) * PREV * 4, (PREV - y) * PREV * 4), y * PREV * 4);
+  x.putImageData(img, 0, 0);
+  const url = cv.toDataURL('image/jpeg', 0.85);
+  env.group.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && !o.userData.outline) m.geometry.dispose(); });
+  prevCache.set(i, url);
+  return url;
+}

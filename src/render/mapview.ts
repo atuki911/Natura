@@ -162,7 +162,7 @@ export class MapView {
       const b = el('div', 'mnode' + (unlocked ? '' : ' locked') + (next ? ' next' : '') + (pr.stars ? ' done r' + st.region : ''));
       b.innerHTML = `${next ? '<div class="mn-arrow">▼</div>' : ''}<div class="mn-badge outlined">${unlocked ? i + 1 : ICON.lock}</div>
         ${unlocked ? `<div class="mn-stars">${[0, 1, 2].map((k) => (k < pr.stars ? ICON.star : ICON.starEmpty)).join('')}${pr.heroic ? '<i class="mn-b h"></i>' : ''}${pr.iron ? '<i class="mn-b i"></i>' : ''}</div>` : ''}
-        ${next ? `<div class="mn-name outlined">${st.name}</div>` : ''}`;
+        ${next ? `<div class="mn-bubble">${i === 0 ? 'ここでスタート!' : '次はここ!'}<small>${st.name}</small></div>` : ''}`;
       b.dataset.i = String(i);
       this.layer.appendChild(b);
       this.nodes.push({ pos: p.clone().setY(1.2), el: b });

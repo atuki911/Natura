@@ -380,6 +380,47 @@ export class Game {
     return true;
   }
 
+  /** battle items (bought with gems). Returns false if it could not be used. */
+  useItem(id: string, p?: V2): boolean {
+    if (this.state === 'won' || this.state === 'lost') return false;
+    switch (id) {
+      case 'bomb': {
+        if (!p) return false;
+        this.events.push({ type: 'meteorCast', x: p.x, y: p.y });
+        this.schedule(0.1, () => this.spawnProj({ kind: 'megabomb', sx: p.x - 3, sy: p.y - 6, sz: 22, tx: p.x, ty: p.y, tz: 0, dur: 0.8, arc: 0,
+          dmg: 260, type: 'explosive', aoe: 3.4, flying: false, homing: false }));
+        this.events.push({ type: 'sfx', name: 'meteor' });
+        return true;
+      }
+      case 'frost':
+        for (const e of this.enemies) { if (!e.def.boss) e.freezeT = Math.max(e.freezeT, 5); else { e.slowT = 5; e.slowF = 0.5; } this.events.push({ type: 'freezeArea', x: e.x, y: e.y, r: 1 }); }
+        this.events.push({ type: 'sfx', name: 'freeze' });
+        return true;
+      case 'goldsack':
+        this.gold += 250;
+        this.events.push({ type: 'gold', x: 0, y: 0, amount: 250 });
+        this.events.push({ type: 'sfx', name: 'coin' });
+        return true;
+      case 'heart':
+        if (this.lives >= this.maxLives) return false;
+        this.lives = Math.min(this.maxLives, this.lives + 5);
+        this.events.push({ type: 'sfx', name: 'heal' });
+        return true;
+      case 'thunder': {
+        const targets = [...this.enemies].sort((a, b) => (b.d / b.path.length) - (a.d / a.path.length)).slice(0, 12);
+        if (!targets.length) return false;
+        targets.forEach((e, i) => this.schedule(i * 0.08, () => {
+          if (!e.alive) return;
+          this.events.push({ type: 'lightning', pts: [{ x: e.x + 1, y: e.y - 2, z: 14 }, { x: e.x, y: e.y, z: e.def.flying ? 2.2 : 0.6 }] });
+          this.damage(e, 150, 'magic', null, null);
+        }));
+        this.events.push({ type: 'sfx', name: 'zap' });
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** call next wave; returns bonus gold */
   callWave(): number {
     if (this.state === 'won' || this.state === 'lost') return 0;

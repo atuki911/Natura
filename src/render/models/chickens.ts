@@ -234,5 +234,6 @@ export const CHICKEN_MODELS: Record<string, () => RigDef> = {
   mage_chick: () => chicken({ body: 0xffe066, chick: true, helmet: 'wizard', helmetColor: 0x6a3fc8, weapon: 'staff', size: 0.75 }),
   frost_chick: () => chicken({ body: 0xe8f6ff, chick: true, helmet: 'wizard', helmetColor: 0x3f8fd8, weapon: 'staff', size: 0.75 }),
   gunner: () => chicken({ body: 0xc98a4b, helmet: 'goggles', size: 0.72 }),
+  merchant: () => chicken({ body: 0xf2ece0, belly: 0xffffff, helmet: 'goggles', vest: 0x8a3a2a, scarf: 0xe5a03a, pack: 'bombs', size: 1.3 }),
   nest_hen: () => chicken({ body: 0xffffff, belly: 0xffffff, helmet: 'crown', size: 1.6 }),
 };

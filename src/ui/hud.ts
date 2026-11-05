@@ -7,6 +7,7 @@ import { ICON } from './icons.ts';
 import { rigPortrait, towerPortrait } from './portraits.ts';
 import { audio } from '../audio/audio.ts';
 import { Guide, rectTarget, type GuideTarget } from './guide.ts';
+import { ITEMS, ITEM, type ItemId } from '../data/items.ts';
 
 export interface HudHost {
   world: World;
@@ -19,6 +20,11 @@ export interface HudHost {
   markSeen(id: string): boolean;
   tutorial: boolean;
   finishTutorial(): void;
+  lockedSpells: Set<string>;
+  itemCount(id: ItemId): number;
+  consumeItem(id: ItemId): void;
+  tipSeen(id: string): boolean;
+  openTip(id: string): void;
 }
 
 type Sel =
@@ -55,7 +61,12 @@ export class Hud {
   private waveBtns: HTMLElement[] = [];
   sel: Sel = null;
   private selOpt: string | null = null;
-  private targeting: 'meteor' | 'reinforce' | 'rally' | null = null;
+  private targeting: 'meteor' | 'reinforce' | 'rally' | 'bomb' | null = null;
+  private itemBtns: { id: ItemId; el: HTMLElement }[] = [];
+  private tipCol: HTMLElement;
+  private tipQueue = new Set<string>();
+  private waveArmed = -1;
+  private waveArmT = 0;
   private lastGold = -1;
   private lastLives = -1;
   private newQueue: string[] = [];
@@ -91,18 +102,33 @@ export class Hud {
     this.refreshSpeed();
 
     const bottom = el('div', 'hud-bottom');
+    this.meteorBtn = el('div', 'spell meteor', `<div class="spell-face">${ICON.meteorArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lockface">${ICON.lock}</div><div class="spell-name outlined">卵メテオ</div>`);
+    this.meteorBtn.onclick = () => this.toggleTargeting('meteor');
+    this.reinfBtn = el('div', 'spell reinf', `<div class="spell-face">${ICON.chickArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lockface">${ICON.lock}</div><div class="spell-name outlined">援軍</div>`);
+    this.reinfBtn.onclick = () => this.toggleTargeting('reinforce');
+    bottom.append(this.meteorBtn, this.reinfBtn);
+    this.root.appendChild(bottom);
+    const br = el('div', 'hud-bottom-right');
+    const items = el('div', 'itembar');
+    const art: Record<ItemId, string> = { bomb: ICON.itemBomb, frost: ICON.itemFrost, goldsack: ICON.itemGold, heart: ICON.itemHeart, thunder: ICON.itemThunder };
+    for (const it of ITEMS) {
+      const b = el('div', 'itembtn', `${art[it.id]}<span class="icount outlined"></span>`);
+      b.title = it.name + ': ' + it.desc;
+      b.onclick = () => this.onItem(it.id);
+      items.appendChild(b);
+      this.itemBtns.push({ id: it.id, el: b });
+    }
+    br.appendChild(items);
     if (game.hero) {
       const h = game.hero;
       this.heroBtn = el('div', 'spell hero', `<div class="spell-face"><img src="${rigPortrait(h.model)}"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lvbadge outlined"></div><div class="herohp"><i></i></div>`);
       this.heroBtn.onclick = () => this.onHeroButton();
-      bottom.appendChild(this.heroBtn);
+      br.appendChild(this.heroBtn);
     }
-    this.meteorBtn = el('div', 'spell meteor', `<div class="spell-face">${ICON.meteorArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="spell-name outlined">卵メテオ</div>`);
-    this.meteorBtn.onclick = () => this.toggleTargeting('meteor');
-    this.reinfBtn = el('div', 'spell reinf', `<div class="spell-face">${ICON.chickArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="spell-name outlined">援軍</div>`);
-    this.reinfBtn.onclick = () => this.toggleTargeting('reinforce');
-    bottom.append(this.meteorBtn, this.reinfBtn);
-    this.root.appendChild(bottom);
+    this.root.appendChild(br);
+    this.tipCol = el('div', 'tipcol');
+    this.root.appendChild(this.tipCol);
+    this.refreshItems();
 
     this.targetBar = el('div', 'targetbar outlined', `<span></span><button class="btn small red">${ICON.close.replace('<svg', '<svg width="18" height="18"')} やめる</button>`);
     this.targetBar.style.display = 'none';
@@ -146,6 +172,7 @@ export class Hud {
   private toggleTargeting(t: 'meteor' | 'reinforce') {
     const g = this.game;
     if (this.tut && !(this.tut === 'met' && t === 'meteor') && !this.tutFree()) { audio.play('deny'); return; }
+    if (this.host.lockedSpells.has(t)) { audio.play('deny'); this.float(window.innerWidth / 2, window.innerHeight / 2, 'まだ使えない!', 'life'); return; }
     const cd = t === 'meteor' ? g.meteorCd : g.reinforceCd;
     if (cd > 0) { audio.play('deny'); return; }
     audio.play('click');
@@ -170,7 +197,7 @@ export class Hud {
     if (!t) { this.targetBar.style.display = 'none'; return; }
     this.targetBar.style.display = 'flex';
     (this.targetBar.querySelector('span') as HTMLElement).textContent =
-      t === 'meteor' ? '卵メテオを落とす場所をタップ' : t === 'reinforce' ? '援軍を呼ぶ場所をタップ' : '兵士の集合場所をタップ';
+      t === 'meteor' ? '卵メテオを落とす場所をタップ' : t === 'reinforce' ? '援軍を呼ぶ場所をタップ' : t === 'bomb' ? 'たまご爆弾を落とす場所をタップ' : '兵士の集合場所をタップ';
   }
 
   /** during free-play tutorial phases every action is allowed */
@@ -199,6 +226,11 @@ export class Hud {
         (this.tut === 'metT' && p.kind !== 'none' && p.inside) ||
         (this.tut === 'up1' && p.kind === 'tower' && p.id === this.tutTower);
       if (!ok) { audio.play('deny'); return; }
+    }
+    if (this.targeting === 'bomb') {
+      if (p.kind !== 'none' && p.inside && g.useItem('bomb', p)) { this.host.consumeItem('bomb'); this.refreshItems(); this.targeting = null; this.refreshTargetBar(); return; }
+      audio.play('deny');
+      return;
     }
     if (this.targeting === 'meteor' || this.targeting === 'reinforce') {
       if (p.kind !== 'none' && p.inside) {
@@ -256,6 +288,64 @@ export class Hud {
       this.targetBar.style.display = 'flex';
       (this.targetBar.querySelector('span') as HTMLElement).textContent = 'ヒーローの移動先をタップ';
     }
+  }
+
+  // ───────────────────────── items, unlocks, tips ─────────────────────────
+  private onItem(id: ItemId) {
+    if (this.tut && !this.tutFree()) { audio.play('deny'); return; }
+    const g = this.game;
+    if (this.host.itemCount(id) <= 0) {
+      audio.play('deny');
+      const b = this.itemBtns.find((x) => x.id === id)!.el.getBoundingClientRect();
+      this.float(b.left + b.width / 2, b.top - 10, 'ショップで買えるよ', 'gold');
+      return;
+    }
+    this.closeRadial();
+    this.sel = null;
+    if (ITEM[id].target) { audio.play('click'); this.targeting = this.targeting === 'bomb' ? null : 'bomb'; this.refreshTargetBar(); return; }
+    if (g.useItem(id)) {
+      this.host.consumeItem(id);
+      this.refreshItems();
+      const b = this.itemBtns.find((x) => x.id === id)!.el.getBoundingClientRect();
+      this.float(b.left + b.width / 2, b.top - 10, ITEM[id].name + '!', 'bonus');
+      if (id === 'goldsack') this.flashGold();
+    } else audio.play('deny');
+  }
+
+  private refreshItems() {
+    for (const { id, el: e } of this.itemBtns) {
+      const n = this.host.itemCount(id);
+      (e.querySelector('.icount') as HTMLElement).textContent = String(n);
+      e.classList.toggle('empty', n <= 0);
+      e.classList.toggle('active', this.targeting === 'bomb' && id === 'bomb');
+    }
+  }
+
+  /** spells unlock one by one during the very first stage */
+  private updateUnlocks() {
+    const L = this.host.lockedSpells;
+    const g = this.game;
+    const unlock = (k: string, b: HTMLElement) => {
+      L.delete(k);
+      b.classList.remove('locked');
+      const bub = el('div', 'powerbubble outlined', '新しいパワー!');
+      b.appendChild(bub);
+      setTimeout(() => bub.remove(), 4200);
+      audio.play('levelup');
+    };
+    if (L.has('meteor') && g.waveIdx >= 1) unlock('meteor', this.meteorBtn);
+    if (L.has('reinforce') && g.waveIdx >= 3) unlock('reinforce', this.reinfBtn);
+    this.meteorBtn.classList.toggle('locked', L.has('meteor'));
+    this.reinfBtn.classList.toggle('locked', L.has('reinforce'));
+  }
+
+  /** "!" hint buttons on the left the first time something new happens */
+  queueTip(id: string) {
+    if (this.host.tipSeen(id) || this.tipQueue.has(id)) return;
+    this.tipQueue.add(id);
+    const b = el('div', 'tipbtn', ICON.tip);
+    b.onclick = () => { audio.play('click'); b.remove(); this.tipQueue.delete(id); this.host.openTip(id); };
+    this.tipCol.appendChild(b);
   }
 
   // ───────────────────────── radial menus ─────────────────────────
@@ -375,6 +465,7 @@ export class Hud {
           const ok = g.build(spotId, def.id);
           if (ok) {
             this.select(null);
+            this.queueTip(line);
             if (this.tut === 'conf1') { this.tut = 'wave'; this.tutTower = g.towers[g.towers.length - 1].id; }
             if (this.tut === 'conf2') { this.tut = 'heroWait'; this.tutT = 0; this.host.setPaused(false, 'tut'); }
           }
@@ -486,6 +577,8 @@ export class Hud {
       this.heroBtn.classList.toggle('active', this.sel?.kind === 'hero');
       this.heroBtn.classList.toggle('cooling', h.dead);
     }
+    this.updateUnlocks();
+    if (this.waveArmT > 0) { this.waveArmT -= dt; if (this.waveArmT <= 0) this.waveArmed = -1; }
     this.positionRadial();
     this.updateWaveButtons();
     this.updateInfo();
@@ -533,9 +626,16 @@ export class Hud {
     starts.forEach((s, i) => {
       let b = this.waveBtns[i];
       if (!b) {
-        b = el('div', 'wavebtn', ICON.skull + '<div class="ring"></div><div class="wavepreview"></div>');
+        b = el('div', 'wavebtn', ICON.skull + '<div class="ring"></div><div class="wavepreview"></div><div class="wavehint outlined">もう一度タップで呼ぶ</div>');
+        let touch = false;
+        b.addEventListener('pointerdown', (e) => { touch = e.pointerType !== 'mouse'; });
+        const idx = i;
         b.onclick = () => {
+          // on touch screens the first tap shows what is coming, the second calls it (avoids accidental calls)
+          if (touch && this.waveArmed !== idx) { this.waveArmed = idx; this.waveArmT = 3; audio.play('click'); return; }
+          this.waveArmed = -1;
           const bonus = g.callWave();
+          if (g.waveIdx === 0) this.queueTip('early');
           audio.play('horn');
           if (bonus > 0) this.float(b.getBoundingClientRect().left + 32, b.getBoundingClientRect().top, `+${bonus}`, 'bonus');
           if (this.tut === 'wave') { this.tut = 'w1'; this.tutT = 0; }
@@ -544,6 +644,7 @@ export class Hud {
         this.waveBtns[i] = b;
       }
       b.classList.toggle('first', g.waveIdx === -1);
+      b.classList.toggle('armed', this.waveArmed === i);
       const p = this.host.world.project(s.x + s.dx * 3, 0.5, s.y + s.dy * 3);
       const m = 48;
       const x = Math.max(m, Math.min(window.innerWidth - m - 120, p.x));
@@ -641,6 +742,7 @@ export class Hud {
         }
         break;
       case 'newEnemy':
+        if (ENEMY[ev.id].flying) this.queueTip('flying');
         if (this.host.markSeen(ev.id)) this.newQueue.push(ev.id);
         if (!this.showingNew && this.newQueue.length) this.showNewEnemy();
         break;
@@ -749,7 +851,7 @@ export class Hud {
       case 'spot1': G.show('ここは敵の通り道。<b>空き地をタップ</b>してタワーを建てよう!', () => this.spotTarget(this.tutSpots[0])); break;
       case 'pick1': G.show('<b>弓兵</b>を選ぼう。空の敵も撃てる万能タワーだ。', () => this.optTarget('archer')); break;
       case 'conf1': G.show('緑の円が攻撃範囲。<b>もう一度タップ</b>で建設!', () => this.optTarget('archer')); break;
-      case 'wave': G.show('準備OK!<b>ドクロ</b>をタップすると敵がやって来る。', () => rectTarget(this.waveBtns[0], 8)); break;
+      case 'wave': G.show(this.waveArmed === 0 ? '<b>もう一度タップ</b>で敵部隊を呼び込む!' : 'バトルスタート!<b>ドクロ</b>をタップすると敵がやって来る。', () => rectTarget(this.waveBtns[0], 8)); break;
       case 'w1': {
         G.hide();
         const front = g.enemies.reduce((m, e) => Math.max(m, e.d / e.path.length), 0);
