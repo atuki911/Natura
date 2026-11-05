@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MB } from './builder.ts';
-import { toonMat, withOutline, glowMat } from './toon.ts';
+import { toonMat, withOutline, glowMat, swayMat } from './toon.ts';
 import { egg } from './models/towers.ts';
 import type { Path } from '../sim/path.ts';
 import type { Spot } from '../sim/game.ts';
@@ -52,7 +52,7 @@ function vnoise(x: number, y: number) {
 export function fbm(x: number, y: number) { return vnoise(x, y) * 0.6 + vnoise(x * 2.1 + 7, y * 2.1 + 3) * 0.3 + vnoise(x * 4.3 + 1, y * 4.3 + 9) * 0.1; }
 
 const HX = 37, HY = 23;
-function islandSD(x: number, y: number, seed: number) {
+export function islandSD(x: number, y: number, seed: number) {
   const r = 7;
   const qx = Math.abs(x) - (HX - r), qy = Math.abs(y) - (HY - r);
   const sd = Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
@@ -391,12 +391,13 @@ export function buildEnvironment(region: number, paths: Path[], spots: Spot[], s
   }
   for (const [type, list] of placements) {
     const def = decoTypes[type];
-    const mat = def.glow ? glowMat() : toonMat();
+    const sway = SWAYING.includes(type);
+    const mat = def.glow ? glowMat() : sway ? swayMat() : toonMat();
     const inst = new THREE.InstancedMesh(def.geo, mat, list.length);
     list.forEach((m, i) => inst.setMatrixAt(i, m));
     inst.castShadow = !def.flat;
     inst.receiveShadow = true;
-    if (!def.flat && !def.glow) withOutline(inst);
+    if (!def.flat && !def.glow) withOutline(inst, undefined, sway);
     group.add(inst);
   }
 
@@ -464,9 +465,10 @@ export function buildEnvironment(region: number, paths: Path[], spots: Spot[], s
 }
 
 // ───────── decoration catalogue ─────────
+export const SWAYING = ['tree', 'pine', 'bush', 'deadtree', 'flowers'];
 interface DecoDef { geo: THREE.BufferGeometry; scale: [number, number]; flat?: boolean; glow?: boolean }
 
-function buildDecoTypes(region: number, pal: Palette): Record<string, DecoDef> {
+export function buildDecoTypes(region: number, pal: Palette): Record<string, DecoDef> {
   const out: Record<string, DecoDef> = {};
   const mk = (fn: (mb: MB) => void) => { const mb = new MB(); fn(mb); return mb.build(); };
   out.tree = { scale: [0.8, 1.35], geo: mk((mb) => {
@@ -561,7 +563,7 @@ function buildDecoTypes(region: number, pal: Palette): Record<string, DecoDef> {
   return out;
 }
 
-function pickDeco(rng: Rng, region: number, nearPath: boolean): string {
+export function pickDeco(rng: Rng, region: number, nearPath: boolean): string {
   const table: Record<number, [string, number][]> = {
     0: [['tree', 3], ['bush', 3], ['rock', 2], ['flowers', 6], ['mushroom', 1], ['pond', 0.3], ['log', 0.5]],
     1: [['tree', 3], ['pine', 2], ['bush', 3], ['mushroom', 3], ['pond', 1.2], ['rock', 1.5], ['log', 1], ['crystal', 0.4]],

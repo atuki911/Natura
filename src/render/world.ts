@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import type { Game, Enemy, Unit, Tower, Projectile, GEvent } from '../sim/game.ts';
 import { buildEnvironment, PALETTES, type EnvBuild } from './env.ts';
-import { createRig, animateRig, type Rig } from './rig.ts';
+import { createRig, animateRig, setRigFlash, type Rig } from './rig.ts';
 import { TOWER_MODELS, egg, type TowerRig } from './models/towers.ts';
 import { MB } from './builder.ts';
-import { toonMat, withOutline, glowMat, outlineUniforms } from './toon.ts';
+import { toonMat, withOutline, glowMat, outlineUniforms, swayUniform } from './toon.ts';
 import { ParticleSystem, PCOL } from './particles.ts';
 
 export type PickKind = 'spot' | 'tower' | 'hero' | 'enemy' | 'ground' | 'none';
 export interface Pick { kind: PickKind; id: number; x: number; y: number; sx: number; sy: number; inside: boolean }
 
-interface EnemyView { rig: Rig; dying: number; lastX: number; lastY: number; ice?: THREE.Mesh; scalePulse: number; size: number; flying: boolean }
-interface UnitView { rig: Rig; dying: number; lastX: number; lastY: number; ring?: THREE.Mesh; wasDead: boolean; appear: number }
+interface EnemyView { rig: Rig; dying: number; lastX: number; lastY: number; ice?: THREE.Mesh; scalePulse: number; size: number; flying: boolean; dustT: number }
+interface UnitView { rig: Rig; dying: number; lastX: number; lastY: number; ring?: THREE.Mesh; wasDead: boolean; appear: number; spin: number }
 interface TowerView { group: THREE.Group; defId: string; turret?: THREE.Object3D; orb?: THREE.Object3D; crew: Rig[]; ice?: THREE.Mesh; built: number; top: number }
 interface ProjView { obj: THREE.Object3D; kind: string }
 interface Fx { obj: THREE.Object3D; t: number; dur: number; update: (f: Fx, k: number) => void; dispose?: boolean }
@@ -57,6 +57,7 @@ export class World {
   fitDist = 60;
   pitch = 0.86;
   private towerRigCache = new Map<string, TowerRig>();
+  private nestHen: Rig | null = null;
   private projGeo = new Map<string, THREE.BufferGeometry>();
   private iceGeo: THREE.BufferGeometry;
   onTap: (p: Pick) => void = () => {};
@@ -169,12 +170,19 @@ export class World {
     this.stage = this.env.group;
     this.stage.traverse((o) => { if ((o as THREE.Mesh).isMesh && !o.userData.outline) { (o as THREE.Mesh).receiveShadow = true; } });
     this.scene.add(this.stage);
+    // the queen hen guarding the golden egg on the castle nest
+    this.nestHen = createRig('nest_hen');
+    this.nestHen.root.position.set(-0.5, 3.0, -0.9);
+    this.nestHen.root.scale.setScalar(0.85);
+    this.env.castle.add(this.nestHen.root);
     this.target.set(0, 1);
     this.resize();
     this.dist = this.fitDist;
   }
 
   clearStage() {
+    // the nest hen shares cached rig geometry: detach it before freeing stage geometry
+    if (this.nestHen) { this.nestHen.root.parent?.remove(this.nestHen.root); this.nestHen = null; }
     if (this.stage) {
       this.scene.remove(this.stage);
       this.stage.traverse((o) => {
@@ -322,6 +330,9 @@ export class World {
       if (pointers.size === 0) dragging = false;
     };
     el.addEventListener('pointerup', up);
+    // phones send a delayed compatibility click after a tap; by then a menu may have opened under
+    // the finger and would receive it. Cancelling touchend suppresses that ghost click.
+    el.addEventListener('touchend', (e) => { if (e.cancelable) e.preventDefault(); }, { passive: false });
     el.addEventListener('pointercancel', (e) => { pointers.delete(e.pointerId); if (pointers.size === 0) dragging = false; });
     el.addEventListener('wheel', (e) => {
       e.preventDefault();
@@ -348,10 +359,12 @@ export class World {
   }
   focus(x: number, y: number) { this.target.set(x, y); }
   shakeCamera(v: number) { this.shake = Math.max(this.shake, v); }
+  showMoveMarker(x: number, y: number) { this.ring(x, y, 1.1, 0xffe066, 0.6); }
 
   // ───────────────────────── per-frame ─────────────────────────
   frame(dt: number, events: GEvent[]) {
     this.time += dt;
+    swayUniform.value = this.time;
     const g = this.game;
     if (g) {
       for (const ev of events) this.handleEvent(ev);
@@ -370,6 +383,11 @@ export class World {
         else if (a.kind === 'portal') { a.obj.rotation.z += dt * 1.5; }
       }
       if (this.env.castleFlag) this.env.castleFlag.rotation.y = Math.sin(this.time * 2) * 0.15;
+      if (this.nestHen) {
+        const alarm = g && g.enemies.some((e) => e.path.length - e.d < 8);
+        animateRig(this.nestHen, dt, alarm ? 0.6 : 0, 0, this.time);
+        this.nestHen.root.position.y = 3.0 + (alarm ? Math.abs(Math.sin(this.time * 9)) * 0.25 : 0);
+      }
     }
     // fx
     for (const f of this.fx) { f.t += dt; f.update(f, Math.min(1, f.t / f.dur)); }
@@ -400,7 +418,7 @@ export class World {
         const rig = createRig(e.def.model);
         rig.root.position.set(e.x, 0, e.y);
         this.scene.add(rig.root);
-        v = { rig, dying: -1, lastX: e.x, lastY: e.y, scalePulse: 0, size: e.def.size, flying: !!e.def.flying };
+        v = { rig, dying: -1, lastX: e.x, lastY: e.y, scalePulse: 0, size: e.def.size, flying: !!e.def.flying, dustT: 0 };
         this.enemyViews.set(e.id, v);
         rig.root.scale.setScalar(0.01);
       }
@@ -415,6 +433,11 @@ export class World {
       v.scalePulse = Math.max(0, v.scalePulse - dt);
       r.root.scale.setScalar(ENT * grow * (1 + v.scalePulse * 0.8));
       if (!frozen) animateRig(r, dt * (e.slowF < 1 ? 0.5 : 1), Math.min(1, moved / 1.5), e.attackAnim, this.time, v.flying);
+      setRigFlash(r, e.hitFlash > 0.04);
+      if (!v.flying && e.def.size >= 0.75 && moved > 0.2) {
+        v.dustT -= dt;
+        if (v.dustT <= 0) { v.dustT = 0.35; this.pNormal.emit(e.x + rnd(0.4), 0.15, e.y + rnd(0.4), rnd(0.4), 0.6, rnd(0.4), 0.7, 0.5 * e.def.size, 1.3 * e.def.size, PCOL.dust, 0.55, 0, 2); }
+      }
       // status fx
       if (e.freezeT > 0) {
         if (!v.ice) {
@@ -439,9 +462,12 @@ export class World {
       if (alive.has(id)) continue;
       if (v.dying < 0) v.dying = 0;
       v.dying += dt;
-      const k = v.dying / 0.35;
-      v.rig.root.scale.setScalar(ENT * Math.max(0.01, 1 - k) * (1 + k * 0.3));
-      v.rig.root.position.y = (v.flying ? -k * 1.5 : 0);
+      setRigFlash(v.rig, v.dying < 0.08);
+      const k = v.dying / 0.55;
+      const shrink = k < 0.55 ? 1 : Math.max(0.01, 1 - (k - 0.55) / 0.45);
+      v.rig.root.scale.setScalar(ENT * shrink);
+      v.rig.body.rotation.z = Math.min(1, k * 2.2) * 1.45;
+      v.rig.root.position.y = v.flying ? -Math.min(1, k) * 2.2 : -Math.max(0, k - 0.55) * 0.6;
       if (k >= 1) { this.scene.remove(v.rig.root); this.enemyViews.delete(id); }
     }
   }
@@ -455,7 +481,7 @@ export class World {
       if (!v) {
         const rig = createRig(u.model);
         this.scene.add(rig.root);
-        v = { rig, dying: -1, lastX: u.x, lastY: u.y, wasDead: false, appear: 0 };
+        v = { rig, dying: -1, lastX: u.x, lastY: u.y, wasDead: false, appear: 0, spin: 0 };
         if (u.kind === 'hero') {
           const ring = new THREE.Mesh(new THREE.RingGeometry(0.8, 0.98, 32), new THREE.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.7, depthWrite: false }));
           ring.rotation.x = -Math.PI / 2;
@@ -497,6 +523,8 @@ export class World {
       v.appear = Math.min(1, v.appear + dt * 4);
       r.root.scale.setScalar(ENT * Math.max(0.01, v.appear) * life);
       if (u.stunT <= 0) animateRig(r, dt, Math.min(1, moved / 1.5), u.attackAnim, this.time);
+      if (v.spin > 0) { v.spin = Math.max(0, v.spin - dt); r.body.rotation.y = (1 - v.spin / 0.5) * Math.PI * 2; r.body.position.y += Math.sin((v.spin / 0.5) * Math.PI) * 0.4; }
+      else r.body.rotation.y = 0;
       if (v.ring) {
         v.ring.visible = true;
         (v.ring.material as THREE.MeshBasicMaterial).opacity = this.heroSelected ? 0.95 : 0.45;
@@ -688,6 +716,7 @@ export class World {
         this.scene.add(m);
         v = { obj: m, kind: p.kind };
         this.projViews.set(p.id, v);
+        this.muzzle(p);
       }
       const o = v.obj;
       o.position.set(p.x, p.z, p.y);
@@ -711,6 +740,21 @@ export class World {
       if (alive.has(id)) continue;
       this.scene.remove(v.obj);
       this.projViews.delete(id);
+    }
+  }
+
+  private muzzle(p: Projectile) {
+    const x = p.sx, y = p.sz, z = p.sy;
+    switch (p.kind) {
+      case 'egg': case 'bigegg':
+        for (let i = 0; i < (p.kind === 'bigegg' ? 14 : 8); i++) this.pNormal.emit(x + rnd(0.4), y + 0.4, z + rnd(0.4), rnd(1.2), 1 + Math.random() * 1.5, rnd(1.2), 0.9, 0.6, 1.6, PCOL.smoke, 0.7, -0.3, 2);
+        for (let i = 0; i < 6; i++) this.pAdd.emit(x, y + 0.6, z, rnd(2), 1 + Math.random() * 2, rnd(2), 0.25, 0.5, 0.05, PCOL.fire1);
+        break;
+      case 'bolt': case 'arcane': case 'ice':
+        for (let i = 0; i < 8; i++) this.pAdd.emit(x, y, z, rnd(1.5), rnd(1.5), rnd(1.5), 0.35, 0.5, 0.05, p.kind === 'ice' ? PCOL.ice : PCOL.magic2);
+        break;
+      case 'bullet': this.pAdd.emit(x, y, z, rnd(0.5), 0.5, rnd(0.5), 0.12, 0.5, 0.05, PCOL.fire1); break;
+      case 'missile': for (let i = 0; i < 8; i++) this.pNormal.emit(x, y, z, rnd(1.5), 0.5 + Math.random(), rnd(1.5), 0.8, 0.6, 1.4, PCOL.smoke, 0.6, 0, 2); break;
     }
   }
 
@@ -962,9 +1006,12 @@ export class World {
       case 'build': this.burst('dust', ev.tower.x, 0.3, ev.tower.y, 18); break;
       case 'sell': this.burst('dust', ev.x, 0.3, ev.y, 18); this.burst('gold', ev.x, 1, ev.y, 12); break;
       case 'meteorCast': this.ring(ev.x, ev.y, 3, 0xff7a3a, 0.9); break;
-      case 'skill':
+      case 'skill': {
+        const uv = this.unitViews.get(ev.u.id);
+        if (uv) uv.spin = 0.5;
         if (ev.skill === 'flameSlash') this.ring(ev.u.x, ev.u.y, 2.4, 0xff7a1a, 0.4);
         break;
+      }
     }
   }
 

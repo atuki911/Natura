@@ -130,7 +130,7 @@ export const ENEMIES: EnemyDef[] = [
     summon: { id: 'slime', count: 3, cd: 6.5 }, spawnOnDeath: { id: 'bigslime', count: 3 },
     model: 'kingslime', scale: 1, tags: ['ボス', '召喚'] }),
   D({ id: 'serpent', name: '沼の大蛇ヨルム', desc: '沼の主。傷を再生し、近くの兵士を毒牙で気絶させる。', region: 1,
-    hp: 4500, speed: 0.5, armor: 0.4, mr: 0.3, gold: 0, lives: 20, size: 1.8, dmg: [60, 90], rate: 1.8, boss: true, regen: 25,
+    hp: 3800, speed: 0.5, armor: 0.4, mr: 0.3, gold: 0, lives: 20, size: 1.8, dmg: [60, 90], rate: 1.8, boss: true, regen: 25,
     stunUnits: { cd: 9, dur: 2, radius: 3 }, summon: { id: 'snake', count: 2, cd: 8 },
     model: 'serpent', scale: 1, tags: ['ボス', '再生', '召喚'] }),
   D({ id: 'frostgiant', name: '氷の巨人ブリザ', desc: '雪山の巨人。冷気で近くのタワーを凍らせて止める。', region: 2,

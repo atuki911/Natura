@@ -145,7 +145,7 @@ export function generateWaves(st: StageDef, mode: Mode): Wave[] {
   const flyCap = (id: string) => (ENEMY[id].flying ? 0.55 : 1);
 
   const makeWave = (w: number, p: number, budgetMul: number, forceIntro?: string): Wave => {
-    const budget = st.budget * (1 + 0.014 * st.id) * (0.5 + 1.5 * p + 1.6 * p * p) * budgetMul;
+    const budget = st.budget * 1.12 * (1 + 0.014 * st.id) * (0.5 + 1.5 * p + 1.6 * p * p) * budgetMul;
     const avail: { id: string; wgt: number }[] = [];
     allNew.forEach((id, k) => {
       if (mode !== 'campaign' || introWaveOf(st, k) <= w) avail.push({ id, wgt: 3 });

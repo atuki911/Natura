@@ -23,7 +23,25 @@ export interface Rig {
   def: RigDef;
   id: string;
   phase: number;
+  meshes: THREE.Mesh[];
+  flashing: boolean;
+  shadow?: THREE.Mesh;
 }
+
+let flashMat: THREE.Material | null = null;
+/** brief white flash when hit */
+export function setRigFlash(r: Rig, on: boolean) {
+  if (r.flashing === on) return;
+  r.flashing = on;
+  flashMat ??= toonMat({ emissive: 0xffffff, emissiveIntensity: 0.85 });
+  for (const m of r.meshes) {
+    if (on) { m.userData.baseMat = m.material; m.material = flashMat; }
+    else if (m.userData.baseMat) m.material = m.userData.baseMat;
+  }
+}
+
+let shadowGeo: THREE.CircleGeometry | null = null;
+let shadowMat: THREE.MeshBasicMaterial | null = null;
 
 export function createRig(id: string, opts: { shadow?: boolean; outline?: boolean } = {}): Rig {
   const def = rigDef(id);
@@ -37,6 +55,7 @@ export function createRig(id: string, opts: { shadow?: boolean; outline?: boolea
   if (outline) withOutline(bm);
   body.add(bm);
   const parts: Record<string, THREE.Object3D> = {};
+  const meshes: THREE.Mesh[] = [bm];
   for (const p of def.parts) {
     const g = new THREE.Group();
     g.position.set(...p.pivot);
@@ -44,10 +63,24 @@ export function createRig(id: string, opts: { shadow?: boolean; outline?: boolea
     m.castShadow = opts.shadow !== false;
     if (outline && !p.glow) withOutline(m);
     g.add(m);
-    body.add(g);
+    if (p.name === 'head') body.add(g); else body.add(g);
     parts[p.name] = g;
+    if (!p.glow) meshes.push(m);
   }
-  return { root, body, parts, def, id, phase: Math.random() * 10 };
+  const rig: Rig = { root, body, parts, def, id, phase: Math.random() * 10, meshes, flashing: false };
+  if (def.float) {
+    // soft ground shadow so flying enemies read at the right spot
+    shadowGeo ??= new THREE.CircleGeometry(0.5, 20);
+    shadowMat ??= new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28, depthWrite: false });
+    const sh = new THREE.Mesh(shadowGeo, shadowMat);
+    sh.rotation.x = -Math.PI / 2;
+    sh.position.y = 0.04;
+    sh.scale.setScalar(def.height * 1.1);
+    sh.userData.outline = true;
+    root.add(sh);
+    rig.shadow = sh;
+  }
+  return rig;
 }
 
 /**
@@ -71,16 +104,34 @@ export function animateRig(r: Rig, dt: number, move: number, attack: number, t: 
     return;
   }
   if (flying) {
-    r.body.position.y = (r.def.float ?? 2) + Math.sin(t * 2 + r.phase * 0.1) * 0.15;
+    const bob = Math.sin(t * 2 + r.phase * 0.1);
+    r.body.position.y = (r.def.float ?? 2) + bob * 0.18;
     const f = Math.sin(t * 14 + r.phase);
-    if (P.wingL) P.wingL.rotation.z = f * 0.7 + 0.1;
-    if (P.wingR) P.wingR.rotation.z = -f * 0.7 - 0.1;
-    r.body.rotation.x = 0.12;
+    if (P.wingL) P.wingL.rotation.z = f * 0.75 + 0.1;
+    if (P.wingR) P.wingR.rotation.z = -f * 0.75 - 0.1;
+    r.body.rotation.x = 0.12 + atk * 0.5;
+    r.body.rotation.z = Math.sin(t * 1.3 + r.phase) * 0.08;
+    r.body.position.z = atk * h * 0.3;
+    if (r.shadow) r.shadow.scale.setScalar(r.def.height * (1.05 - bob * 0.08));
     return;
   }
-  r.body.position.y = move > 0.05 ? Math.abs(sw) * h * 0.05 : Math.sin(t * 2.2 + r.phase) * h * 0.01;
-  r.body.rotation.z = move > 0.05 ? sw * 0.05 : 0;
-  r.body.rotation.x = atk * 0.15;
+  r.body.position.y = move > 0.05 ? Math.abs(sw) * h * 0.05 : 0;
+  r.body.rotation.z = move > 0.05 ? sw * 0.06 : 0;
+  r.body.rotation.x = atk * 0.22;
+  // attack lunge and idle breathing
+  r.body.position.z = atk * h * 0.18;
+  const breathe = move > 0.05 ? 0 : Math.sin(t * 2.4 + r.phase) * 0.025;
+  r.body.scale.set(1 - breathe * 0.5, 1 + breathe, 1 - breathe * 0.5);
+  if (P.head) {
+    if (atk > 0) { P.head.rotation.x = 0.45 * atk; P.head.rotation.y = 0; }
+    else if (move > 0.05) { P.head.rotation.x = Math.sin(ph * 2) * 0.12; P.head.rotation.y *= 0.9; }
+    else {
+      // look around, with an occasional peck
+      const k = (t * 0.6 + r.phase) % 6;
+      P.head.rotation.y = Math.sin(t * 0.7 + r.phase) * 0.5;
+      P.head.rotation.x = k > 5.4 ? Math.sin((k - 5.4) / 0.6 * Math.PI * 2) * 0.5 : 0;
+    }
+  }
   const legA = move > 0.05 ? 0.7 : 0;
   if (P.legL) { P.legL.rotation.x = sw * legA; P.legR.rotation.x = -sw * legA; }
   if (P.leg0) {

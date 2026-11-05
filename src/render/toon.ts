@@ -42,15 +42,44 @@ export const outlineUniforms = {
   uResolution: { value: new THREE.Vector2(1280, 720) },
 };
 
-const outlineCache = new Map<number, THREE.MeshBasicMaterial>();
-export function outlineMat(color = 0x2a1a12): THREE.MeshBasicMaterial {
-  let m = outlineCache.get(color);
+/** shared wind clock for swaying vegetation */
+export const swayUniform = { value: 0 };
+const SWAY_GLSL = `
+  #ifdef USE_INSTANCING
+    float swPh = uSway * 1.7 + instanceMatrix[3][0] * 0.37 + instanceMatrix[3][2] * 0.29;
+  #else
+    float swPh = uSway * 1.7;
+  #endif
+  float swA = sin(swPh) * 0.05 * max(0.0, position.y);
+  transformed.x += swA; transformed.z += swA * 0.5;`;
+
+let swayToon: THREE.MeshToonMaterial | null = null;
+export function swayMat(): THREE.MeshToonMaterial {
+  if (swayToon) return swayToon;
+  const m = toonMat().clone();
+  m.onBeforeCompile = (shader) => {
+    shader.uniforms.uSway = swayUniform;
+    shader.vertexShader = 'uniform float uSway;\n' + shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>' + SWAY_GLSL);
+  };
+  m.customProgramCacheKey = () => 'toon-sway';
+  swayToon = m;
+  return m;
+}
+
+const outlineCache = new Map<string, THREE.MeshBasicMaterial>();
+export function outlineMat(color = 0x2a1a12, sway = false): THREE.MeshBasicMaterial {
+  const key = color + (sway ? 's' : '');
+  let m = outlineCache.get(key);
   if (m) return m;
   m = new THREE.MeshBasicMaterial({ color, side: THREE.BackSide });
+  m.customProgramCacheKey = () => 'outline' + (sway ? '-sway' : '');
   m.onBeforeCompile = (shader) => {
     shader.uniforms.uOutline = outlineUniforms.uOutline;
     shader.uniforms.uResolution = outlineUniforms.uResolution;
-    shader.vertexShader = 'uniform float uOutline;\nuniform vec2 uResolution;\n' + shader.vertexShader.replace(
+    shader.uniforms.uSway = swayUniform;
+    let vs = shader.vertexShader;
+    if (sway) vs = vs.replace('#include <begin_vertex>', '#include <begin_vertex>' + SWAY_GLSL);
+    shader.vertexShader = 'uniform float uOutline;\nuniform vec2 uResolution;\nuniform float uSway;\n' + vs.replace(
       '#include <project_vertex>',
       `#include <project_vertex>
       {
@@ -70,16 +99,16 @@ export function outlineMat(color = 0x2a1a12): THREE.MeshBasicMaterial {
       }`,
     );
   };
-  outlineCache.set(color, m);
+  outlineCache.set(key, m);
   return m;
 }
 
 /** Add an outline shell to a mesh (shares geometry). */
-export function withOutline<T extends THREE.Mesh | THREE.InstancedMesh>(mesh: T, color?: number): T {
+export function withOutline<T extends THREE.Mesh | THREE.InstancedMesh>(mesh: T, color?: number, sway = false): T {
   let o: THREE.Mesh;
   if ((mesh as THREE.InstancedMesh).isInstancedMesh) {
     const im = mesh as THREE.InstancedMesh;
-    const oi = new THREE.InstancedMesh(im.geometry, outlineMat(color), im.count);
+    const oi = new THREE.InstancedMesh(im.geometry, outlineMat(color, sway), im.count);
     oi.instanceMatrix = im.instanceMatrix;
     o = oi;
   } else {

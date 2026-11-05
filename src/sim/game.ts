@@ -166,7 +166,7 @@ export interface GameConfig {
   seenEnemies?: Set<string>;
 }
 
-const DIFF_HP = [0.7, 1.12, 1.4];
+const DIFF_HP = [0.72, 1.18, 1.45];
 
 interface PendingSpawn { t: number; enemy: string; path: number }
 

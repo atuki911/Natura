@@ -1,5 +1,4 @@
 import type { Game, Tower, GEvent } from '../sim/game.ts';
-import { SPELLS } from '../sim/game.ts';
 import type { World, Pick } from '../render/world.ts';
 import { TOWER, LINES, LINE_INFO, type TowerDef } from '../data/towers.ts';
 import { ENEMY } from '../data/enemies.ts';
@@ -7,15 +6,17 @@ import { HERO_XP } from '../data/heroes.ts';
 import { ICON } from './icons.ts';
 import { rigPortrait, towerPortrait } from './portraits.ts';
 import { audio } from '../audio/audio.ts';
+import { Guide, rectTarget, type GuideTarget } from './guide.ts';
 
 export interface HudHost {
   world: World;
   ui: HTMLElement;
   speed: number;
-  setPaused(p: boolean): void;
+  guide: Guide;
+  setPaused(p: boolean, reason: string): void;
   isPaused(): boolean;
   openPauseMenu(): void;
-  markSeen(id: string): boolean; // returns true if it was new to the save
+  markSeen(id: string): boolean;
   tutorial: boolean;
   finishTutorial(): void;
 }
@@ -29,9 +30,13 @@ type Sel =
 
 type Option = { key: string; dx: number; dy: number; html: string; cost?: number; onConfirm: () => boolean; info: () => string; range?: number; disabled?: boolean; instant?: boolean; maxed?: boolean };
 
+type TutStep = '' | 'spot1' | 'pick1' | 'conf1' | 'wave' | 'w1' | 'spot2' | 'pick2' | 'conf2' | 'heroWait' | 'hero' | 'heroMove'
+  | 'w2' | 'met' | 'metT' | 'w3' | 'up1' | 'up2' | 'up2c' | 'end';
+
 const el = (tag: string, cls = '', html = '') => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
 const fmt = (n: number) => Math.round(n).toString();
 const pct = (v: number) => Math.round(v * 100) + '%';
+const small = () => window.innerHeight < 520 || window.innerWidth < 700;
 
 export class Hud {
   root: HTMLElement;
@@ -42,12 +47,12 @@ export class Hud {
   private heroBtn: HTMLElement | null = null;
   private meteorBtn: HTMLElement;
   private reinfBtn: HTMLElement;
+  private targetBar: HTMLElement;
   private radial: HTMLElement | null = null;
   private radialOpts: { opt: Option; el: HTMLElement }[] = [];
   private tooltip: HTMLElement;
   private infobar: HTMLElement;
   private waveBtns: HTMLElement[] = [];
-  private hintEl: HTMLElement | null = null;
   sel: Sel = null;
   private selOpt: string | null = null;
   private targeting: 'meteor' | 'reinforce' | 'rally' | null = null;
@@ -55,8 +60,13 @@ export class Hud {
   private lastLives = -1;
   private newQueue: string[] = [];
   private showingNew = false;
-  private tutStep = 0;
   private bossAnnounced = false;
+  // tutorial
+  private tut: TutStep = '';
+  private tutT = 0;
+  private tutSpots: number[] = [];
+  private tutTower = -1;
+  private tutCluster: { x: number; y: number } | null = null;
 
   constructor(private host: HudHost, private game: Game) {
     const ui = host.ui;
@@ -83,18 +93,21 @@ export class Hud {
     const bottom = el('div', 'hud-bottom');
     if (game.hero) {
       const h = game.hero;
-      this.heroBtn = el('div', 'skillbtn herobtn', `<img src="${rigPortrait(h.model)}"><div class="hpring"></div><div class="cdtext outlined"></div><div class="lv outlined"></div>`);
-      this.heroBtn.onclick = () => { audio.play('cluck'); this.select(this.sel?.kind === 'hero' ? null : { kind: 'hero' }); };
+      this.heroBtn = el('div', 'spell hero', `<div class="spell-face"><img src="${rigPortrait(h.model)}"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lvbadge outlined"></div><div class="herohp"><i></i></div>`);
+      this.heroBtn.onclick = () => this.onHeroButton();
       bottom.appendChild(this.heroBtn);
     }
-    this.meteorBtn = el('div', 'skillbtn meteor', ICON.meteor + '<div class="cd"></div><div class="cdtext outlined"></div>');
+    this.meteorBtn = el('div', 'spell meteor', `<div class="spell-face">${ICON.meteorArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="spell-name outlined">卵メテオ</div>`);
     this.meteorBtn.onclick = () => this.toggleTargeting('meteor');
-    this.reinfBtn = el('div', 'skillbtn reinf', ICON.chick + '<div class="cd"></div><div class="cdtext outlined"></div>');
+    this.reinfBtn = el('div', 'spell reinf', `<div class="spell-face">${ICON.chickArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="spell-name outlined">援軍</div>`);
     this.reinfBtn.onclick = () => this.toggleTargeting('reinforce');
-    this.meteorBtn.title = SPELLS.meteor.name + ': ' + SPELLS.meteor.desc;
-    this.reinfBtn.title = SPELLS.reinforce.name + ': ' + SPELLS.reinforce.desc;
     bottom.append(this.meteorBtn, this.reinfBtn);
     this.root.appendChild(bottom);
+
+    this.targetBar = el('div', 'targetbar outlined', `<span></span><button class="btn small red">${ICON.close.replace('<svg', '<svg width="18" height="18"')} やめる</button>`);
+    this.targetBar.style.display = 'none';
+    (this.targetBar.querySelector('button') as HTMLElement).onclick = () => { audio.play('click'); this.cancelTargeting(); };
+    this.root.appendChild(this.targetBar);
 
     this.tooltip = el('div', 'tooltip panel');
     this.tooltip.style.display = 'none';
@@ -105,11 +118,12 @@ export class Hud {
 
     host.world.onTap = (p) => this.onTap(p);
     host.world.onHover = () => {};
-    if (host.tutorial) this.tutStep = 1;
+    if (host.tutorial) this.startTutorial();
   }
 
   destroy() {
     this.root.remove();
+    this.host.guide.hide();
     this.host.world.hideRange();
     this.host.world.hideRally();
     this.host.world.showTargetMarker(null);
@@ -119,44 +133,89 @@ export class Hud {
   private refreshSpeed() { this.speedBtn.innerHTML = `<span style="font-size:20px">x${this.host.speed}</span>`; }
 
   // ───────────────────────── input ─────────────────────────
+  private onHeroButton() {
+    const g = this.game;
+    if (!g.hero) return;
+    if (this.tut && this.tut !== 'hero' && !this.tutFree()) { audio.play('deny'); return; }
+    audio.play('cluck');
+    this.cancelTargeting();
+    this.select(this.sel?.kind === 'hero' ? null : { kind: 'hero' });
+    if (this.tut === 'hero' && this.sel?.kind === 'hero') this.tut = 'heroMove';
+  }
+
   private toggleTargeting(t: 'meteor' | 'reinforce') {
     const g = this.game;
+    if (this.tut && !(this.tut === 'met' && t === 'meteor') && !this.tutFree()) { audio.play('deny'); return; }
     const cd = t === 'meteor' ? g.meteorCd : g.reinforceCd;
     if (cd > 0) { audio.play('deny'); return; }
     audio.play('click');
     this.closeRadial();
     this.sel = null;
+    this.host.world.heroSelected = false;
     this.targeting = this.targeting === t ? null : t;
-    if (this.tutStep === 4 && t === 'meteor') this.setHint(null);
+    if (this.tut === 'met' && this.targeting === 'meteor') this.tut = 'metT';
+    this.refreshTargetBar();
   }
+
+  private cancelTargeting() {
+    if (this.tut === 'metT') return;
+    this.targeting = null;
+    this.host.world.showTargetMarker(null);
+    this.refreshTargetBar();
+    if (this.sel?.kind === 'tower') this.select({ kind: 'tower', id: this.sel.id });
+  }
+
+  private refreshTargetBar() {
+    const t = this.targeting;
+    if (!t) { this.targetBar.style.display = 'none'; return; }
+    this.targetBar.style.display = 'flex';
+    (this.targetBar.querySelector('span') as HTMLElement).textContent =
+      t === 'meteor' ? '卵メテオを落とす場所をタップ' : t === 'reinforce' ? '援軍を呼ぶ場所をタップ' : '兵士の集合場所をタップ';
+  }
+
+  /** during free-play tutorial phases every action is allowed */
+  private tutFree() { return this.tut === '' || this.tut === 'w1' || this.tut === 'w2' || this.tut === 'w3' || this.tut === 'heroWait'; }
 
   onTap(p: Pick) {
     const g = this.game;
     const w = this.host.world;
     if (this.showingNew) return;
+    // tutorial gating
+    if (this.tut && !this.tutFree()) {
+      const ok =
+        (this.tut === 'spot1' && p.kind === 'spot' && p.id === this.tutSpots[0]) ||
+        (this.tut === 'spot2' && p.kind === 'spot' && p.id === this.tutSpots[1]) ||
+        (this.tut === 'hero' && p.kind === 'hero') ||
+        (this.tut === 'heroMove' && p.kind !== 'none' && p.kind !== 'tower' && p.kind !== 'hero' && p.inside) ||
+        (this.tut === 'metT' && p.kind !== 'none' && p.inside) ||
+        (this.tut === 'up1' && p.kind === 'tower' && p.id === this.tutTower);
+      if (!ok) { audio.play('deny'); return; }
+    }
     if (this.targeting === 'meteor' || this.targeting === 'reinforce') {
       if (p.kind !== 'none' && p.inside) {
         const ok = this.targeting === 'meteor' ? g.castMeteor(p) : g.castReinforce(p);
-        if (ok) { this.targeting = null; w.showTargetMarker(null); return; }
+        if (ok) {
+          this.targeting = null;
+          this.refreshTargetBar();
+          if (this.tut === 'metT') { this.tut = 'w3'; this.tutT = 0; this.host.setPaused(false, 'tut'); }
+          return;
+        }
       }
       audio.play('deny');
-      this.targeting = null;
-      w.showTargetMarker(null);
       return;
     }
     if (this.targeting === 'rally' && this.sel?.kind === 'tower') {
-      const t = g.towers.find((x) => x.id === (this.sel as any).id);
-      if (t && g.setRally(t, p)) { this.targeting = null; this.select(null); return; }
+      const t = g.towers.find((x) => x.id === (this.sel as { id: number }).id);
+      if (t && g.setRally(t, p)) { this.targeting = null; this.refreshTargetBar(); this.select(null); return; }
       audio.play('deny');
-      this.targeting = null;
-      this.select({ kind: 'tower', id: t?.id ?? -1 });
       return;
     }
     if (this.sel?.kind === 'hero' && p.kind !== 'hero' && p.kind !== 'tower' && p.kind !== 'none') {
       if (p.inside) {
         g.moveHero(p);
         w.burst('dust', p.x, 0.2, p.y, 6);
-        if (this.tutStep === 3) { this.tutStep = 4; this.setHint(null); }
+        w.showMoveMarker(p.x, p.y);
+        if (this.tut === 'heroMove') { this.tut = 'w2'; this.tutT = 0; this.host.setPaused(false, 'tut'); }
       }
       this.select(null);
       return;
@@ -164,10 +223,13 @@ export class Hud {
     switch (p.kind) {
       case 'spot': audio.play('click'); this.select({ kind: 'spot', id: p.id }); break;
       case 'tower': audio.play('click'); this.select(this.sel?.kind === 'tower' && this.sel.id === p.id ? null : { kind: 'tower', id: p.id }); break;
-      case 'hero': audio.play('cluck'); this.select(this.sel?.kind === 'hero' ? null : { kind: 'hero' }); break;
+      case 'hero': audio.play('cluck'); this.select(this.sel?.kind === 'hero' ? null : { kind: 'hero' }); if (this.tut === 'hero' && this.sel?.kind === 'hero') this.tut = 'heroMove'; break;
       case 'enemy': this.select({ kind: 'enemy', id: p.id }); break;
       default: this.select(null);
     }
+    if (this.tut === 'spot1' && this.sel?.kind === 'spot') this.tut = 'pick1';
+    if (this.tut === 'spot2' && this.sel?.kind === 'spot') this.tut = 'pick2';
+    if (this.tut === 'up1' && this.sel?.kind === 'tower') this.tut = 'up2';
   }
 
   private select(s: Sel) {
@@ -178,10 +240,13 @@ export class Hud {
     w.hideRange();
     w.hideRally();
     w.heroSelected = s?.kind === 'hero';
-    this.tooltip.style.display = 'none';
     if (!s) return;
     if (s.kind === 'spot') this.openBuild(s.id);
     if (s.kind === 'tower') this.openTower(s.id);
+    if (s.kind === 'hero' && this.game.hero) {
+      this.targetBar.style.display = 'flex';
+      (this.targetBar.querySelector('span') as HTMLElement).textContent = 'ヒーローの移動先をタップ';
+    }
   }
 
   // ───────────────────────── radial menus ─────────────────────────
@@ -190,30 +255,45 @@ export class Hud {
     this.radial = null;
     this.radialOpts = [];
     this.tooltip.style.display = 'none';
+    if (!this.targeting) this.targetBar.style.display = 'none';
   }
 
   private makeRadial(opts: Option[]) {
     this.closeRadial();
     const r = el('div', 'radial');
     r.appendChild(el('div', 'ring'));
+    const k = small() ? 0.92 : 1;
     for (const o of opts) {
       const b = el('div', 'ropt' + (o.disabled ? ' lockline' : '') + (o.maxed ? ' maxed' : ''), o.html + `<div class="confirm">${ICON.check}</div>`);
-      b.style.left = o.dx + 'px';
-      b.style.top = o.dy + 'px';
-      b.onpointerdown = (e) => e.stopPropagation();
-      b.onclick = (e) => { e.stopPropagation(); this.clickOption(o); };
-      b.onmouseenter = () => this.showOptInfo(o, b);
-      b.onmouseleave = () => { if (this.selOpt !== o.key) this.tooltip.style.display = 'none'; };
+      b.dataset.key = o.key;
+      b.style.left = o.dx * k + 'px';
+      b.style.top = o.dy * k + 'px';
+      b.addEventListener('pointerdown', (e) => e.stopPropagation());
+      b.addEventListener('click', (e) => { e.stopPropagation(); this.clickOption(o); });
+      b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') this.showOptInfo(o); });
+      b.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && this.selOpt !== o.key) this.tooltip.style.display = 'none'; });
       r.appendChild(b);
       this.radialOpts.push({ opt: o, el: b });
     }
     this.root.appendChild(r);
     this.radial = r;
     this.positionRadial();
+    this.refreshAffordability();
+  }
+
+  private tutAllowsOption(key: string): boolean {
+    switch (this.tut) {
+      case 'pick1': case 'conf1': return key === 'archer';
+      case 'pick2': case 'conf2': return key === 'barracks';
+      case 'up2': case 'up2c': return key === 'up';
+      case '': case 'w1': case 'w2': case 'w3': case 'heroWait': return true;
+      default: return false;
+    }
   }
 
   private clickOption(o: Option) {
-    if (o.disabled) { audio.play('deny'); this.showOptInfo(o, this.radialOpts.find((x) => x.opt === o)!.el); return; }
+    if (!this.tutAllowsOption(o.key)) { audio.play('deny'); return; }
+    if (o.disabled) { audio.play('deny'); this.showOptInfo(o); return; }
     if (o.instant || this.selOpt === o.key) {
       if (o.cost != null && this.game.gold < o.cost) { audio.play('deny'); this.flashGold(); return; }
       const ok = o.onConfirm();
@@ -223,24 +303,39 @@ export class Hud {
     audio.play('click');
     this.selOpt = o.key;
     for (const x of this.radialOpts) x.el.classList.toggle('sel', x.opt.key === o.key);
-    this.showOptInfo(o, this.radialOpts.find((x) => x.opt === o)!.el);
+    this.showOptInfo(o);
     const s = this.sel;
     if (o.range && s && (s.kind === 'spot' || s.kind === 'tower')) {
       const p = s.kind === 'spot' ? this.game.spots[s.id] : this.game.towers.find((t) => t.id === s.id)!;
       this.host.world.showRange(p.x, p.y, o.range, 0x9dff7a);
     }
+    if (this.tut === 'pick1') this.tut = 'conf1';
+    if (this.tut === 'pick2') this.tut = 'conf2';
+    if (this.tut === 'up2') this.tut = 'up2c';
   }
 
-  private showOptInfo(o: Option, b: HTMLElement) {
-    this.tooltip.innerHTML = o.info();
+  /** info card beside the ring (never on top of the buttons, and it never takes taps) */
+  private showOptInfo(o: Option) {
+    const confirmHint = !o.instant && !o.disabled ? `<div class="tip-confirm">${this.selOpt === o.key ? 'もう一度タップで決定!' : 'タップで選択 → もう一度で決定'}</div>` : '';
+    this.tooltip.innerHTML = o.info() + confirmHint;
     this.tooltip.style.display = 'block';
-    const r = b.getBoundingClientRect();
-    const tw = 270;
-    let x = r.left + r.width / 2 - tw / 2;
-    let y = r.top - 10 - this.tooltip.offsetHeight;
-    if (y < 8) y = r.bottom + 14;
+    const tw = Math.min(small() ? 220 : 270, window.innerWidth - 24);
+    this.tooltip.style.width = tw + 'px';
+    const rr = this.radial?.getBoundingClientRect();
+    const cx = rr ? rr.left : window.innerWidth / 2, cy = rr ? rr.top : window.innerHeight / 2;
+    const reach = small() ? 112 : 128;
+    const th = this.tooltip.offsetHeight;
+    let x: number, y: number;
+    const roomR = window.innerWidth - (cx + reach), roomL = cx - reach;
+    if (roomR >= tw + 12 || roomL >= tw + 12) {
+      x = roomR >= roomL ? cx + reach : cx - reach - tw;
+      y = cy - th / 2;
+    } else {
+      x = (window.innerWidth - tw) / 2;
+      y = cy - reach - th - 6 > 8 ? cy - reach - th - 6 : cy + reach + 6;
+    }
     x = Math.max(8, Math.min(window.innerWidth - tw - 8, x));
-    if (y + this.tooltip.offsetHeight > window.innerHeight - 8) y = window.innerHeight - 8 - this.tooltip.offsetHeight;
+    y = Math.max(60, Math.min(window.innerHeight - th - 8, y));
     this.tooltip.style.left = x + 'px';
     this.tooltip.style.top = y + 'px';
   }
@@ -257,7 +352,7 @@ export class Hud {
 
   private openBuild(spotId: number) {
     const g = this.game;
-    const corners = [[-62, -62], [62, -62], [-62, 62], [62, 62]];
+    const corners = [[-66, -66], [66, -66], [-66, 66], [66, 66]];
     const opts: Option[] = LINES.map((line, i) => {
       const def = TOWER[LINE_INFO[line].base];
       const cost = g.towerCost(def);
@@ -265,13 +360,14 @@ export class Hud {
       return {
         key: line, dx: corners[i][0], dy: corners[i][1], cost, range: def.range,
         disabled: !allowed,
-        html: `<img src="${towerPortrait(def.model, 1)}"><div class="cost">${allowed ? cost : '×'}</div>`,
+        html: `<img src="${towerPortrait(def.model, 1)}"><div class="olabel outlined">${LINE_INFO[line].name}</div><div class="cost">${allowed ? cost : '×'}</div>`,
         info: () => allowed ? this.towerInfo(def, cost) : `<h4>${def.name}</h4>このモードでは建てられません。`,
         onConfirm: () => {
           const ok = g.build(spotId, def.id);
           if (ok) {
             this.select(null);
-            if (this.tutStep === 1) { this.tutStep = 2; this.setHint(null); }
+            if (this.tut === 'conf1') { this.tut = 'wave'; this.tutTower = g.towers[g.towers.length - 1].id; }
+            if (this.tut === 'conf2') { this.tut = 'heroWait'; this.tutT = 0; this.host.setPaused(false, 'tut'); }
           }
           return ok;
         },
@@ -292,12 +388,12 @@ export class Hud {
     if (next.length === 1) {
       const def = TOWER[next[0]];
       const cost = g.towerCost(def);
-      opts.push({ key: 'up', dx: 0, dy: -84, cost, range: def.range, html: `${ICON.up}<div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
+      opts.push({ key: 'up', dx: 0, dy: -88, cost, range: def.range, html: `<div class="obg up"></div>${ICON.up}<div class="olabel outlined">強化</div><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
     } else if (next.length === 2) {
       next.forEach((nid, i) => {
         const def = TOWER[nid];
         const cost = g.towerCost(def);
-        opts.push({ key: 'br' + i, dx: i ? 64 : -64, dy: -64, cost, range: def.range, html: `<img src="${towerPortrait(def.model, 4)}"><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
+        opts.push({ key: 'br' + i, dx: i ? 68 : -68, dy: -68, cost, range: def.range, html: `<img src="${towerPortrait(def.model, 4)}"><div class="cost">${cost}</div>`, info: () => this.towerInfo(def, cost), onConfirm: () => this.afterAction(g.upgrade(t, def.id), t) });
       });
     } else if (t.def.abilities) {
       t.def.abilities.forEach((ab, i) => {
@@ -305,8 +401,8 @@ export class Hud {
         const cost = g.abilityCost(t, ab.id);
         const pips = ab.costs.map((_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
         opts.push({
-          key: 'ab' + i, dx: i ? 64 : -64, dy: -64, cost: cost ?? undefined, maxed: cost == null,
-          html: `<div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 35%, ${i ? '#c2a2ff, #6a3fc8' : '#ffd27a, #e5533a'})"></div>${i ? ICON.magic : ICON.sword}<div class="pips">${pips}</div><div class="cost">${cost == null ? 'MAX' : cost}</div>`,
+          key: 'ab' + i, dx: i ? 68 : -68, dy: -68, cost: cost ?? undefined, maxed: cost == null,
+          html: `<div class="obg ${i ? 'ab2' : 'ab1'}"></div>${i ? ICON.magic : ICON.sword}<div class="pips">${pips}</div><div class="cost">${cost == null ? 'MAX' : cost}</div>`,
           info: () => `<h4>${ab.name} Lv${lv}${cost != null ? ' → ' + (lv + 1) : ''}</h4>${ab.desc}<div class="stats"><b>効果</b><span>${ab.values.map((v, k) => (k === lv ? `<u>${fmtVal(v)}</u>` : fmtVal(v))).join(' / ')}</span>${cost != null ? `<b>費用</b><span>${cost} G</span>` : '<b>状態</b><span>最大レベル</span>'}</div>`,
           onConfirm: () => {
             if (cost == null) return false;
@@ -318,11 +414,12 @@ export class Hud {
       });
     }
     const sv = g.sellValue(t);
-    opts.push({ key: 'sell', dx: 0, dy: 86, html: `${ICON.sell}<div class="cost">+${sv}</div>`, info: () => `<h4>売却</h4>このタワーを売って ${sv} G を受け取ります。`, onConfirm: () => { g.sell(t); this.select(null); return true; } });
+    opts.push({ key: 'sell', dx: 0, dy: 90, html: `<div class="obg sell"></div>${ICON.sell}<div class="cost">+${sv}</div>`, info: () => `<h4>売却</h4>このタワーを売って ${sv} G を受け取ります。`, onConfirm: () => { g.sell(t); this.select(null); return true; } });
     if (t.def.soldiers) {
-      opts.push({ key: 'rally', dx: 74, dy: 40, instant: true, html: ICON.flag, info: () => `<h4>集合地点</h4>兵士の集合場所を変更します。範囲内の地面をタップしてください。`, onConfirm: () => {
+      opts.push({ key: 'rally', dx: 80, dy: 36, instant: true, html: `<div class="obg rally"></div>${ICON.flag}`, info: () => `<h4>集合地点</h4>兵士の集合場所を変更します。`, onConfirm: () => {
         this.closeRadial();
         this.targeting = 'rally';
+        this.refreshTargetBar();
         w.showRange(t.x, t.y, g.range(t), 0x7ac8ff);
         return true;
       } });
@@ -332,7 +429,10 @@ export class Hud {
   }
 
   private afterAction(ok: boolean, t: Tower): boolean {
-    if (ok) this.select({ kind: 'tower', id: t.id });
+    if (ok) {
+      if (this.tut === 'up2c') { this.tut = 'end'; this.tutT = 0; this.host.setPaused(false, 'tut'); this.select(null); return true; }
+      this.select({ kind: 'tower', id: t.id });
+    }
     return ok;
   }
 
@@ -342,23 +442,22 @@ export class Hud {
     let x = 0, y = 0, h = 0.6;
     if (this.sel.kind === 'spot') { const s = g.spots[this.sel.id]; x = s.x; y = s.y; }
     else if (this.sel.kind === 'tower') {
-      const t = g.towers.find((q) => q.id === (this.sel as any).id);
+      const t = g.towers.find((q) => q.id === (this.sel as { id: number }).id);
       if (!t) { this.select(null); return; }
       x = t.x; y = t.y; h = 1.6;
     }
     const p = this.host.world.project(x, h, y);
-    const m = 100;
+    const m = small() ? 100 : 112;
     const px = Math.max(m, Math.min(window.innerWidth - m, p.x));
-    const py = Math.max(m, Math.min(window.innerHeight - m, p.y));
+    const py = Math.max(m + 10, Math.min(window.innerHeight - m, p.y));
     this.radial.style.left = px + 'px';
     this.radial.style.top = py + 'px';
   }
 
   // ───────────────────────── per-frame ─────────────────────────
-  update(events: GEvent[]) {
+  update(events: GEvent[], dt: number) {
     const g = this.game;
     for (const ev of events) this.onEvent(ev);
-    // top chips
     if (g.gold !== this.lastGold) { (this.goldEl.lastChild as HTMLElement).textContent = fmt(g.gold); this.lastGold = g.gold; this.refreshAffordability(); }
     if (g.lives !== this.lastLives) {
       (this.livesEl.lastChild as HTMLElement).textContent = String(Math.max(0, g.lives));
@@ -366,39 +465,33 @@ export class Hud {
       this.lastLives = g.lives;
     }
     (this.waveEl.lastChild as HTMLElement).textContent = `ウェーブ ${Math.max(0, g.waveIdx + 1)}/${g.waves.length}`;
-    // spells
     this.cdButton(this.meteorBtn, g.meteorCd, g.spellMeteorMax, this.targeting === 'meteor');
     this.cdButton(this.reinfBtn, g.reinforceCd, g.spellReinforceMax, this.targeting === 'reinforce');
-    // hero
     const h = g.hero;
     if (h && this.heroBtn) {
-      const ring = this.heroBtn.querySelector('.hpring') as HTMLElement;
-      const f = h.dead ? 0 : h.hp / h.maxHp;
-      ring.style.background = `conic-gradient(${f > 0.5 ? '#5ad13a' : f > 0.25 ? '#ffc21a' : '#ff3a2a'} ${f * 360}deg, rgba(0,0,0,.35) 0)`;
-      ring.style.mask = ring.style.webkitMask = 'radial-gradient(circle, transparent 62%, #000 63%)';
+      (this.heroBtn.querySelector('.herohp i') as HTMLElement).style.width = pct(h.dead ? 0 : h.hp / h.maxHp);
+      const cd = this.heroBtn.querySelector('.cd') as HTMLElement;
+      cd.style.background = h.dead ? `conic-gradient(rgba(20,10,4,.7) ${(h.respawnT / 15) * 360}deg, rgba(20,10,4,.35) 0)` : 'none';
       (this.heroBtn.querySelector('.cdtext') as HTMLElement).textContent = h.dead ? Math.ceil(h.respawnT) + '' : '';
-      (this.heroBtn.querySelector('img') as HTMLElement).style.filter = h.dead ? 'grayscale(1) brightness(.6)' : '';
-      (this.heroBtn.querySelector('.lv') as HTMLElement).textContent = 'Lv' + h.level;
+      (this.heroBtn.querySelector('.lvbadge') as HTMLElement).textContent = String(h.level);
       this.heroBtn.classList.toggle('active', this.sel?.kind === 'hero');
-    }
-    // targeting marker follows pointer center? (shown on tap only) — show for active spell at screen center hint
-    const w = this.host.world;
-    if (this.targeting === 'meteor' || this.targeting === 'reinforce') {
-      w.showTargetMarker(null);
+      this.heroBtn.classList.toggle('cooling', h.dead);
     }
     this.positionRadial();
     this.updateWaveButtons();
     this.updateInfo();
-    this.updateHints();
+    this.updateTutorial(dt);
   }
 
   private cdButton(b: HTMLElement, cd: number, max: number, active: boolean) {
     const cdEl = b.querySelector('.cd') as HTMLElement;
     const t = b.querySelector('.cdtext') as HTMLElement;
     const f = cd > 0 ? cd / max : 0;
-    cdEl.style.background = f > 0 ? `conic-gradient(rgba(20,10,4,.65) ${f * 360}deg, transparent 0)` : 'none';
+    cdEl.style.background = f > 0 ? `conic-gradient(rgba(20,10,4,.68) ${f * 360}deg, transparent 0)` : 'none';
     t.textContent = cd > 0 ? Math.ceil(cd) + '' : '';
     b.classList.toggle('active', active);
+    b.classList.toggle('cooling', cd > 0);
+    b.classList.toggle('ready', cd <= 0 && !active);
   }
 
   private refreshAffordability() {
@@ -415,7 +508,8 @@ export class Hud {
   // ───────────────────────── wave call buttons ─────────────────────────
   private updateWaveButtons() {
     const g = this.game;
-    const show = g.nextWaveReady() && !this.showingNew;
+    const gateTut = this.tut !== '' && !this.tutFree() && this.tut !== 'wave';
+    const show = g.nextWaveReady() && !this.showingNew && !gateTut;
     const preview = show ? g.nextWavePreview() : [];
     const starts: { x: number; y: number; dx: number; dy: number; paths: number[] }[] = [];
     if (show) {
@@ -435,15 +529,16 @@ export class Hud {
           const bonus = g.callWave();
           audio.play('horn');
           if (bonus > 0) this.float(b.getBoundingClientRect().left + 32, b.getBoundingClientRect().top, `+${bonus}`, 'bonus');
-          if (this.tutStep === 2) { this.tutStep = 3; this.setHint(null); }
+          if (this.tut === 'wave') { this.tut = 'w1'; this.tutT = 0; }
         };
         this.root.appendChild(b);
         this.waveBtns[i] = b;
       }
+      b.classList.toggle('first', g.waveIdx === -1);
       const p = this.host.world.project(s.x + s.dx * 3, 0.5, s.y + s.dy * 3);
-      const m = 44;
+      const m = 48;
       const x = Math.max(m, Math.min(window.innerWidth - m - 120, p.x));
-      const y = Math.max(m + 60, Math.min(window.innerHeight - m - 90, p.y));
+      const y = Math.max(m + 64, Math.min(window.innerHeight - m - 110, p.y));
       b.style.left = x + 'px';
       b.style.top = y + 'px';
       const ring = b.querySelector('.ring') as HTMLElement;
@@ -457,7 +552,7 @@ export class Hud {
       const key = items.map((q) => q.enemy + q.count).join(',') + (g.waveIdx === -1 ? 'first' : '');
       if (pv.dataset.key !== key) {
         pv.dataset.key = key;
-        pv.innerHTML = items.slice(0, 5).map((q) => `<div class="wp"><img class="portrait" src="${rigPortrait(ENEMY[q.enemy].model)}"><span class="outlined">x${q.count}</span></div>`).join('');
+        pv.innerHTML = (g.waveIdx === -1 ? '<div class="wp-title outlined">タップで開始</div>' : '') + items.slice(0, 5).map((q) => `<div class="wp"><img class="portrait" src="${rigPortrait(ENEMY[q.enemy].model)}"><span class="outlined">x${q.count}</span></div>`).join('');
       }
       pv.classList.toggle('left', x > window.innerWidth * 0.6);
     });
@@ -481,19 +576,7 @@ export class Hud {
       this.infobar.style.display = 'flex';
       return;
     }
-    if (s.kind === 'hero') {
-      const h = g.hero;
-      if (!h) return;
-      const key = 'h' + h.level;
-      if (this.infobar.dataset.key !== key) {
-        this.infobar.dataset.key = key;
-        const hd = h.hero!;
-        this.infobar.innerHTML = `<img class="portrait" src="${rigPortrait(h.model)}"><div><div class="name">${hd.name} <small>Lv${h.level}</small></div><div class="hpbar"><i></i></div><div class="meta"><span>⚔ ${h.dmg[0]}-${h.dmg[1]}</span><span>🛡 ${pct(h.armor)}</span>${hd.skills.map((k) => `<span class="tagchip">${k.name}</span>`).join('')}</div><div class="meta" style="opacity:.85">地面をタップして移動</div></div>`;
-      }
-      (this.infobar.querySelector('.hpbar i') as HTMLElement).style.width = pct(h.dead ? 0 : h.hp / h.maxHp);
-      this.infobar.style.display = 'flex';
-      return;
-    }
+    if (s.kind === 'hero') { this.infobar.style.display = 'none'; return; }
     if (s.kind === 'tower') {
       const t = g.towers.find((x) => x.id === s.id);
       if (!t) { this.infobar.style.display = 'none'; return; }
@@ -502,6 +585,7 @@ export class Hud {
   }
 
   private updateInfoTower(t: Tower) {
+    if (small()) { this.infobar.style.display = 'none'; return; }
     const key = 't' + t.id + t.def.id + t.kills;
     if (this.infobar.dataset.key === key) return;
     this.infobar.dataset.key = key;
@@ -569,7 +653,7 @@ export class Hud {
     if (!id) { this.showingNew = false; return; }
     const d = ENEMY[id];
     this.showingNew = true;
-    this.host.setPaused(true);
+    this.host.setPaused(true, 'new');
     audio.play('newEnemy');
     const ov = el('div', 'overlay');
     const m = el('div', 'modal panel newenemy');
@@ -586,7 +670,7 @@ export class Hud {
       audio.play('click');
       ov.remove();
       if (this.newQueue.length) this.showNewEnemy();
-      else { this.showingNew = false; this.host.setPaused(false); }
+      else { this.showingNew = false; this.host.setPaused(false, 'new'); }
     };
   }
 
@@ -604,49 +688,115 @@ export class Hud {
     setTimeout(() => b.remove(), 2300);
   }
 
-  // ───────────────────────── tutorial ─────────────────────────
-  private setHint(html: string | null, x = 0, y = 0) {
-    if (!html) { this.hintEl?.remove(); this.hintEl = null; return; }
-    if (!this.hintEl) { this.hintEl = el('div', 'hint panel'); this.root.appendChild(this.hintEl); }
-    if (this.hintEl.dataset.html !== html) { this.hintEl.innerHTML = html; this.hintEl.dataset.html = html; }
-    this.hintEl.style.left = Math.max(8, Math.min(window.innerWidth - 290, x - 30)) + 'px';
-    this.hintEl.style.top = Math.max(8, y - this.hintEl.offsetHeight - 16) + 'px';
+  // ───────────────────────── tutorial (hand-guided) ─────────────────────────
+  private startTutorial() {
+    const g = this.game;
+    const p0 = g.paths[0];
+    const near = (f: number, skip: number[]) => {
+      const q = p0.at(p0.length * f);
+      let best = -1, bd = Infinity;
+      for (const s of g.spots) {
+        if (skip.includes(s.id)) continue;
+        const d = Math.hypot(s.x - q.x, s.y - q.y);
+        if (d < bd) { bd = d; best = s.id; }
+      }
+      return best;
+    };
+    const a = near(0.32, []);
+    this.tutSpots = [a, near(0.5, [a])];
+    this.tut = 'spot1';
+    this.host.guide.onSkip = () => this.endTutorial(false);
+    this.host.world.focus(0, 1);
   }
 
-  private updateHints() {
-    if (!this.tutStep) return;
+  private endTutorial(celebrate: boolean) {
+    this.tut = '';
+    this.host.guide.hide();
+    this.host.guide.onSkip = null;
+    this.host.setPaused(false, 'tut');
+    this.host.finishTutorial();
+    if (celebrate) this.banner('チュートリアル完了!', 'あとは自由に黄金の卵を守り抜こう!');
+  }
+
+  private spotTarget(id: number): GuideTarget | null {
+    const s = this.game.spots[id];
+    if (!s) return null;
+    const p = this.host.world.project(s.x, 0.3, s.y);
+    const p2 = this.host.world.project(s.x + 1.4, 0.3, s.y);
+    return { x: p.x, y: p.y, r: Math.max(30, Math.abs(p2.x - p.x) + 8) };
+  }
+  private optTarget(key: string): GuideTarget | null {
+    return rectTarget(this.radial?.querySelector(`.ropt[data-key="${key}"]`), 8);
+  }
+
+  private updateTutorial(dt: number) {
+    const G = this.host.guide;
+    if (!this.tut) return;
     const g = this.game;
-    const w = this.host.world;
-    if (this.sel || this.targeting) { if (this.tutStep !== 4) this.setHint(null); return; }
-    switch (this.tutStep) {
-      case 1: {
-        const s = g.spots[0];
-        const p = w.project(s.x, 0.5, s.y);
-        this.setHint('<b>空き地</b>をタップして<br>タワーを建てよう!', p.x, p.y);
+    if (this.showingNew) { G.hide(); return; }
+    if (!this.host.isPaused() || this.tut === 'spot1' || this.tut === 'pick1' || this.tut === 'conf1' || this.tut === 'wave') this.tutT += dt;
+    const pause = () => this.host.setPaused(true, 'tut');
+    switch (this.tut) {
+      case 'spot1': G.show('ここは敵の通り道。<b>空き地をタップ</b>してタワーを建てよう!', () => this.spotTarget(this.tutSpots[0])); break;
+      case 'pick1': G.show('<b>弓兵</b>を選ぼう。空の敵も撃てる万能タワーだ。', () => this.optTarget('archer')); break;
+      case 'conf1': G.show('緑の円が攻撃範囲。<b>もう一度タップ</b>で建設!', () => this.optTarget('archer')); break;
+      case 'wave': G.show('準備OK!<b>ドクロ</b>をタップすると敵がやって来る。', () => rectTarget(this.waveBtns[0], 8)); break;
+      case 'w1': {
+        G.hide();
+        const front = g.enemies.reduce((m, e) => Math.max(m, e.d / e.path.length), 0);
+        if ((this.tutT > 6 || front > 0.25) && g.gold >= 70) { pause(); this.tut = 'spot2'; }
         break;
       }
-      case 2: {
-        const b = this.waveBtns[0];
-        if (!b) { this.setHint(null); break; }
-        const r = b.getBoundingClientRect();
-        this.setHint('<b>ドクロ</b>をタップすると敵がやって来る!<br>早めに呼ぶとボーナス金貨!', r.left + 10, r.top);
+      case 'spot2': G.show('敵が来た!兵士で道をふさごう。<b>こっちの空き地</b>をタップ。', () => this.spotTarget(this.tutSpots[1])); break;
+      case 'pick2': G.show('<b>兵舎</b>を選ぼう。兵士が敵を足止めしてくれる。', () => this.optTarget('barracks')); break;
+      case 'conf2': G.show('<b>もう一度タップ</b>で建設!', () => this.optTarget('barracks')); break;
+      case 'heroWait':
+        G.hide();
+        if (this.tutT > 3 && g.hero && !g.hero.dead) { pause(); this.tut = 'hero'; }
+        break;
+      case 'hero': G.show('こちらはヒーローの<b>コッカ</b>。ボタンをタップして選ぼう。', () => rectTarget(this.heroBtn, 6)); break;
+      case 'heroMove': {
+        const p = g.paths[0].at(g.paths[0].length * 0.42);
+        G.show('移動したい場所をタップ。ヒーローはどこでも戦えるよ!', () => { const s = this.host.world.project(p.x, 0.2, p.y); return { x: s.x, y: s.y, r: 34 }; });
         break;
       }
-      case 3: {
-        if (g.waveIdx < 1 || !g.hero) { this.setHint(null); break; }
-        const h = g.hero;
-        const p = w.project(h.x, 2, h.y);
-        this.setHint('<b>ヒーロー</b>をタップしてから地面をタップすると移動できるよ', p.x, p.y);
+      case 'w2': {
+        G.hide();
+        if (g.waveIdx >= 1 && g.meteorCd <= 0 && this.tutT > 4) {
+          let best: { x: number; y: number } | null = null, bc = 0;
+          for (const e of g.enemies) {
+            if (e.def.flying || e.d / e.path.length < 0.15) continue;
+            const c = g.enemies.filter((o) => !o.def.flying && Math.hypot(o.x - e.x, o.y - e.y) < 2.6).length;
+            if (c > bc) { bc = c; best = { x: e.x, y: e.y }; }
+          }
+          if (best && bc >= 3) { this.tutCluster = best; pause(); this.tut = 'met'; }
+        }
         break;
       }
-      case 4: {
-        if (g.waveIdx < 2) { this.setHint(null); break; }
-        const r = this.meteorBtn.getBoundingClientRect();
-        this.setHint('<b>卵メテオ</b>で敵の群れを吹き飛ばそう!<br>ボタン→地面をタップ', r.left + 20, r.top);
-        if (g.meteorCd > 0) { this.tutStep = 0; this.setHint(null); this.host.finishTutorial(); }
+      case 'met': G.show('敵が固まっている!<b>卵メテオ</b>のボタンをタップ。', () => rectTarget(this.meteorBtn, 6)); break;
+      case 'metT': {
+        const c = this.tutCluster!;
+        G.show('<b>敵の群れ</b>をタップしてメテオを落とそう!', () => { const s = this.host.world.project(c.x, 0.3, c.y); return { x: s.x, y: s.y, r: 44 }; });
         break;
       }
+      case 'w3': {
+        G.hide();
+        const t = g.towers.find((x) => x.id === this.tutTower);
+        if (!t || !t.def.next.length) { this.endTutorial(true); break; }
+        if (this.tutT > 3 && g.gold >= g.towerCost(TOWER[t.def.next[0]])) { pause(); this.tut = 'up1'; }
+        break;
+      }
+      case 'up1': {
+        const t = g.towers.find((x) => x.id === this.tutTower);
+        if (!t) { this.endTutorial(true); break; }
+        G.show('金貨がたまった!<b>弓兵の塔</b>をタップして強化しよう。', () => { const s = this.host.world.project(t.x, 1.4, t.y); return { x: s.x, y: s.y, r: 42 }; });
+        break;
+      }
+      case 'up2': G.show('<b>強化ボタン</b>をタップ。', () => this.optTarget('up')); break;
+      case 'up2c': G.show('<b>もう一度タップ</b>で強化!', () => this.optTarget('up')); break;
+      case 'end': this.endTutorial(true); break;
     }
+    G.update();
   }
 }
 

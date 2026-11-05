@@ -27,6 +27,23 @@ export const ICON = {
   map: S(`<path d="M6 14 L22 8 L42 14 L58 8 L58 50 L42 56 L22 50 L6 56Z" fill="#fbefd0" stroke="${K}" stroke-width="4"/><path d="M22 8 V50 M42 14 V56" stroke="${K}" stroke-width="3"/><path d="M12 40 C20 30 30 44 50 22" stroke="#e5533a" stroke-width="4" fill="none" stroke-dasharray="4 5"/>`),
   retry: S(`<path d="M50 30 A18 18 0 1 1 40 15" stroke="${K}" stroke-width="12" fill="none"/><path d="M50 30 A18 18 0 1 1 40 15" stroke="#fff" stroke-width="5" fill="none"/><path d="M36 4 L50 14 L36 24Z" fill="#fff" stroke="${K}" stroke-width="4"/>`),
   sound: S(`<path d="M8 24 H20 L34 12 V52 L20 40 H8Z" fill="#fff" stroke="${K}" stroke-width="4"/><path d="M42 22 C48 28 48 36 42 42 M48 16 C58 26 58 38 48 48" stroke="${K}" stroke-width="4" fill="none"/>`),
+
+  meteorArt: S(`<defs><radialGradient id="mf" cx="40%" cy="35%"><stop offset="0" stop-color="#fff6c0"/><stop offset=".55" stop-color="#ffb02a"/><stop offset="1" stop-color="#e5401a"/></radialGradient></defs>
+    <path d="M6 10 C18 18 26 26 34 34 L28 40 C20 32 12 24 6 10Z" fill="#ff7a1a" stroke="${K}" stroke-width="3"/>
+    <path d="M14 4 C24 14 32 22 40 30 L36 34 C28 26 20 18 14 4Z" fill="#ffd23f" stroke="${K}" stroke-width="3"/>
+    <path d="M2 22 C12 28 20 34 28 42 L24 46 C16 38 8 32 2 22Z" fill="#ffd23f" stroke="${K}" stroke-width="3"/>
+    <ellipse cx="42" cy="42" rx="15" ry="18" transform="rotate(-42 42 42)" fill="url(#mf)" stroke="${K}" stroke-width="4"/>
+    <path d="M33 47 l5-5 5 4 5-6 5 4" stroke="#fff6e6" stroke-width="3.5" fill="none"/>
+    <ellipse cx="38" cy="34" rx="4" ry="2.5" transform="rotate(-42 38 34)" fill="#fff" opacity=".85"/>`),
+  chickArt: S(`<ellipse cx="32" cy="58" rx="16" ry="3" fill="#000" opacity=".2"/>
+    <path d="M46 8 L46 52" stroke="#8a5a2b" stroke-width="4"/><path d="M41 12 L46 2 L51 12Z" fill="#dfe6ee" stroke="${K}" stroke-width="3"/>
+    <circle cx="30" cy="38" r="18" fill="#ffd84d" stroke="${K}" stroke-width="4"/>
+    <path d="M13 32 C14 18 46 18 47 32 Z" fill="#6d8fb3" stroke="${K}" stroke-width="3.5"/><circle cx="30" cy="20" r="3" fill="#ffd23f" stroke="${K}" stroke-width="2"/>
+    <circle cx="24" cy="37" r="3.6" fill="${K}"/><circle cx="36" cy="37" r="3.6" fill="${K}"/><circle cx="25" cy="35.6" r="1.2" fill="#fff"/><circle cx="37" cy="35.6" r="1.2" fill="#fff"/>
+    <path d="M26 43 L34 43 L30 49Z" fill="#f6a21b" stroke="${K}" stroke-width="2.5"/>
+    <ellipse cx="18" cy="44" rx="3" ry="2" fill="#ff9aa2"/><ellipse cx="42" cy="44" rx="3" ry="2" fill="#ff9aa2"/>
+    <ellipse cx="46" cy="40" rx="5" ry="7" fill="#ffd84d" stroke="${K}" stroke-width="3"/>`),
+  cancel: S(`<circle cx="32" cy="32" r="26" fill="#e5533a" stroke="${K}" stroke-width="5"/><path d="M22 22 L42 42 M42 22 L22 42" stroke="#fff" stroke-width="7"/>`),
   hero: S(`<circle cx="32" cy="36" r="20" fill="#fff" stroke="${K}" stroke-width="5"/><path d="M26 18 C26 8 32 6 32 6 C34 10 40 8 38 18" fill="#e53935" stroke="${K}" stroke-width="4"/><circle cx="26" cy="34" r="3.5" fill="${K}"/><circle cx="38" cy="34" r="3.5" fill="${K}"/><path d="M28 40 L36 40 L32 47Z" fill="#f6a21b" stroke="${K}" stroke-width="3"/>`),
 };
 

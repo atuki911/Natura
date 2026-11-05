@@ -28,6 +28,12 @@ export function egg(mb: MB, r: number, pos: Vec3, colors: number[], glow = false
 }
 
 function plinth(mb: MB, r = 1.25, h = 0.35) {
+  // grass tufts and little flowers around the foot
+  for (let i = 0; i < 9; i++) {
+    const a = i * 2.4 + 0.3, rr = r * 1.12 + (i % 3) * 0.06;
+    mb.cone(0.1, 0.32, i % 2 ? 0x5fb04a : 0x7cc84a, [Math.cos(a) * rr, 0.14, Math.sin(a) * rr], [0, 0, (i % 3 - 1) * 0.3], 4);
+    if (i % 3 === 0) mb.sphere(0.06, [0xff6f91, 0xffd24a, 0xffffff][i % 3 === 0 ? (i / 3) % 3 : 0], [Math.cos(a + 0.2) * (rr + 0.1), 0.2, Math.sin(a + 0.2) * (rr + 0.1)]);
+  }
   mb.cyl(r * 1.05, r * 1.12, 0.12, 0x7a6a50, [0, 0.06, 0], [0, 0, 0], 20);
   mb.cyl(r, r * 1.04, h, STONE, [0, 0.06 + h / 2, 0], [0, 0, 0], 16);
   for (let i = 0; i < 10; i++) {
@@ -192,6 +198,10 @@ function barracks(tier: number, kind?: 'paladin' | 'berserker'): TowerRig {
       }
     }
     flag(mb, [w / 2 + 0.05, yy + 0.4, 0.55], tier === 3 ? ROOF_B : 0xffc93c, 1.1);
+    mb.cyl(0.28, 0.28, 0.5, 0xe8c860, [-0.95, yy + 0.25, 0.55], [Math.PI / 2, 0, 0.3], 10);
+    mb.torus(0.28, 0.03, 0xb8962a, [-0.95, yy + 0.25, 0.55], [0, 0.3, 0]);
+    for (let k = 0; k < 4; k++) mb.box(0.07, 0.4, 0.07, WOOD_D, [0.95 - k * 0.0, yy + 0.2, -0.55 + k * 0.35], [0, 0, 0], 0.02);
+    mb.box(0.05, 0.06, 1.1, WOOD, [0.95, yy + 0.32, -0.02]);
     top = yy + 1.7;
   }
   return { body: mb.build(), crew: [], top };
@@ -235,7 +245,14 @@ function mage(tier: number, kind?: 'arcane' | 'frost'): TowerRig {
     for (let i = 0; i < 5; i++) mb.ico(0.18, 0xd8f4ff, [Math.cos(i * 1.3) * 1.0, y0 + 0.15, Math.sin(i * 1.3) * 1.0]);
   } else {
     const r = 0.3 + tier * 0.07;
-    orb = part('orb', [0, top + r * 1.6, 0], (m) => egg(m, r, [0, 0, 0], tier === 1 ? [0xb57cff, 0xffd24a, 0xff6fae] : RAINBOW.slice(0, 2 + tier)));
+    orb = part('orb', [0, top + r * 1.6, 0], (m) => {
+      egg(m, r, [0, 0, 0], tier === 1 ? [0xb57cff, 0xffd24a, 0xff6fae] : RAINBOW.slice(0, 2 + tier));
+      for (let k = 0; k < 2 + tier; k++) {
+        const a = (k / (2 + tier)) * Math.PI * 2;
+        m.cone(0.06, 0.2, RAINBOW[k % RAINBOW.length], [Math.cos(a) * r * 1.9, Math.sin(a * 2) * 0.1, Math.sin(a) * r * 1.9], [0, 0, 0], 4);
+        m.cone(0.06, 0.2, RAINBOW[k % RAINBOW.length], [Math.cos(a) * r * 1.9, Math.sin(a * 2) * 0.1 - 0.19, Math.sin(a) * r * 1.9], [Math.PI, 0, 0], 4);
+      }
+    });
   }
   if (tier >= 3 || kind) {
     mb.cone(0.25, 0.5, kind === 'frost' ? 0x6fbfff : 0x6a4fa8, [0.65, y0 + h * 0.7, 0.45], [0.3, 0, -0.4], 6);
@@ -284,7 +301,7 @@ function artillery(tier: number, kind?: 'bigegg' | 'tesla'): TowerRig {
       egg(m, 0.18, [0, 0.95, -0.35], [0xfff6e6, 0xffd24a, 0xff6fae]);
     }
   });
-  return { body: mb.build(), turret, crew: [], top: y0 + 1.2 };
+  return { body: mb.build(), turret, crew: [{ model: 'gunner', pos: [0.62, y0 + 0.25 + 0.36, -0.55], turret: true }], top: y0 + 1.2 };
 }
 
 export const TOWER_MODELS: Record<string, (tier: number) => TowerRig> = {

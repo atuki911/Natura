@@ -1,4 +1,4 @@
-import { MB, part, type RigDef, type Vec3 } from '../builder.ts';
+import { MB, part, type RigDef, type RigPart, type Vec3 } from '../builder.ts';
 
 export interface ChickenOpts {
   body: number;
@@ -82,6 +82,7 @@ export function chicken(o: ChickenOpts): RigDef {
   const comb = o.comb ?? 0xe53935;
   const belly = o.belly ?? o.body;
   const mb = new MB();
+  const hb = o.chick ? mb : new MB();
   let headY: number, headZ: number, headR: number;
   if (o.chick) {
     mb.sphere(0.4 * s, o.body, [0, 0.46 * s, 0], [1, 0.95, 1]);
@@ -102,15 +103,17 @@ export function chicken(o: ChickenOpts): RigDef {
       mb.cone(0.09 * s, 0.38 * s, i === 0 ? o.body : 0x2b6e4a, [i * 0.09 * s, 0.82 * s, -0.36 * s], [-0.7, 0, i * 0.35], 6);
     }
     headY = 0.98 * s; headZ = 0.12 * s; headR = 0.24 * s;
-    mb.sphere(headR, o.body, [0, headY, headZ]);
-    mb.eye(0.07 * s, [0.1 * s, headY + 0.05 * s, headZ + 0.19 * s], [0.25, 0, 1]);
-    mb.eye(0.07 * s, [-0.1 * s, headY + 0.05 * s, headZ + 0.19 * s], [-0.25, 0, 1]);
-    mb.cone(0.075 * s, 0.17 * s, beak, [0, headY - 0.04 * s, headZ + 0.28 * s], [Math.PI / 2, 0, 0], 8);
-    mb.sphere(0.055 * s, comb, [0, headY - 0.15 * s, headZ + 0.22 * s], [0.7, 1.3, 0.6], 8);
+    hb.sphere(headR, o.body, [0, headY, headZ]);
+    hb.eye(0.07 * s, [0.1 * s, headY + 0.05 * s, headZ + 0.19 * s], [0.25, 0, 1]);
+    hb.eye(0.07 * s, [-0.1 * s, headY + 0.05 * s, headZ + 0.19 * s], [-0.25, 0, 1]);
+    hb.cone(0.075 * s, 0.17 * s, beak, [0, headY - 0.04 * s, headZ + 0.28 * s], [Math.PI / 2, 0, 0], 8);
+    hb.sphere(0.055 * s, comb, [0, headY - 0.15 * s, headZ + 0.22 * s], [0.7, 1.3, 0.6], 8);
+    hb.sphere(0.045 * s, 0xff9aa2, [0.17 * s, headY - 0.05 * s, headZ + 0.15 * s], [1, 0.6, 0.4], 6);
+    hb.sphere(0.045 * s, 0xff9aa2, [-0.17 * s, headY - 0.05 * s, headZ + 0.15 * s], [1, 0.6, 0.4], 6);
     if (!o.helmet || o.helmet === 'bandana' || o.helmet === 'goggles') {
-      mb.sphere(0.08 * s, comb, [0, headY + 0.24 * s, headZ + 0.08 * s]);
-      mb.sphere(0.09 * s, comb, [0, headY + 0.27 * s, headZ - 0.03 * s]);
-      mb.sphere(0.075 * s, comb, [0, headY + 0.23 * s, headZ - 0.13 * s]);
+      hb.sphere(0.08 * s, comb, [0, headY + 0.24 * s, headZ + 0.08 * s]);
+      hb.sphere(0.09 * s, comb, [0, headY + 0.27 * s, headZ - 0.03 * s]);
+      hb.sphere(0.075 * s, comb, [0, headY + 0.23 * s, headZ - 0.13 * s]);
     }
   }
   // clothing
@@ -143,36 +146,36 @@ export function chicken(o: ChickenOpts): RigDef {
   const hy = headY + headR * 0.45, hz = headZ - 0.02 * s;
   switch (o.helmet) {
     case 'cap':
-      mb.hemi(headR * 1.08, hc, [0, hy - 0.02 * s, hz], [1, 0.75, 1]);
-      mb.sphere(0.04 * s, 0xffffff, [0, hy + headR * 0.75, hz]);
+      hb.hemi(headR * 1.08, hc, [0, hy - 0.02 * s, hz], [1, 0.75, 1]);
+      hb.sphere(0.04 * s, 0xffffff, [0, hy + headR * 0.75, hz]);
       break;
     case 'knight': case 'gold': case 'bigknight':
-      mb.hemi(headR * 1.12, hc, [0, hy - 0.06 * s, hz], [1, 1, 1]);
-      mb.box(0.05 * s, 0.22 * s, 0.32 * s, o.helmet === 'gold' ? 0xffffff : 0xd94a3a, [0, hy + 0.2 * s, hz - 0.02 * s], [0, 0, 0], 0.02 * s);
+      hb.hemi(headR * 1.12, hc, [0, hy - 0.06 * s, hz], [1, 1, 1]);
+      hb.box(0.05 * s, 0.22 * s, 0.32 * s, o.helmet === 'gold' ? 0xffffff : 0xd94a3a, [0, hy + 0.2 * s, hz - 0.02 * s], [0, 0, 0], 0.02 * s);
       if (o.helmet === 'bigknight') {
-        mb.cone(0.05 * s, 0.22 * s, 0xe8e0d0, [0.22 * s, hy + 0.12 * s, hz], [0, 0, -0.8], 6);
-        mb.cone(0.05 * s, 0.22 * s, 0xe8e0d0, [-0.22 * s, hy + 0.12 * s, hz], [0, 0, 0.8], 6);
+        hb.cone(0.05 * s, 0.22 * s, 0xe8e0d0, [0.22 * s, hy + 0.12 * s, hz], [0, 0, -0.8], 6);
+        hb.cone(0.05 * s, 0.22 * s, 0xe8e0d0, [-0.22 * s, hy + 0.12 * s, hz], [0, 0, 0.8], 6);
       }
       break;
     case 'horned':
-      mb.torus(headR * 0.95, 0.05 * s, 0xc0392b, [0, hy - 0.02 * s, hz], [Math.PI / 2, 0, 0]);
-      mb.box(0.08 * s, 0.25 * s, 0.04 * s, 0xc0392b, [0.06 * s, hy - 0.08 * s, hz - headR], [0.4, 0, 0.4]);
+      hb.torus(headR * 0.95, 0.05 * s, 0xc0392b, [0, hy - 0.02 * s, hz], [Math.PI / 2, 0, 0]);
+      hb.box(0.08 * s, 0.25 * s, 0.04 * s, 0xc0392b, [0.06 * s, hy - 0.08 * s, hz - headR], [0.4, 0, 0.4]);
       break;
     case 'wizard':
-      mb.cone(headR * 1.0, 0.6 * s, hc, [0, hy + 0.25 * s, hz - 0.03 * s], [-0.25, 0, 0.15], 14);
-      mb.cyl(headR * 1.5, headR * 1.5, 0.04 * s, hc, [0, hy, hz], [0, 0, 0], 16);
-      mb.sphere(0.06 * s, 0xffe66b, [0.05 * s, hy + 0.3 * s, hz + 0.12 * s]);
+      hb.cone(headR * 1.0, 0.6 * s, hc, [0, hy + 0.25 * s, hz - 0.03 * s], [-0.25, 0, 0.15], 14);
+      hb.cyl(headR * 1.5, headR * 1.5, 0.04 * s, hc, [0, hy, hz], [0, 0, 0], 16);
+      hb.sphere(0.06 * s, 0xffe66b, [0.05 * s, hy + 0.3 * s, hz + 0.12 * s]);
       break;
     case 'goggles':
-      mb.torus(headR * 0.98, 0.04 * s, 0x5b3a22, [0, headY + 0.08 * s, headZ], [Math.PI / 2, 0, 0]);
-      mb.cyl(0.07 * s, 0.07 * s, 0.06 * s, 0x9fd3ff, [0.09 * s, headY + 0.15 * s, headZ + 0.2 * s], [Math.PI / 2 - 0.4, 0, 0]);
-      mb.cyl(0.07 * s, 0.07 * s, 0.06 * s, 0x9fd3ff, [-0.09 * s, headY + 0.15 * s, headZ + 0.2 * s], [Math.PI / 2 - 0.4, 0, 0]);
+      hb.torus(headR * 0.98, 0.04 * s, 0x5b3a22, [0, headY + 0.08 * s, headZ], [Math.PI / 2, 0, 0]);
+      hb.cyl(0.07 * s, 0.07 * s, 0.06 * s, 0x9fd3ff, [0.09 * s, headY + 0.15 * s, headZ + 0.2 * s], [Math.PI / 2 - 0.4, 0, 0]);
+      hb.cyl(0.07 * s, 0.07 * s, 0.06 * s, 0x9fd3ff, [-0.09 * s, headY + 0.15 * s, headZ + 0.2 * s], [Math.PI / 2 - 0.4, 0, 0]);
       break;
     case 'bandana':
-      mb.torus(headR * 0.98, 0.05 * s, hc, [0, headY + 0.06 * s, headZ], [Math.PI / 2 + 0.15, 0, 0]);
+      hb.torus(headR * 0.98, 0.05 * s, hc, [0, headY + 0.06 * s, headZ], [Math.PI / 2 + 0.15, 0, 0]);
       break;
     case 'crown':
-      mb.cyl(headR * 0.7, headR * 0.75, 0.14 * s, 0xffcc33, [0, hy + 0.05 * s, hz]);
+      hb.cyl(headR * 0.7, headR * 0.75, 0.14 * s, 0xffcc33, [0, hy + 0.05 * s, hz]);
       break;
   }
 
@@ -198,9 +201,17 @@ export function chicken(o: ChickenOpts): RigDef {
     }
     if (side < 0 && o.weapon === 'axe') weapon(m, 'axe', s);
   });
+  const parts: RigPart[] = [legs(-1), legs(1), wing(-1), wing(1)];
+  if (!o.chick) {
+    // the head is its own joint so it can look around and peck
+    const pv: Vec3 = [0, headY - headR * 0.75, headZ * 0.5];
+    const hg = hb.build();
+    hg.translate(-pv[0], -pv[1], -pv[2]);
+    parts.push({ name: 'head', geo: hg, pivot: pv });
+  }
   return {
     body: mb.build(),
-    parts: [legs(-1), legs(1), wing(-1), wing(1)],
+    parts,
     height: (o.chick ? 1.0 : 1.35) * s,
   };
 }
