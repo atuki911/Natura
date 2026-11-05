@@ -42,7 +42,7 @@ function play(seed: number, styleName: string): Result {
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
-const styles = stageArg === 'all' ? ['standard', 'swordOnly', 'idle'] : Object.keys(BOT_STYLES);
+const styles = stageArg === 'all' ? ['standard', 'casual', 'idle'] : Object.keys(BOT_STYLES);
 for (const target of targets) {
 stage = target;
 console.log(`\nステージ: ${stage.id} ${stage.name.ja} / 1つの遊び方につき ${runs} 回`);

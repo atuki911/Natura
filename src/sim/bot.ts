@@ -64,6 +64,16 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     callEarly: false,
     tendTrees: true,
   },
+  /** 気軽に遊ぶ人。考えるのが遅く、木の世話をしない。人に近い難しさの目安に使う。 */
+  casual: {
+    name: 'casual',
+    thinkEvery: 1.2,
+    mix: { sword: 4, archer: 3, mage: 1.5, bomber: 1 },
+    buildTowers: true,
+    useAbilities: true,
+    callEarly: false,
+    tendTrees: false,
+  },
   /** 剣士だけを出す、考えない人。勝てないくらいがよい。 */
   swordOnly: {
     name: 'swordOnly',

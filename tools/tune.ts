@@ -1,6 +1,6 @@
 // ステージの難しさを自動で合わせる。敵の強さの倍率 p(体力と攻撃力の両方)を二分探索し、
 // ふつうの腕前の自動プレイ(standard)の勝率が目標に一番近くなる p を探す。
-// 使い方: node tools/tune.ts <stageId> <目標の勝率 0〜1> [回数]
+// 使い方: node tools/tune.ts <stageId> <目標の勝率 0〜1> [回数] [自動プレイの遊び方(既定 standard)]
 // 見つけた p を src/data/stages.ts の enemyHpScale / enemyDamageScale に書く。
 
 import { STAGES } from '../src/data/stages.ts';
@@ -8,7 +8,8 @@ import { Bot, BOT_STYLES } from '../src/sim/bot.ts';
 import { DT } from '../src/sim/constants.ts';
 import { World } from '../src/sim/world.ts';
 
-const [id, targetArg, runsArg] = process.argv.slice(2);
+const [id, targetArg, runsArg, styleArg] = process.argv.slice(2);
+const style = BOT_STYLES[styleArg ?? 'standard'];
 const base = STAGES.find((s) => s.id === id);
 if (!base) throw new Error(`ステージ ${id} がありません`);
 const target = Number(targetArg ?? 0.8);
@@ -19,7 +20,7 @@ function winRate(p: number): number {
   let wins = 0;
   for (let seed = 1; seed <= runs; seed++) {
     const w = new World(stage, seed);
-    const bot = new Bot(BOT_STYLES.standard);
+    const bot = new Bot(style);
     let t = 0;
     while (!w.ended && t < 60 * 60 * 25) {
       bot.tick(w, DT);
