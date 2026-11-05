@@ -171,6 +171,10 @@ export interface StageDef {
   units: UnitId[];
   /** 最初の1回だけ遊び方の手引きを出す。 */
   tutorial?: boolean;
+  /** 敵の体力の倍率(ステージごとの難しさの調整)。 */
+  enemyHpScale?: number;
+  /** 敵の攻撃力の倍率。 */
+  enemyDamageScale?: number;
   waves: WaveDef[];
   startGold: number;
   startMana: number;

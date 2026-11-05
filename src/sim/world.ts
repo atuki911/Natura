@@ -349,15 +349,22 @@ export class World {
   // ---- 兵 ----
 
   private addFighter(side: Side, def: FighterDef, x: number): Fighter {
+    if (side === 'enemy') {
+      // ステージごとの難しさ: 敵の体力と攻撃力に倍率をかけた写しを使う。
+      const hpScale = this.stage.enemyHpScale ?? 1;
+      const dmgScale = this.stage.enemyDamageScale ?? 1;
+      if (hpScale !== 1 || dmgScale !== 1) def = { ...def, hp: Math.round(def.hp * hpScale), damage: def.damage * dmgScale };
+    }
     const special = isEnemyDef(def) ? def.special : null;
+    const hp = def.hp;
     const fighter: Fighter = {
       id: this.nextId++,
       side,
       def,
       x,
       row: this.rng.next(),
-      hp: def.hp,
-      maxHp: def.hp,
+      hp,
+      maxHp: hp,
       alive: true,
       state: 'walk',
       cooldown: 0,
