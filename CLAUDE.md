@@ -1,11 +1,12 @@
 # Natura — Claude Code 向けの作り方
 
-ブラウザで遊ぶ横スクロールの城防衛ゲーム。左の緑の王国の城から棒人間の兵を出し、右の穢れの砦から湧く怪物の波(ウェーブ)を防ぐ。提出先は CrazyGames などの Web ゲームサイト。
+ブラウザで遊ぶ横スクロールの城防衛ゲーム。左の緑の王国の城から棒人間の兵を出し、右の穢れの砦から湧く怪物の波(ウェーブ)を防ぐ。**倒れた兵はその場所で木になり、戦い続ける**のがこのゲームの核。提出先は CrazyGames などの Web ゲームサイト。
 
 - 企画: `docs/GDD.md`
 - 画風の決まり: `docs/style-bible.md`
 - 生成画像への差し替え: `docs/asset-pipeline.md`
 - これからの進め方: `docs/roadmap.md`
+- 独自性の探索の記録: `exploration/round-1/`
 
 ## 作りの大原則
 
@@ -21,16 +22,18 @@
 |---|---|
 | 開発サーバー | `npm run dev` |
 | 型チェック + テスト | `npm run check` |
-| バランス検証(自動プレイを回して勝率を出す) | `npm run balance -- 60` |
+| バランス検証(自動プレイを回して勝率を出す) | `npm run balance -- 30 all`(全ステージ) / `npm run balance -- 60 1-3` |
+| 作戦ごとの勝率差・待ち時間 | `node tools/metrics.ts 30` |
+| ステージの難しさを自動で合わせる | `node tools/tune.ts <ステージ> <目標の勝率>` |
 | 画面を撮る(見た目の確認) | `npm run screenshot` → `screenshots/*.png` を開いて見る |
 | 本番ビルド | `npm run build` |
 
-URL のパラメータ(検証用): `?debug`(デバッグパネル)、`?autoplay`(自動プレイ)、`?seed=3`、`?speed=4`、`?wave=10`(そのウェーブから)。
+URL のパラメータ(検証用): `?debug`(デバッグパネル。木も植えられる)、`?autoplay`(自動プレイ)、`?stage=2-3`、`?seed=3`、`?speed=4`、`?wave=10`(そのウェーブから)、`?map`(地図から)、`?play`(手引きつきで1-1)。
 
 ## 変更したら必ずやること
 
 - `npm run check` が通る。
-- 数字(`src/data/`)を変えたら `npm run balance -- 60` を回し、結果を報告する。目安: `standard` の勝率 60〜85%、`swordOnly` はほぼ勝てない、`idle` は必ず負ける。
+- 数字(`src/data/`)を変えたら `npm run balance -- 30 all` を回し、結果を報告する。目安: `standard` の勝率は地域1で 90% 以上、最後のステージで 60〜85%。`idle` はどのステージでも必ず負ける。
 - 見た目を変えたら `npm run screenshot` で撮り、画像を開いて崩れていないか確かめる。ブラウザのエラーが出たら直す。
 
 ## よくある作業

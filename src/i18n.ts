@@ -46,10 +46,10 @@ const en = {
     bomber: 'Bomber',
   },
   unitInfo: {
-    sword: 'Sturdy melee fighter.',
-    archer: 'Shoots ground and air.',
-    mage: 'Magic splash. Pierces armor.',
-    bomber: 'Runs in and explodes.',
+    sword: 'Melee. Falls → thorn bush',
+    archer: 'Hits air. Falls → watch tree',
+    mage: 'Magic splash. Falls → mana flower',
+    bomber: 'Explodes. Falls → seed pod',
   },
   towers: {
     arrowTower: 'Arrow Tower',
@@ -125,10 +125,10 @@ const ja: Dict = {
     bomber: '爆弾兵',
   },
   unitInfo: {
-    sword: '打たれ強い近接兵',
-    archer: '地上も空も撃てる',
-    mage: '範囲魔法。鎧を無視',
-    bomber: '突っ込んで自爆する',
+    sword: '近接。倒れると茨になる',
+    archer: '空も撃つ。倒れると見張りの木',
+    mage: '範囲魔法。倒れると魔法の花',
+    bomber: '自爆。倒れると種の莢',
   },
   towers: {
     arrowTower: '弓の塔',

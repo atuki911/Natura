@@ -152,7 +152,7 @@ export class Hud {
     this.tooltip = scene.add.container(0, 0).setDepth(DEPTH.hud + 10).setVisible(false);
     this.tooltipTitle = label(scene, 0, -24, '', { size: 17 });
     this.tooltipBody = label(scene, 0, 2, '', { size: 13, color: '#d8e4ff', stroke: 3 });
-    this.tooltip.add([scene.add.image(0, -10, 'tooltip').setScale(S).setDisplaySize(176, 70), this.tooltipTitle, this.tooltipBody]);
+    this.tooltip.add([scene.add.image(0, -10, 'tooltip').setScale(S).setDisplaySize(250, 70), this.tooltipTitle, this.tooltipBody]);
 
     this.shownGold = world.gold;
   }
