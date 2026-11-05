@@ -1,0 +1,81 @@
+import type { UnitDef, UnitId } from '../sim/types.ts';
+
+// 味方ユニット。数字を変えたら `npm run balance` で勝率を確かめる。
+
+const base = {
+  splash: 0,
+  armor: 0,
+  magic: false,
+  hitsFlying: false,
+  flying: false,
+  critChance: 0.1,
+  critMult: 2,
+  knockback: 0,
+};
+
+export const UNITS: Record<UnitId, UnitDef> = {
+  sword: {
+    ...base,
+    id: 'sword',
+    cost: { gold: 50, mana: 0 },
+    spawnCooldown: 1,
+    hp: 130,
+    damage: 15,
+    range: 34,
+    attackInterval: 0.9,
+    windup: 0.22,
+    speed: 58,
+    attack: 'melee',
+    armor: 0.15,
+    knockback: 6,
+  },
+  archer: {
+    ...base,
+    id: 'archer',
+    cost: { gold: 75, mana: 0 },
+    spawnCooldown: 1.5,
+    hp: 60,
+    damage: 12,
+    range: 250,
+    attackInterval: 1.25,
+    windup: 0.35,
+    speed: 52,
+    attack: 'arrow',
+    hitsFlying: true,
+  },
+  mage: {
+    ...base,
+    id: 'mage',
+    cost: { gold: 60, mana: 40 },
+    spawnCooldown: 3,
+    hp: 75,
+    damage: 24,
+    range: 210,
+    attackInterval: 1.6,
+    windup: 0.4,
+    speed: 48,
+    attack: 'bolt',
+    splash: 48,
+    magic: true,
+    hitsFlying: true,
+    critChance: 0.15,
+  },
+  bomber: {
+    ...base,
+    id: 'bomber',
+    cost: { gold: 120, mana: 0 },
+    spawnCooldown: 4,
+    hp: 55,
+    damage: 130,
+    range: 30,
+    attackInterval: 1,
+    windup: 0.15,
+    speed: 80,
+    attack: 'bomb',
+    splash: 95,
+    critChance: 0,
+    knockback: 45,
+  },
+};
+
+export const UNIT_ORDER: UnitId[] = ['sword', 'archer', 'mage', 'bomber'];

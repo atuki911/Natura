@@ -1,0 +1,25 @@
+{
+  "name": "natura",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "balance": "node tools/balance.ts",
+    "screenshot": "node tools/screenshot.mjs",
+    "check": "tsc --noEmit && node --test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@fontsource/lilita-one": "5.2.6",
+    "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.21",
+    "typescript": "5.8.3",
+    "vite": "6.3.5"
+  }
+}
