@@ -266,6 +266,8 @@ export type Command =
   | { type: 'build'; slot: number; tower: TowerId }
   | { type: 'ability'; ability: AbilityId; x?: number }
   | { type: 'nextWave' }
+  /** 味方が進んで止まる位置(旗)を動かす。 */
+  | { type: 'rally'; x: number }
   /** 木の実・花の蜜を摘む。 */
   | { type: 'harvest'; tree: number }
   /** 木を引き抜いてゴールドにする。 */
@@ -307,6 +309,7 @@ export type SimEvent =
   | { t: 'podBurst'; treeId: number; x: number; radius: number }
   | { t: 'harvest'; treeId: number; mana: number; gold: number }
   | { t: 'uproot'; treeId: number; gold: number }
+  | { t: 'rally'; x: number }
   | { t: 'victory' }
   | { t: 'defeat' };
 
@@ -318,3 +321,35 @@ export interface Stats {
   treesGrown: number;
   harvests: number;
 }
+
+/**
+ * 戦闘をまたいで残る強化の効き目。強化の画面で買ったものを World に渡す。
+ * 何も強化していなければ NO_MODS。
+ */
+export interface WorldMods {
+  unitHpMult: Partial<Record<UnitId, number>>;
+  unitDamageMult: Partial<Record<UnitId, number>>;
+  /** 木の体力の倍率。 */
+  treeHpMult: number;
+  /** 木が枯れていく速さの倍率(小さいほど長持ち)。 */
+  treeDecayMult: number;
+  /** 同時に生えられる木の数に足す数。 */
+  maxTreesBonus: number;
+  /** 収穫で得るゴールド・マナの倍率。 */
+  harvestMult: number;
+  castleHpBonus: number;
+  startGoldBonus: number;
+  manaRegenMult: number;
+}
+
+export const NO_MODS: WorldMods = {
+  unitHpMult: {},
+  unitDamageMult: {},
+  treeHpMult: 1,
+  treeDecayMult: 1,
+  maxTreesBonus: 0,
+  harvestMult: 1,
+  castleHpBonus: 0,
+  startGoldBonus: 0,
+  manaRegenMult: 1,
+};

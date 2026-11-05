@@ -15,6 +15,9 @@ export const FIELD = {
   rangedRallyOffset: 70,
 };
 
+/** 旗を立てられる一番手前(城の近く)。 */
+export const RALLY_MIN = 330;
+
 /** タワーを建てられる場所の x。 */
 export const TOWER_SLOTS = [380, 590, 790];
 

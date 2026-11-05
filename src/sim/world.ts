@@ -10,7 +10,7 @@ import {
 } from '../data/towers.ts';
 import { TREE_OF_UNIT, TREE_RULES, TREES } from '../data/trees.ts';
 import { UNITS } from '../data/units.ts';
-import { CASTLE_ARCHER, DT, ECONOMY, FIELD, TOWER_SLOTS } from './constants.ts';
+import { CASTLE_ARCHER, DT, ECONOMY, FIELD, RALLY_MIN, TOWER_SLOTS } from './constants.ts';
 import { Rng } from './rng.ts';
 import {
   CASTLE_TARGET,
@@ -32,6 +32,8 @@ import {
   type Tree,
   type UnitId,
   type WorldPhase,
+  type WorldMods,
+  NO_MODS,
 } from './types.ts';
 
 const PROJECTILE_SPEED: Partial<Record<AttackKind, number>> = {
@@ -90,12 +92,18 @@ export class World {
   god = false;
   private nextId = 1;
 
-  constructor(stage: StageDef, seed = 1) {
+  readonly mods: WorldMods;
+  /** 味方が進んで止まる位置(旗)。 */
+  rallyX: number = FIELD.rallyX;
+
+  constructor(stage: StageDef, seed = 1, mods: WorldMods = NO_MODS) {
     this.stage = stage;
+    this.mods = mods;
     this.rng = new Rng(seed);
-    this.gold = stage.startGold;
+    this.gold = stage.startGold + mods.startGoldBonus;
     this.mana = stage.startMana;
-    this.castle = { hp: stage.castleHp, maxHp: stage.castleHp, cooldown: 0 };
+    const castleHp = stage.castleHp + mods.castleHpBonus;
+    this.castle = { hp: castleHp, maxHp: castleHp, cooldown: 0 };
     this.breakTimer = stage.firstBreak;
   }
 
@@ -170,7 +178,7 @@ export class World {
 
     this.time += DT;
     this.gold += ECONOMY.goldPerSecond * DT;
-    this.mana = Math.min(ECONOMY.maxMana, this.mana + ECONOMY.manaPerSecond * DT);
+    this.mana = Math.min(ECONOMY.maxMana, this.mana + ECONOMY.manaPerSecond * this.mods.manaRegenMult * DT);
     for (const key of Object.keys(this.unitCooldowns) as UnitId[]) this.unitCooldowns[key] -= DT;
     for (const key of Object.keys(this.abilityCooldowns) as AbilityId[]) this.abilityCooldowns[key] -= DT;
 
@@ -199,9 +207,12 @@ export class World {
     switch (cmd.type) {
       case 'spawn': {
         if (!this.canSpawn(cmd.unit)) return;
-        const def = UNITS[cmd.unit];
-        this.pay(def.cost);
-        this.unitCooldowns[cmd.unit] = def.spawnCooldown;
+        const base = UNITS[cmd.unit];
+        this.pay(base.cost);
+        this.unitCooldowns[cmd.unit] = base.spawnCooldown;
+        const hpMult = this.mods.unitHpMult[cmd.unit] ?? 1;
+        const dmgMult = this.mods.unitDamageMult[cmd.unit] ?? 1;
+        const def = hpMult === 1 && dmgMult === 1 ? base : { ...base, hp: Math.round(base.hp * hpMult), damage: base.damage * dmgMult };
         this.addFighter('ally', def, FIELD.castleX - 30);
         this.stats.unitsDeployed++;
         return;
@@ -228,7 +239,7 @@ export class World {
           for (const t of this.aliveTrees()) t.hp = Math.min(t.maxHp, t.hp + t.maxHp * TREE_RULES.healRatio);
           this.events.push({ t: 'heal', castleAmount });
         } else {
-          const x = Math.max(FIELD.castleX, Math.min(FIELD.portalX, cmd.x ?? FIELD.rallyX));
+          const x = Math.max(FIELD.castleX, Math.min(FIELD.portalX, cmd.x ?? this.rallyX));
           this.meteors.push({ x, timer: METEOR_DELAY });
           this.events.push({ t: 'meteorCast', x });
         }
@@ -244,14 +255,19 @@ export class World {
         this.startWave();
         return;
       }
+      case 'rally': {
+        this.rallyX = Math.max(RALLY_MIN, Math.min(FIELD.rallyX, cmd.x));
+        this.events.push({ t: 'rally', x: this.rallyX });
+        return;
+      }
       case 'harvest': {
         const tree = this.treeById.get(cmd.tree);
         const nectar = tree?.def.nectar;
         if (!tree || !tree.alive || !nectar || tree.growing > 0 || tree.nectar < nectar.minHarvest) return;
         const n = Math.floor(tree.nectar);
         tree.nectar -= n;
-        const mana = n * nectar.manaPer;
-        const gold = n * nectar.goldPer;
+        const mana = n * nectar.manaPer * this.mods.harvestMult;
+        const gold = n * nectar.goldPer * this.mods.harvestMult;
         this.mana = Math.min(ECONOMY.maxMana, this.mana + mana);
         this.gold += gold;
         this.stats.harvests++;
@@ -437,7 +453,9 @@ export class World {
     }
 
     if (f.side === 'ally') {
-      const limit = isRanged(f.def.attack) ? FIELD.rallyX - FIELD.rangedRallyOffset : FIELD.rallyX;
+      // 旗の位置まで進む。同じ位置に重ならないよう、兵ごとに少しずらす。
+      const spread = ((f.id * 37) % 56) - 28;
+      const limit = isRanged(f.def.attack) ? this.rallyX - FIELD.rangedRallyOffset - ((f.id * 53) % 50) : this.rallyX + spread;
       if (f.x < limit) {
         f.x = Math.min(limit, f.x + f.def.speed * DT);
         f.state = 'walk';
@@ -638,7 +656,11 @@ export class World {
    */
   private seedTree(unit: UnitId, f: Fighter): void {
     if (f.dealt < TREE_RULES.minDamageDealt[unit]) return;
-    const def = TREES[TREE_OF_UNIT[unit]];
+    const baseDef = TREES[TREE_OF_UNIT[unit]];
+    const def =
+      this.mods.treeHpMult === 1 && this.mods.treeDecayMult === 1
+        ? baseDef
+        : { ...baseDef, hp: Math.round(baseDef.hp * this.mods.treeHpMult), decayPerSecond: baseDef.decayPerSecond * this.mods.treeDecayMult };
     const near = this.trees.find((t) => t.alive && Math.abs(t.x - f.x) < TREE_RULES.minSpacing);
     if (near) {
       if (near.def.id !== def.id) return;
@@ -648,7 +670,7 @@ export class World {
       return;
     }
     const alive = this.aliveTrees();
-    if (alive.length >= TREE_RULES.maxTrees) {
+    if (alive.length >= TREE_RULES.maxTrees + this.mods.maxTreesBonus) {
       const oldest = alive.reduce((a, b) => (a.age >= b.age ? a : b));
       this.removeTree(oldest, 'replaced');
     }
