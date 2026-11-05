@@ -709,13 +709,15 @@ export class World {
       tree.cooldown -= DT;
 
       if (def.thorn) {
-        for (const e of onTop) {
+        // 地中を進む敵には、とげも足止めも効かない。
+        const thornable = onTop.filter((e) => !(isEnemyDef(e.def) && e.def.special?.type === 'burrow'));
+        for (const e of thornable) {
           e.slowTimer = def.thorn.slowTime;
           e.slowMult = def.thorn.slowMult;
         }
-        if (tree.cooldown <= 0 && onTop.length > 0) {
+        if (tree.cooldown <= 0 && thornable.length > 0) {
           tree.cooldown = def.thorn.interval;
-          for (const e of onTop) {
+          for (const e of thornable) {
             const before = e.hp;
             this.applyDamage(e, def.thorn.damage, false, false, 'melee', 0);
             this.events.push({ t: 'thornHit', treeId: tree.id, id: e.id, amount: before - Math.max(0, e.hp) });
