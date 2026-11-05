@@ -18,6 +18,11 @@ const en = {
   advance: 'PUSH',
   flagHint: 'Drag the banner to move your army',
   tipTitle: 'Tip',
+  survived: 'Waves survived',
+  newRecord: 'NEW RECORD!',
+  best: 'Best',
+  firstClear: 'First clear!',
+  endless: 'Endless',
   tips: [
     'Archers and watch trees can hit flying enemies.',
     'Mages ignore armor — use them on tusked beasts and bosses.',
@@ -147,6 +152,11 @@ const ja: Dict = {
   advance: '進め',
   flagHint: '旗を動かすと、兵がそこで戦う',
   tipTitle: 'ヒント',
+  survived: '耐えたウェーブ',
+  newRecord: '新記録!',
+  best: '最高',
+  firstClear: '初勝利!',
+  endless: '耐久',
   tips: [
     '弓兵と見張りの木は、空を飛ぶ敵に届く。',
     '魔法使いは鎧を無視する。牙獣やボスに効く。',

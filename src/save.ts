@@ -15,6 +15,8 @@ export interface SaveData {
   cleared: Record<string, boolean>;
   /** 葉に換えた星の数。bestStars とは別に持つ(結果の画面がどちらを先に書いても二重にならない)。 */
   rewardedStars: Record<string, number>;
+  /** 耐久モードで耐えたウェーブの最高。 */
+  bestEndless: number;
 }
 
 const KEY = 'natura.save.v1';
@@ -28,6 +30,7 @@ export const defaultSave = (): SaveData => ({
   upgrades: {},
   cleared: {},
   rewardedStars: {},
+  bestEndless: 0,
 });
 
 export function loadSave(): SaveData {

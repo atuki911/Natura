@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { REGIONS, STAGES } from '../data/stages.ts';
+import { ENDLESS_STAGE, REGIONS, STAGES } from '../data/stages.ts';
 import { getLang, t } from '../i18n.ts';
 import { loadSave } from '../save.ts';
 import type { StageDef } from '../sim/types.ts';
@@ -96,6 +96,23 @@ export class MapScene extends Phaser.Scene {
     label(this, VIEW.width - 40, 660, `★ ${total} / ${STAGES.length * 3}`, { size: 24, align: 'right', color: '#ffe28a' }).setDepth(DEPTH.hud);
     button(this, 110, 660, 'btn_stone', L.back, () => this.scene.start('title'), { width: 160, height: 50, size: 20 });
     // 強化(葉で買う、戦闘をまたぐ成長)への入口
-    addUpgradeButton(this, VIEW.width / 2, 660);
+    addUpgradeButton(this, VIEW.width / 2 - 130, 660);
+    // 耐久モード(1-3 を勝つと開く)
+    const endlessOpen = (stars['1-3'] ?? 0) > 0;
+    const best = loadSave().bestEndless ?? 0;
+    const endless = button(
+      this,
+      VIEW.width / 2 + 150,
+      660,
+      endlessOpen ? 'btn_red' : 'btn_stone',
+      endlessOpen ? `${L.endless}  ${L.best} ${best}` : `${L.endless}  🔒 1-3`,
+      () => {
+        if (!endlessOpen) return;
+        sfx.unlock();
+        this.scene.start('battle', { mode: 'play', stageId: ENDLESS_STAGE.id });
+      },
+      { width: 250, height: 50, size: 18 },
+    );
+    endless.setEnabled(endlessOpen);
   }
 }

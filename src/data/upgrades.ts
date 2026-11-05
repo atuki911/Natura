@@ -58,5 +58,7 @@ export const LEAF_REWARDS = {
   perNewStar: 10,
   /** 負けても少しもらえる(育てて再挑戦できるように)。 */
   defeat: 3,
+  /** 耐久モードで耐えたウェーブ1つごと。 */
+  endlessPerWave: 2,
   regionMult: { 1: 1, 2: 1.5, 3: 2 } as Record<number, number>,
 };

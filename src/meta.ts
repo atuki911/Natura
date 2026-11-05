@@ -181,3 +181,14 @@ export function upgradeLevel(id: string, store: SaveStore = browserStore): numbe
 export function leafCount(store: SaveStore = browserStore): number {
   return store.load().leaves ?? 0;
 }
+
+/** 耐久モードの結果: 耐えたウェーブに応じて葉を渡し、最高記録を更新する。 */
+export function awardEndlessResult(waves: number, store: SaveStore = browserStore): { leaves: number; best: number; newBest: boolean } {
+  const data = store.load();
+  const leaves = Math.max(0, waves) * LEAF_REWARDS.endlessPerWave;
+  const newBest = waves > (data.bestEndless ?? 0);
+  data.leaves = (data.leaves ?? 0) + leaves;
+  data.bestEndless = Math.max(data.bestEndless ?? 0, waves);
+  store.write(data);
+  return { leaves, best: data.bestEndless, newBest };
+}

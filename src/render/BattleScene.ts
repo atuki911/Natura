@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { nextStage, STAGES } from '../data/stages.ts';
+import { ENDLESS_STAGE, nextStage, STAGES } from '../data/stages.ts';
 import { UNIT_ORDER } from '../data/units.ts';
 import { METEOR_DELAY, METEOR_RADIUS, TOWERS, TOWER_ORDER } from '../data/towers.ts';
 import { UNITS } from '../data/units.ts';
@@ -8,8 +8,9 @@ import { platform } from '../platform.ts';
 import { loadSave, updateSave } from '../save.ts';
 import { Bot, BOT_STYLES } from '../sim/bot.ts';
 import { DT, FIELD, RALLY_MIN, TOWER_SLOTS } from '../sim/constants.ts';
-import { CASTLE_TARGET, type AbilityId, type EnemyId, type Fighter, type SimEvent, type TowerId, type UnitId } from '../sim/types.ts';
+import { CASTLE_TARGET, NO_MODS, type AbilityId, type EnemyId, type Fighter, type SimEvent, type TowerId, type UnitId } from '../sim/types.ts';
 import { World } from '../sim/world.ts';
+import { awardEndlessResult, awardStageResult, modsFromSave } from '../meta.ts';
 import { createEnemyView, type EnemyView } from './enemyView.ts';
 import { Fx } from './fx.ts';
 import { Hud } from './Hud.ts';
@@ -152,9 +153,14 @@ export class BattleScene extends Phaser.Scene {
 
   create(): void {
     setupCamera(this);
-    const stage = STAGES.find((s) => s.id === this.config.stageId) ?? STAGES.find((s) => s.id === '1-3') ?? STAGES[0];
+    const stage =
+      this.config.stageId === ENDLESS_STAGE.id
+        ? ENDLESS_STAGE
+        : (STAGES.find((s) => s.id === this.config.stageId) ?? STAGES.find((s) => s.id === '1-3') ?? STAGES[0]);
     const seed = this.config.seed ?? Math.floor(Math.random() * 1e9);
-    this.world = new World(stage, seed);
+    // 強化は人が遊ぶ時だけ効かせる(タイトルの後ろの自動プレイや検証の自動プレイは強化なし)
+    const mods = this.isAttract || this.config.autoplay ? NO_MODS : modsFromSave();
+    this.world = new World(stage, seed, mods);
     if (this.config.startWave && this.config.startWave > 1) {
       this.world.command({ type: 'debugJumpWave', wave: this.config.startWave });
       this.world.command({ type: 'debugGold', amount: 150 * this.config.startWave });
@@ -1139,13 +1145,37 @@ export class BattleScene extends Phaser.Scene {
         this.tweens.add({ targets: star, scale: S * (i === 1 ? 1.25 : 1.05), delay: 300 + i * 220, duration: 300, ease: 'Back.Out', onStart: () => i < stars && sfx.play('coin') });
       }
     }
-    const lines = victory
-      ? `${L.kills}: ${this.world.stats.kills}\n${L.deployed}: ${this.world.stats.unitsDeployed}`
-      : `${L.reached}: ${this.world.wavesStarted} / ${this.world.totalWaves}\n${L.kills}: ${this.world.stats.kills}`;
-    root.add(label(this, VIEW.width / 2, victory ? 372 : 316, lines, { size: 20, color: '#d8e4ff' }));
-    if (!victory) {
+    const endless = !!this.world.stage.endless;
+    const survived = Math.max(0, this.world.wavesStarted - 1);
+    const lines = endless
+      ? `${L.survived}: ${survived}\n${L.kills}: ${this.world.stats.kills}`
+      : victory
+        ? `${L.kills}: ${this.world.stats.kills}\n${L.deployed}: ${this.world.stats.unitsDeployed}`
+        : `${L.reached}: ${this.world.wavesStarted} / ${this.world.totalWaves}\n${L.kills}: ${this.world.stats.kills}`;
+    root.add(label(this, VIEW.width / 2, victory ? 360 : 304, lines, { size: 20, color: '#d8e4ff' }));
+    // 葉(強化に使う通貨)を渡す。自動プレイでは渡さない。
+    if (!this.config.autoplay) {
+      let leaves = 0;
+      let note = '';
+      if (endless) {
+        const r = awardEndlessResult(survived);
+        leaves = r.leaves;
+        note = r.newBest ? L.newRecord : `${L.best}: ${r.best}`;
+      } else {
+        const r = awardStageResult(this.world.stage.id, stars, victory);
+        leaves = r.leaves;
+        note = r.firstClear ? L.firstClear : r.newStars > 0 ? `★ +${r.newStars}` : '';
+      }
+      const y = victory ? 412 : 352;
+      const icon = this.add.image(VIEW.width / 2 - 56, y, 'leaf_icon').setScale(S * 1.2);
+      const amount = label(this, VIEW.width / 2 - 34, y, `+${leaves}`, { size: 28, align: 'left', color: '#b8f08a' });
+      root.add([icon, amount]);
+      if (note) root.add(label(this, VIEW.width / 2 + 60, y, note, { size: 18, align: 'left', color: '#ffe28a' }));
+      this.tweens.add({ targets: [icon, amount], scale: '*=1.25', duration: 160, yoyo: true, delay: 900 });
+    }
+    if (!victory && !endless) {
       const tip = L.tips[Math.floor(Math.random() * L.tips.length)];
-      const tipText = label(this, VIEW.width / 2, 390, `${L.tipTitle}: ${tip}`, { size: 17, color: '#ffe9a8' });
+      const tipText = label(this, VIEW.width / 2, 400, `${L.tipTitle}: ${tip}`, { size: 17, color: '#ffe9a8' });
       tipText.setWordWrapWidth(440, true);
       root.add(tipText);
     }
