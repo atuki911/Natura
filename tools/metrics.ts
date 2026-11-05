@@ -1,7 +1,7 @@
 // 遊びの質の指標を、画面なしの自動プレイで測る。独自性探索の「検証」の関門に使う。
 // 使い方: node tools/metrics.ts [回数]
 
-import { STAGES } from '../src/data/stages.ts';
+import { STAGE_1 } from '../src/data/stages.ts';
 import { UNITS } from '../src/data/units.ts';
 import { Bot, BOT_STYLES } from '../src/sim/bot.ts';
 import { DT } from '../src/sim/constants.ts';
@@ -9,7 +9,7 @@ import type { UnitId } from '../src/sim/types.ts';
 import { World } from '../src/sim/world.ts';
 
 const runs = Number(process.argv[2] ?? 40);
-const stage = STAGES[0];
+const stage = STAGE_1;
 
 interface RunStats {
   win: boolean;

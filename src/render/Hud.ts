@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ABILITIES, ABILITY_ORDER } from '../data/towers.ts';
+import { TREE_RULES } from '../data/trees.ts';
 import { UNITS, UNIT_ORDER } from '../data/units.ts';
 import { t } from '../i18n.ts';
 import { ECONOMY } from '../sim/constants.ts';
@@ -63,6 +64,7 @@ export class Hud {
   private abilities: AbilityButton[] = [];
   private castleBar: Phaser.GameObjects.Graphics;
   private castleText: Phaser.GameObjects.Text;
+  private groveText: Phaser.GameObjects.Text;
   private bossRoot: Phaser.GameObjects.Container;
   private bossBar: Phaser.GameObjects.Graphics;
   private bossName: Phaser.GameObjects.Text;
@@ -140,7 +142,9 @@ export class Hud {
     top.add(scene.add.image(26, 26, 'castle_icon').setScale(S * 1.2));
     this.castleBar = scene.add.graphics();
     this.castleText = label(scene, 156, 26, '', { size: 14 });
-    top.add([this.castleBar, this.castleText]);
+    top.add(scene.add.image(26, 58, 'leaf').setScale(S * 1.6));
+    this.groveText = label(scene, 44, 58, '', { size: 15, align: 'left', color: '#c8f5a8' });
+    top.add([this.castleBar, this.castleText, this.groveText]);
 
     // 上: ボスの体力
     this.bossRoot = scene.add.container(0, 0).setDepth(DEPTH.hud).setVisible(false);
@@ -329,6 +333,7 @@ export class Hud {
     this.castleTrail = Math.max(castleRatio, this.castleTrail - dt * 0.4);
     this.drawBar(this.castleBar, 46, 17, 220, 18, castleRatio, this.castleTrail, castleRatio > 0.35 ? 0x57d65a : 0xe84a4a);
     this.castleText.setText(`${L.castle}  ${Math.ceil(w.castle.hp)}/${w.castle.maxHp}`);
+    this.groveText.setText(`${L.grove} ${w.aliveTrees().length}/${TREE_RULES.maxTrees}`);
 
     // ボスの体力
     const boss = w.boss();
