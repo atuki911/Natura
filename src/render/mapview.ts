@@ -5,9 +5,11 @@ import { stageUnlocked } from '../save.ts';
 import { Path } from '../sim/path.ts';
 import { Rng } from '../sim/rng.ts';
 import { MB } from './builder.ts';
+import { envMap } from './postfx.ts';
 import { toonMat, withOutline, glowMat, swayMat, swayUniform } from './toon.ts';
 import { PALETTES, fbm, buildDecoTypes, pickDeco, SWAYING } from './env.ts';
 import { egg } from './models/towers.ts';
+import { withOutline as _wo } from './toon.ts';
 import { createRig, animateRig, type Rig } from './rig.ts';
 import { ICON } from '../ui/icons.ts';
 
@@ -50,17 +52,24 @@ export class MapView {
   private smoke: { o: THREE.Mesh; t: number }[] = [];
   private flags: THREE.Object3D[] = [];
   private hero: Rig | null = null;
+  private balloon = new THREE.Group();
+  private balloonFrom = new THREE.Vector3();
+  private balloonTo = new THREE.Vector3();
+  private flyT = 1;
+  private trail: THREE.InstancedMesh | null = null;
   private heroBase = new THREE.Vector3();
   private lava: THREE.Mesh | null = null;
   private time = 0;
   private sun: THREE.DirectionalLight;
 
-  constructor(private renderer: THREE.WebGLRenderer, parent: HTMLElement, data: SaveData, heroModel: string, private onSelect: (i: number) => void) {
+  constructor(private renderer: THREE.WebGLRenderer, parent: HTMLElement, data: SaveData, heroModel: string, private onSelect: (i: number) => void, private flyFrom = -1) {
     this.layer = el('div', 'map-layer');
     parent.appendChild(this.layer);
     // light & sky
-    this.scene.add(new THREE.HemisphereLight(0xcfe8ff, 0x7a9a5a, 1.3));
-    this.sun = new THREE.DirectionalLight(0xfff1d6, 2.3);
+    this.scene.add(new THREE.HemisphereLight(0xcfe8ff, 0x7a9a5a, 0.9));
+    this.scene.environment = envMap(renderer);
+    this.scene.environmentIntensity = 0.55;
+    this.sun = new THREE.DirectionalLight(0xfff0d0, 2.8);
     this.sun.position.set(-40, 70, 45);
     this.sun.castShadow = true;
     const sc = this.sun.shadow.camera;
@@ -160,7 +169,7 @@ export class MapView {
       // HTML marker
       const next = unlocked && pr.stars === 0;
       const b = el('div', 'mnode' + (unlocked ? '' : ' locked') + (next ? ' next' : '') + (pr.stars ? ' done r' + st.region : ''));
-      b.innerHTML = `${next ? '<div class="mn-arrow">▼</div>' : ''}<div class="mn-badge outlined">${unlocked ? i + 1 : ICON.lock}</div>
+      b.innerHTML = `${next ? '<div class="mn-arrow">▼</div>' : ''}<div class="mn-medal"><i class="wing l"></i><i class="wing r"></i><div class="mn-badge outlined">${unlocked ? `<small>${st.region + 1}-${(i % 4) + 1}</small>` : ICON.lock}</div></div>
         ${unlocked ? `<div class="mn-stars">${[0, 1, 2].map((k) => (k < pr.stars ? ICON.star : ICON.starEmpty)).join('')}${pr.heroic ? '<i class="mn-b h"></i>' : ''}${pr.iron ? '<i class="mn-b i"></i>' : ''}</div>` : ''}
         ${next ? `<div class="mn-bubble">${i === 0 ? 'ここでスタート!' : '次はここ!'}<small>${st.name}</small></div>` : ''}`;
       b.dataset.i = String(i);
@@ -173,15 +182,59 @@ export class MapView {
       this.labels.push({ pos: ISLANDS[k].label, el: lab });
     });
 
-    // the selected hero waits beside the next stage
+    // the player's egg balloon floats over the next stage, the hero rides in its nest basket
     const next = STAGES.findIndex((_, i) => stageUnlocked(data, i) && data.progress[i].stars === 0);
-    const hp = pts[next >= 0 ? next : STAGES.length - 1];
+    const tgt = next >= 0 ? next : STAGES.length - 1;
+    const hp = pts[tgt];
+    this.balloon = new THREE.Group();
+    {
+      const m = new MB();
+      egg(m, 2.2, [0, 6.2, 0], [0xfff4e0, 0xe5533a, 0xffd23f, 0xe5533a]);
+      m.cyl(0.5, 0.35, 0.5, 0xffd23f, [0, 3.35, 0], [0, 0, 0], 10);
+      for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + 0.4; m.cyl(0.04, 0.04, 2.6, 0x6e4322, [Math.cos(a) * 0.9, 2.25, Math.sin(a) * 0.9], [Math.sin(a) * 0.32, 0, -Math.cos(a) * 0.32], 4); }
+      m.cyl(1.25, 0.95, 1.0, 0xc89a50, [0, 0.55, 0], [0, 0, 0], 14);
+      for (let k = 0; k < 18; k++) { const a = (k / 18) * Math.PI * 2; m.cyl(0.07, 0.07, 1.25, k % 2 ? 0xa07a3a : 0xd8b060, [Math.cos(a) * 1.15, 0.95, Math.sin(a) * 1.15], [0.25 * Math.sin(k), a, Math.PI / 2 - 0.2], 5); }
+      m.cone(0.35, 0.8, 0xe5533a, [0, 8.9, 0], [0, 0, 0], 8);
+      m.box(0.08, 1.4, 0.08, 0x6e4322, [1.3, 1.4, 0]);
+      m.box(0.9, 0.55, 0.04, 0x3d6fb5, [1.75, 1.85, 0], [0, 0, 0], 0.02);
+      const bm = _wo(new THREE.Mesh(m.build(), toonMat()));
+      bm.castShadow = true;
+      this.balloon.add(bm);
+    }
     this.hero = createRig(heroModel);
-    this.heroBase.set(hp.x - 2.6, 0.6, hp.z + 1.2);
-    this.hero.root.position.copy(this.heroBase);
-    this.hero.root.scale.setScalar(2.2);
-    this.hero.root.rotation.y = 0.4;
-    this.scene.add(this.hero.root);
+    this.hero.root.position.set(0, 0.9, 0);
+    this.hero.root.scale.setScalar(0.95);
+    this.hero.root.rotation.y = 0.3;
+    this.balloon.add(this.hero.root);
+    this.balloon.scale.setScalar(1.05);
+    this.balloonTo.set(hp.x + 3.2, 3.2, hp.z + 0.8);
+    const from = this.flyFrom >= 0 && this.flyFrom < pts.length && this.flyFrom !== tgt ? pts[this.flyFrom] : null;
+    this.balloonFrom.copy(from ? new THREE.Vector3(from.x + 3.2, 3.2, from.z + 0.8) : this.balloonTo);
+    this.flyT = from ? 0 : 1;
+    this.balloon.position.copy(this.balloonFrom);
+    this.scene.add(this.balloon);
+
+    // glowing route of light dots over the part of the journey already opened
+    {
+      const reach = Math.min(STAGES.length - 1, Math.max(0, tgt));
+      const dots: THREE.Matrix4[] = [];
+      for (let k = 0; k < reach; k++) {
+        const a = pts[k], b = pts[k + 1];
+        const seg = new Path([{ x: a.x, y: a.z }, { x: b.x, y: b.z }]);
+        for (let d = 2.6; d < seg.length - 2.4; d += 1.25) {
+          const q = seg.at(d);
+          const over = !insideIsland(q.x, q.y);
+          dots.push(new THREE.Matrix4().compose(new THREE.Vector3(q.x, over ? -0.3 : 0.35, q.y), new THREE.Quaternion(), new THREE.Vector3(1, 1, 1)));
+        }
+      }
+      if (dots.length) {
+        const g = new THREE.SphereGeometry(0.32, 8, 6);
+        const im = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ color: 0xfff2a0 }), dots.length);
+        dots.forEach((mm, k) => im.setMatrixAt(k, mm));
+        this.trail = im;
+        this.scene.add(im);
+      }
+    }
 
     // clouds around and between the islands
     const cg = (() => { const m = new MB(); for (let i = 0; i < 6; i++) m.sphere(rng.range(1.8, 2.8), 0xffffff, [i * 1.9 - 4.8, rng.range(-0.3, 0.6), rng.range(-0.9, 0.9)], [1, 0.72, 1], 10); return m.build(); })();
@@ -477,8 +530,17 @@ export class MapView {
     for (const s of old) { this.scene.remove(s.o); s.o.geometry.dispose(); }
     this.smoke = this.smoke.filter((s) => s.t <= 4);
     if (this.hero) {
+      if (this.flyT < 1) this.flyT = Math.min(1, this.flyT + dt / 2.4);
+      const k = this.flyT * this.flyT * (3 - 2 * this.flyT);
+      this.balloon.position.lerpVectors(this.balloonFrom, this.balloonTo, k);
+      this.balloon.position.y += Math.sin(this.time * 1.4) * 0.35 + Math.sin(k * Math.PI) * 3;
+      this.balloon.rotation.z = Math.sin(this.time * 1.1) * 0.05;
       animateRig(this.hero, dt, 0, 0, this.time);
-      this.hero.root.position.y = this.heroBase.y + Math.abs(Math.sin(this.time * 3)) * 0.25;
+      if (this.flyT < 1) { this.target.x += (this.balloon.position.x - this.target.x) * Math.min(1, dt * 3); this.target.y += (this.balloon.position.z - this.target.y) * Math.min(1, dt * 3); }
+    }
+    if (this.trail) {
+      const tm = this.trail.material as THREE.MeshBasicMaterial;
+      tm.color.setRGB(1, 0.95, 0.62).multiplyScalar(2.4 + Math.sin(this.time * 4) * 0.8);
     }
     // HTML markers
     const r = this.renderer.domElement.getBoundingClientRect();
@@ -491,13 +553,15 @@ export class MapView {
     };
     for (const n of this.nodes) place(n.pos, n.el);
     for (const l of this.labels) place(l.pos, l.el);
-    this.renderer.render(this.scene, this.camera);
+    this.renderWith(this.scene, this.camera);
   }
+  /** set by the app so the map shares the battle renderer's glow pass */
+  renderWith: (s: THREE.Scene, c: THREE.Camera) => void = (s, c) => this.renderer.render(s, c);
 
   dispose() {
     this.layer.remove();
     // the hero rig shares cached geometry with battle models: detach it before freeing map geometry
-    if (this.hero) this.scene.remove(this.hero.root);
+    if (this.hero) this.hero.root.parent?.remove(this.hero.root);
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.isMesh && !o.userData.outline && m.geometry) m.geometry.dispose();

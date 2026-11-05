@@ -16,12 +16,17 @@ export function toonGradient(): THREE.DataTexture {
 
 const cache = new Map<string, THREE.Material>();
 
-/** shared vertex-colored toon material */
-export function toonMat(opts: { emissive?: number; emissiveIntensity?: number; transparent?: boolean; opacity?: number } = {}): THREE.MeshToonMaterial {
-  const key = 'toon:' + JSON.stringify(opts);
-  let m = cache.get(key) as THREE.MeshToonMaterial | undefined;
+export type ToonMaterial = THREE.MeshStandardMaterial;
+
+/**
+ * Shared vertex-colored material. Stylised PBR: smooth, slightly glossy shading lit by the sun and a
+ * soft environment (warm highlights, no hard toon bands) — the "polished toy" look.
+ */
+export function toonMat(opts: { emissive?: number; emissiveIntensity?: number; transparent?: boolean; opacity?: number; rough?: number; metal?: number } = {}): ToonMaterial {
+  const key = 'std:' + JSON.stringify(opts);
+  let m = cache.get(key) as ToonMaterial | undefined;
   if (!m) {
-    m = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: toonGradient() });
+    m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: opts.rough ?? 0.58, metalness: opts.metal ?? 0.0, envMapIntensity: 0.75 });
     if (opts.emissive != null) { m.emissive = new THREE.Color(opts.emissive); m.emissiveIntensity = opts.emissiveIntensity ?? 1; }
     if (opts.transparent) { m.transparent = true; m.opacity = opts.opacity ?? 0.8; m.depthWrite = false; }
     cache.set(key, m);
@@ -29,16 +34,23 @@ export function toonMat(opts: { emissive?: number; emissiveIntensity?: number; t
   return m;
 }
 
+/** glossy metal (gold trims, cannon barrels) */
+export function metalMat(): ToonMaterial { return toonMat({ rough: 0.32, metal: 0.65 }); }
+
 /** vertex-colored material that also glows (for magic things) */
 export function glowMat(): THREE.MeshBasicMaterial {
   const key = 'glow';
   let m = cache.get(key) as THREE.MeshBasicMaterial | undefined;
-  if (!m) { m = new THREE.MeshBasicMaterial({ vertexColors: true }); cache.set(key, m); }
+  if (!m) {
+    // pushed above 1.0 so only glowing things (gems, magic, lava, portals) feed the bloom pass
+    m = new THREE.MeshBasicMaterial({ vertexColors: true, color: new THREE.Color(3.2, 3.2, 3.2) });
+    cache.set(key, m);
+  }
   return m;
 }
 
 export const outlineUniforms = {
-  uOutline: { value: 2.0 },
+  uOutline: { value: 1.4 },
   uResolution: { value: new THREE.Vector2(1280, 720) },
 };
 
@@ -53,8 +65,8 @@ const SWAY_GLSL = `
   float swA = sin(swPh) * 0.05 * max(0.0, position.y);
   transformed.x += swA; transformed.z += swA * 0.5;`;
 
-let swayToon: THREE.MeshToonMaterial | null = null;
-export function swayMat(): THREE.MeshToonMaterial {
+let swayToon: ToonMaterial | null = null;
+export function swayMat(): ToonMaterial {
   if (swayToon) return swayToon;
   const m = toonMat().clone();
   m.onBeforeCompile = (shader) => {

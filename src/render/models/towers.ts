@@ -36,6 +36,8 @@ function plinth(mb: MB, r = 1.25, h = 0.35) {
   }
   mb.cyl(r * 1.05, r * 1.12, 0.12, 0x7a6a50, [0, 0.06, 0], [0, 0, 0], 20);
   mb.cyl(r, r * 1.04, h, STONE, [0, 0.06 + h / 2, 0], [0, 0, 0], 16);
+  mb.torus(r * 1.0, 0.07, GOLD, [0, 0.06 + h, 0], [Math.PI / 2, 0, 0]);
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + 0.2; mb.sphere(0.07, 0xd8a020, [Math.cos(a) * r * 1.03, 0.06 + h * 0.55, Math.sin(a) * r * 1.03]); }
   for (let i = 0; i < 10; i++) {
     const a = (i / 10) * Math.PI * 2;
     mb.box(0.32, h * 0.8, 0.12, i % 2 ? STONE_D : STONE_L, [Math.cos(a) * r * 0.99, 0.06 + h / 2, Math.sin(a) * r * 0.99], [0, -a, 0], 0.03);
@@ -304,17 +306,37 @@ function artillery(tier: number, kind?: 'bigegg' | 'tesla'): TowerRig {
   return { body: mb.build(), turret, crew: [{ model: 'gunner', pos: [0.62, y0 + 0.25 + 0.36, -0.55], turret: true }], top: y0 + 1.2 };
 }
 
+const GEM: Record<string, number> = { archer: 0x6fe8a0, barracks: 0x6fc0ff, mage: 0xd08aff, artillery: 0xffa040 };
+/** glowing crystals in a gold setting: a front gem on the plinth, plus a crown gem from rank 3 */
+function withGems(line: string, tier: number, tr: TowerRig): TowerRig {
+  const c = GEM[line] ?? 0x6fe0ff;
+  const g = new MB();
+  const front = (y: number, z: number, r: number) => { g.ico(r, c, [0, y, z], 0, [0.8, 1.15, 0.6]); };
+  front(0.38, 1.3, 0.16);
+  const set = new MB();
+  set.cyl(0.24, 0.24, 0.07, GOLD, [0, 0.38, 1.24], [Math.PI / 2, 0, 0], 10);
+  if (tier >= 3) {
+    g.ico(0.22 + (tier - 3) * 0.06, c, [0, tr.top + 0.95 + tier * 0.05, -0.75], 0, [0.8, 1.3, 0.8]);
+    set.cyl(0.05, 0.08, 0.7, GOLD, [0, tr.top + 0.45 + tier * 0.05, -0.75], [0, 0, 0], 6);
+    set.torus(0.18, 0.04, GOLD, [0, tr.top + 0.78 + tier * 0.05, -0.75], [Math.PI / 2, 0, 0]);
+  }
+  const body = new MB();
+  body.parts.push(tr.body.clone());
+  body.parts.push(set.build());
+  return { ...tr, body: body.build(), glow: g.build() };
+}
+
 export const TOWER_MODELS: Record<string, (tier: number) => TowerRig> = {
-  archer: (t) => archer(t),
-  hawkeye: () => archer(4, 'hawkeye'),
-  gatling: () => archer(4, 'gatling'),
-  barracks: (t) => barracks(t),
-  paladin: () => barracks(4, 'paladin'),
-  berserker: () => barracks(4, 'berserker'),
-  mage: (t) => mage(t),
-  arcane: () => mage(4, 'arcane'),
-  frost: () => mage(4, 'frost'),
-  artillery: (t) => artillery(t),
-  bigegg: () => artillery(4, 'bigegg'),
-  tesla: () => artillery(4, 'tesla'),
+  archer: (t) => withGems('archer', t, archer(t)),
+  hawkeye: () => withGems('archer', 4, archer(4, 'hawkeye')),
+  gatling: () => withGems('archer', 4, archer(4, 'gatling')),
+  barracks: (t) => withGems('barracks', t, barracks(t)),
+  paladin: () => withGems('barracks', 4, barracks(4, 'paladin')),
+  berserker: () => withGems('barracks', 4, barracks(4, 'berserker')),
+  mage: (t) => withGems('mage', Math.min(2, t), mage(t)),
+  arcane: () => withGems('mage', 2, mage(4, 'arcane')),
+  frost: () => withGems('mage', 2, mage(4, 'frost')),
+  artillery: (t) => withGems('artillery', t, artillery(t)),
+  bigegg: () => withGems('artillery', 4, artillery(4, 'bigegg')),
+  tesla: () => withGems('artillery', 2, artillery(4, 'tesla')),
 };

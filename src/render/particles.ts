@@ -12,12 +12,13 @@ void main() {
   gl_Position = projectionMatrix * mv;
 }`;
 const FRAG = `
+uniform float uBoost;
 varying vec4 vColor;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
   float a = vColor.a * smoothstep(0.5, 0.15, d);
-  gl_FragColor = vec4(vColor.rgb, a);
+  gl_FragColor = vec4(vColor.rgb * uBoost, a);
 }`;
 
 export class ParticleSystem {
@@ -35,7 +36,7 @@ export class ParticleSystem {
   private grav: Float32Array;
   private drag: Float32Array;
   private cursor = 0;
-  readonly uniforms = { uScale: { value: 600 } };
+  readonly uniforms = { uScale: { value: 600 }, uBoost: { value: 1 } };
 
   constructor(capacity: number, additive: boolean) {
     this.n = capacity;
@@ -60,6 +61,7 @@ export class ParticleSystem {
       vertexShader: VERT, fragmentShader: FRAG, uniforms: this.uniforms, transparent: true, depthWrite: false,
       blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
+    this.uniforms.uBoost.value = additive ? 2.6 : 1;
     this.points = new THREE.Points(g, m);
     this.points.frustumCulled = false;
     this.points.renderOrder = additive ? 10 : 9;

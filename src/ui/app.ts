@@ -8,7 +8,7 @@ import { UPGRADES, emptyUpgrades } from '../data/upgrades.ts';
 import { load, save, resetSave, totalStars, spentStars, stageUnlocked, type SaveData } from '../save.ts';
 import { audio } from '../audio/audio.ts';
 import { ICON, starsHtml } from './icons.ts';
-import { rigPortrait, towerPortrait, initPortraits, warmPortraits, rigSilhouette, stagePreview } from './portraits.ts';
+import { rigPortrait, towerPortrait, initPortraits, warmPortraits, rigSilhouette, stagePreview, rigPortraitHQ } from './portraits.ts';
 import { Hud, armorWord, speedWord, hpWord } from './hud.ts';
 import { Guide, rectTarget } from './guide.ts';
 import { ITEMS, ITEM, TIPS, gemReward, type ItemId } from '../data/items.ts';
@@ -147,7 +147,8 @@ export class App {
     s.innerHTML = `<div class="logo"><div class="l1">コッコ<span>砦</span>ディフェンス</div><div class="l2 outlined">〜 黄金の卵を守れ! 〜</div></div>
       <button class="btn big gold">${ICON.play.replace('<svg', '<svg width="28" height="28"')} はじめる</button>
       <div class="press outlined">16のステージ・36種の敵・20種のタワー</div>
-      <div class="credit">© コッコ砦ディフェンス</div>`;
+      <div class="credit">© コッコ砦ディフェンス</div>
+      <div class="title-heroes">${HEROES.map((h, k) => `<img class="th th${k}" src="${rigPortraitHQ(h.model)}" alt="${h.name}">`).join('')}</div>`;
     (s.querySelector('button') as HTMLElement).onclick = () => { audio.unlock(); audio.play('cluck'); this.showMap(); };
     this.ui.appendChild(s);
     this.screenEl = s;
@@ -213,7 +214,9 @@ export class App {
       if (!stageUnlocked(d, i)) { audio.play('deny'); return; }
       audio.play('click');
       this.showBriefing(i);
-    });
+    }, this.flyFrom);
+    this.flyFrom = -1;
+    this.map.renderWith = (sc, cam) => { this.world.post.enabled = this.world.quality.shadows; this.world.post.render(sc, cam); };
     const top = el('div', 'map-top');
     const back = el('button', 'btn wood small', 'タイトルへ');
     back.onclick = () => { audio.play('click'); this.showTitle(); };
@@ -332,6 +335,7 @@ export class App {
   finishTutorial() { this.data.tutorialDone = true; save(); }
 
   lockedSpells = new Set<string>();
+  private flyFrom = -1;
   itemCount(id: ItemId) { return this.data.items[id] ?? 0; }
   consumeItem(id: ItemId) { this.data.items[id] = Math.max(0, (this.data.items[id] ?? 0) - 1); save(); }
   tipSeen(id: string) { return this.data.tipsSeen.includes(id); }
@@ -388,6 +392,7 @@ export class App {
     const prevStars = pr.stars;
     let newStars = 0;
     if (won) {
+      if (this.mode === 'campaign' && pr.stars === 0) this.flyFrom = this.stageIdx;
       if (this.mode === 'campaign' && stars > pr.stars) { newStars = stars - pr.stars; pr.stars = stars; }
       if (this.mode === 'heroic' && !pr.heroic) { pr.heroic = true; newStars = 1; }
       if (this.mode === 'iron' && !pr.iron) { pr.iron = true; newStars = 1; }
@@ -605,8 +610,8 @@ export class App {
           <div class="tiplist">${TIPS.map((t) => `<div class="tipitem"><b>${t.title}</b><div>${t.body}</div></div>`).join('')}</div>`;
       } else {
         const list = tab === 'towers'
-          ? TOWERS.map((t) => ({ id: t.id, img: towerPortrait(t.model, t.tier) }))
-          : ENEMIES.map((e) => ({ id: e.id, img: d.seen.includes(e.id) ? rigPortrait(e.model) : rigSilhouette(e.model) }));
+          ? TOWERS.map((t) => ({ id: t.id, img: towerPortrait(t.model, t.tier), cls: 'tl-' + t.line }))
+          : ENEMIES.map((e) => ({ id: e.id, img: d.seen.includes(e.id) ? rigPortrait(e.model) : rigSilhouette(e.model), cls: '' }));
         let detail = '';
         if (tab === 'towers') {
           const t = TOWERS.find((x) => x.id === selId) ?? TOWERS[0];
@@ -623,7 +628,7 @@ export class App {
             : `<img class="portrait" src="${rigSilhouette(e.model)}"><h3>???</h3><p>まだ出会っていない敵です。</p>`;
         }
         c.innerHTML = `<div class="ribbon purple">${tab === 'towers' ? 'タワー' : `敵 (${d.seen.filter((x) => ENEMY[x]).length}/${ENEMIES.length})`}</div><button class="btn small wood ebk" data-tab="home">← 本を選ぶ</button>
-          <div class="ency-body"><div class="ency-grid">${list.map((x) => `<img class="portrait ${x.id === selId ? 'sel' : ''}" data-id="${x.id}" src="${x.img}">`).join('')}</div><div class="ency-detail">${detail}</div></div>`;
+          <div class="ency-body"><div class="ency-grid">${list.map((x) => `<img class="portrait ${x.cls} ${x.id === selId ? 'sel' : ''}" data-id="${x.id}" src="${x.img}">`).join('')}</div><div class="ency-detail">${detail}</div></div>`;
       }
       m.appendChild(c);
       c.querySelectorAll<HTMLElement>('[data-tab]').forEach((t) => t.onclick = () => { audio.play('click'); tab = t.dataset.tab as typeof tab; selId = tab === 'towers' ? 'archer1' : ENEMIES[0].id; render(); });

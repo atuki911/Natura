@@ -6,6 +6,7 @@ import { TOWER_MODELS, egg, type TowerRig } from './models/towers.ts';
 import { MB } from './builder.ts';
 import { toonMat, withOutline, glowMat, outlineUniforms, swayUniform } from './toon.ts';
 import { ParticleSystem, PCOL } from './particles.ts';
+import { Post, envMap } from './postfx.ts';
 
 export type PickKind = 'spot' | 'tower' | 'hero' | 'enemy' | 'ground' | 'none';
 export interface Pick { kind: PickKind; id: number; x: number; y: number; sx: number; sy: number; inside: boolean }
@@ -55,10 +56,11 @@ export class World {
   target = new THREE.Vector2(0, 1);
   dist = 60;
   fitDist = 60;
-  pitch = 1.04;
+  pitch = 0.94;
   playDist = 40;
   private towerRigCache = new Map<string, TowerRig>();
   private nestHen: Rig | null = null;
+  post: Post;
   private projGeo = new Map<string, THREE.BufferGeometry>();
   private iceGeo: THREE.BufferGeometry;
   onTap: (p: Pick) => void = () => {};
@@ -72,13 +74,18 @@ export class World {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.NeutralToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
     container.appendChild(this.renderer.domElement);
+    this.post = new Post(this.renderer);
+    this.scene.environment = envMap(this.renderer);
+    this.scene.environmentIntensity = 0.55;
     this.renderer.domElement.style.touchAction = 'none';
     this.camera = new THREE.PerspectiveCamera(36, 1, 0.5, 600);
 
-    this.hemi = new THREE.HemisphereLight(0xbfdcff, 0x6a8a3a, 1.25);
+    this.hemi = new THREE.HemisphereLight(0xbfdcff, 0x6a8a3a, 0.85);
     this.scene.add(this.hemi);
-    this.sun = new THREE.DirectionalLight(0xfff1d6, 2.4);
+    this.sun = new THREE.DirectionalLight(0xfff0d0, 2.3);
     this.sun.position.set(-28, 50, 30);
     this.sun.castShadow = true;
     const sc = this.sun.shadow.camera;
@@ -214,10 +221,11 @@ export class World {
   resize() {
     const w = this.container.clientWidth || window.innerWidth, h = this.container.clientHeight || window.innerHeight;
     this.renderer.setSize(w, h);
+    this.post?.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     outlineUniforms.uResolution.value.set(w, h);
-    outlineUniforms.uOutline.value = Math.max(1.2, Math.min(2.4, h / 420));
+    outlineUniforms.uOutline.value = Math.max(0.9, Math.min(1.7, h / 560));
     this.pNormal.uniforms.uScale.value = this.pAdd.uniforms.uScale.value = h * 1.1;
     const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const fitW = (w: number) => w / (2 * t * this.camera.aspect);
@@ -412,7 +420,8 @@ export class World {
     this.sun.castShadow = this.quality.shadows;
     this.updateCamera();
     this.sky.position.copy(this.camera.position);
-    this.renderer.render(this.scene, this.camera);
+    this.post.enabled = this.quality.shadows;
+    this.post.render(this.scene, this.camera);
   }
 
   // ───────────────────────── enemies ─────────────────────────
@@ -562,6 +571,7 @@ export class World {
     const body = withOutline(new THREE.Mesh(tr.body, toonMat()));
     body.castShadow = true; body.receiveShadow = true;
     group.add(body);
+    if (tr.glow) group.add(new THREE.Mesh(tr.glow, glowMat()));
     let turret: THREE.Object3D | undefined, orb: THREE.Object3D | undefined;
     if (tr.turret) {
       turret = new THREE.Group();
@@ -780,6 +790,12 @@ export class World {
         this.pAdd.emit(p.x, p.z, p.y, 0, 0, 0, 0.15, 0.5, 0.1, PCOL.fire1);
         break;
       case 'star': this.pAdd.emit(p.x, p.z, p.y, rnd(0.3), rnd(0.3), rnd(0.3), 0.4, 0.5, 0.05, PCOL.gold); break;
+      case 'egg': case 'bigegg': case 'minibomb': {
+        const big = p.kind === 'bigegg' ? 1.6 : p.kind === 'minibomb' ? 0.6 : 1;
+        this.pAdd.emit(p.x, p.z, p.y, rnd(0.3), rnd(0.3), rnd(0.3), 0.28, 0.75 * big, 0.1, r < 0.5 ? PCOL.fire1 : PCOL.fire2);
+        if (r < 0.6) this.pNormal.emit(p.x, p.z, p.y, rnd(0.2), 0.2, rnd(0.2), 0.8, 0.45 * big, 1.1 * big, PCOL.smoke, 0.55, -0.2, 1);
+        break;
+      }
       case 'bomb': case 'megabomb': if (r < 0.5) this.pAdd.emit(p.x, p.z + 0.3, p.y, 0, 0.5, 0, 0.2, 0.2, 0.05, PCOL.spark); break;
       case 'darkbolt': this.pAdd.emit(p.x, p.z, p.y, rnd(0.2), rnd(0.2), rnd(0.2), 0.35, 0.4, 0.05, PCOL.dark); break;
       case 'spit': this.pAdd.emit(p.x, p.z, p.y, 0, -0.5, 0, 0.3, 0.25, 0.05, PCOL.poison); break;

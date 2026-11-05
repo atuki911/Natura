@@ -739,3 +739,39 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #2b1d14; fon
 .bb-story { font-size: calc(20 * var(--s)); line-height: 1.7; }
 .result2 .plank { font-size: calc(26 * var(--s)); padding: calc(14 * var(--s)) calc(40 * var(--s)); }
 .board .plank { font-size: calc(24 * var(--s)); padding: calc(12 * var(--s)) calc(34 * var(--s)); }
+
+/* map: winged egg medals */
+.mn-medal { position: absolute; left: 0; top: calc(-110 * var(--s)); width: 0; height: 0; }
+.mn-medal .mn-badge { position: absolute; left: calc(-36 * var(--s)); top: 0; width: calc(72 * var(--s)); height: calc(86 * var(--s)); border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%; transform: none; font-size: calc(26 * var(--s)); flex-direction: column;
+  background: radial-gradient(circle at 38% 28%, #fff6c8, #ffd23f 45%, #d98a14 85%); box-shadow: 0 0 0 calc(4 * var(--s)) var(--ink), 0 0 0 calc(9 * var(--s)) #fff4d0, 0 0 0 calc(12 * var(--s)) var(--ink), 0 calc(8 * var(--s)) 0 calc(12 * var(--s)) rgba(0,0,0,.3); }
+.mn-medal .mn-badge small { font-size: calc(24 * var(--s)); letter-spacing: calc(-1 * var(--s)); }
+.mn-medal .wing { position: absolute; top: calc(26 * var(--s)); width: calc(46 * var(--s)); height: calc(34 * var(--s)); background: radial-gradient(ellipse at 30% 40%, #ffffff, #e8eef4); border: calc(4 * var(--s)) solid var(--ink); pointer-events: none;
+  border-radius: 70% 30% 60% 40% / 60% 40% 60% 40%; }
+.mn-medal .wing.l { left: calc(-78 * var(--s)); transform: rotate(-14deg); border-radius: 30% 70% 40% 60% / 40% 60% 40% 60%; }
+.mn-medal .wing.r { left: calc(32 * var(--s)); transform: rotate(14deg); }
+.mn-medal .wing::after { content: ''; position: absolute; inset: calc(7 * var(--s)) calc(9 * var(--s)); border-top: calc(3 * var(--s)) solid #b8c4d0; border-radius: 50%; }
+.mnode.next .mn-medal { animation: bob 1.3s ease-in-out infinite; }
+.mnode.next .mn-badge { animation: nodepulse 1.3s ease-in-out infinite; }
+.mnode.done .mn-badge { background: radial-gradient(circle at 38% 28%, #fff6c8, #ffd23f 45%, #d98a14 85%); }
+.mnode.locked .mn-medal .mn-badge { left: calc(-30 * var(--s)); width: calc(60 * var(--s)); height: calc(72 * var(--s)); background: radial-gradient(circle at 38% 28%, #e8e2d8, #a8a092 60%, #6a6258); }
+.mnode.locked .wing { display: none; }
+.mn-stars { top: calc(-16 * var(--s)); }
+.mn-arrow { top: calc(-150 * var(--s)); }
+
+/* title: hero lineup like a key visual */
+.title-screen { justify-content: flex-start; padding-top: calc(70 * var(--s)); }
+.title-heroes { position: absolute; left: 0; right: 0; bottom: calc(-10 * var(--s)); height: calc(330 * var(--s)); pointer-events: none; }
+.th { position: absolute; bottom: 0; width: calc(330 * var(--s)); height: calc(330 * var(--s)); object-fit: contain; filter: drop-shadow(0 calc(10 * var(--s)) calc(12 * var(--s)) rgba(0,0,0,.45)); animation: heroin .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+.th0 { left: 6%; width: calc(360 * var(--s)); height: calc(360 * var(--s)); animation-delay: .1s; }
+.th1 { left: 24%; bottom: calc(-20 * var(--s)); animation-delay: .25s; }
+.th2 { right: 24%; bottom: calc(-20 * var(--s)); animation-delay: .4s; transform: scaleX(-1); }
+.th3 { right: 4%; width: calc(370 * var(--s)); height: calc(370 * var(--s)); animation-delay: .55s; transform: scaleX(-1); }
+@keyframes heroin { from { opacity: 0; translate: 0 calc(80 * var(--s)); } }
+.title-screen .press { position: absolute; bottom: calc(14 * var(--s)); left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; }
+.title-screen > .btn { position: relative; z-index: 2; }
+/* encyclopedia: tower cards tinted by line */
+.ency-grid .portrait.tl-archer { background: radial-gradient(circle at 50% 30%, #e8ffd8, #5fb04a); }
+.ency-grid .portrait.tl-barracks { background: radial-gradient(circle at 50% 30%, #ffe8c8, #d9822b); }
+.ency-grid .portrait.tl-mage { background: radial-gradient(circle at 50% 30%, #f0e0ff, #8e5cd9); }
+.ency-grid .portrait.tl-artillery { background: radial-gradient(circle at 50% 30%, #ffe0d8, #c0392b); }
+.ency-grid .portrait { box-shadow: inset 0 0 0 calc(3 * var(--s)) rgba(255,255,255,.5), 0 calc(4 * var(--s)) 0 rgba(0,0,0,.25); }

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createRig, animateRig } from '../render/rig.ts';
 import { TOWER_MODELS } from '../render/models/towers.ts';
 import { toonMat, withOutline, outlineUniforms } from '../render/toon.ts';
+import { envMap } from '../render/postfx.ts';
 
 let renderer: THREE.WebGLRenderer | null = null;
 let scene: THREE.Scene;
@@ -17,7 +18,9 @@ const SIZE = 192;
 export function initPortraits(r: THREE.WebGLRenderer) {
   renderer = r;
   scene = new THREE.Scene();
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a6a, 1.6));
+  scene.environment = envMap(r);
+  scene.environmentIntensity = 0.6;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a6a, 1.1));
   const d = new THREE.DirectionalLight(0xffffff, 2.2);
   d.position.set(-3, 5, 6);
   scene.add(d);
@@ -30,12 +33,13 @@ export function initPortraits(r: THREE.WebGLRenderer) {
   pixels = new Uint8Array(SIZE * SIZE * 4);
 }
 
-function snap(obj: THREE.Object3D, key: string, tilt = 0.35): string {
+let bigRT: THREE.WebGLRenderTarget | null = null;
+function snap(obj: THREE.Object3D, key: string, tilt = 0.35, SZ = SIZE): string {
   if (!renderer) throw new Error('portraits not initialised');
   const prevRes = outlineUniforms.uResolution.value.clone();
   const prevW = outlineUniforms.uOutline.value;
-  outlineUniforms.uResolution.value.set(SIZE, SIZE);
-  outlineUniforms.uOutline.value = 2.2;
+  outlineUniforms.uResolution.value.set(SZ, SZ);
+  outlineUniforms.uOutline.value = 1.6;
   scene.add(obj);
   obj.updateMatrixWorld(true);
   const box = new THREE.Box3();
@@ -57,21 +61,26 @@ function snap(obj: THREE.Object3D, key: string, tilt = 0.35): string {
   const prevAlpha = renderer.getClearAlpha();
   const prevShadow = renderer.shadowMap.enabled;
   renderer.shadowMap.enabled = false;
-  renderer.setRenderTarget(rt);
+  const target = SZ === SIZE ? rt : (bigRT ??= new THREE.WebGLRenderTarget(SZ, SZ, { samples: 4 }));
+  target.texture.colorSpace = THREE.SRGBColorSpace;
+  const px = SZ === SIZE ? pixels : new Uint8Array(SZ * SZ * 4);
+  renderer.setRenderTarget(target);
   renderer.setClearColor(0x000000, 0);
   renderer.clear();
   renderer.render(scene, camera);
-  renderer.readRenderTargetPixels(rt, 0, 0, SIZE, SIZE, pixels);
+  renderer.readRenderTargetPixels(target, 0, 0, SZ, SZ, px);
   renderer.setRenderTarget(prevTarget);
   renderer.setClearColor(prevClear, prevAlpha);
   renderer.shadowMap.enabled = prevShadow;
-  const img = ctx2d.createImageData(SIZE, SIZE);
-  for (let y = 0; y < SIZE; y++) {
-    const src = (SIZE - 1 - y) * SIZE * 4;
-    img.data.set(pixels.subarray(src, src + SIZE * 4), y * SIZE * 4);
+  const cv = SZ === SIZE ? canvas : Object.assign(document.createElement('canvas'), { width: SZ, height: SZ });
+  const cx = SZ === SIZE ? ctx2d : cv.getContext('2d')!;
+  const img = cx.createImageData(SZ, SZ);
+  for (let y = 0; y < SZ; y++) {
+    const src = (SZ - 1 - y) * SZ * 4;
+    img.data.set(px.subarray(src, src + SZ * 4), y * SZ * 4);
   }
-  ctx2d.putImageData(img, 0, 0);
-  const url = canvas.toDataURL('image/png');
+  cx.putImageData(img, 0, 0);
+  const url = cv.toDataURL('image/png');
   scene.remove(obj);
   outlineUniforms.uResolution.value.copy(prevRes);
   outlineUniforms.uOutline.value = prevW;
@@ -87,6 +96,17 @@ export function warmPortraits(jobs: (() => void)[]) {
     if (jobs.length) setTimeout(step, 30);
   };
   setTimeout(step, 400);
+}
+
+/** large hero art for the title screen */
+export function rigPortraitHQ(model: string): string {
+  const key = 'righq:' + model;
+  const c = cache.get(key);
+  if (c) return c;
+  const rig = createRig(model, { shadow: false });
+  animateRig(rig, 0, 0, 0.2, 0);
+  rig.root.rotation.y = 0.55;
+  return snap(rig.root, key, 0.12, 400);
 }
 
 export function rigPortrait(model: string): string {
@@ -173,7 +193,9 @@ export function stagePreview(i: number): string {
   const sc = new THREE.Scene();
   const pal = PALETTES[st.region];
   sc.background = new THREE.Color(pal.skyHorizon);
-  sc.add(new THREE.HemisphereLight(pal.ambient, pal.hemiGround, 1.4));
+  sc.environment = envMap(renderer);
+  sc.environmentIntensity = 0.55;
+  sc.add(new THREE.HemisphereLight(pal.ambient, pal.hemiGround, 1.0));
   const sun = new THREE.DirectionalLight(pal.sun, 2.3);
   sun.position.set(-30, 50, 30);
   sc.add(sun, env.group);

@@ -13,7 +13,7 @@ export interface Palette {
 }
 
 export const PALETTES: Palette[] = [
-  { grass: 0x86cf4f, grass2: 0x6fbf45, dirt: 0x8a5a32, rock: 0x9a8268, rock2: 0x6e5a4a, lip: 0x4f9a35, path: 0xe9cf95, pathEdge: 0xc9a46a,
+  { grass: 0x74c043, grass2: 0x4f9e34, dirt: 0x8a5a32, rock: 0xa08868, rock2: 0x6e5a4a, lip: 0x3f8a2e, path: 0xe8c98a, pathEdge: 0xb88a52,
     skyTop: 0x4b9cf0, skyHorizon: 0xcdeeff, skyBottom: 0xa8d8ff, mountain: 0x9a7ad0, mountainSnow: 0xf4eeff, fog: 0xbfe2ff, sun: 0xfff1d6, ambient: 0xbfdcff, hemiGround: 0x6a8a3a, cloud: 0xffffff },
   { grass: 0x5aa86a, grass2: 0x47905a, dirt: 0x6a4a3a, rock: 0x7a7068, rock2: 0x55504a, lip: 0x2f7a4a, path: 0xc8b28a, pathEdge: 0x9a8662,
     skyTop: 0x5a7aa8, skyHorizon: 0xd0e0d0, skyBottom: 0xa0b8b0, mountain: 0x5a6a90, mountainSnow: 0xd8e0f0, fog: 0xb8c8c0, sun: 0xf0f0d8, ambient: 0xa8c0c8, hemiGround: 0x3a5a3a, cloud: 0xe8f0ec },
@@ -23,7 +23,7 @@ export const PALETTES: Palette[] = [
     skyTop: 0x3a2050, skyHorizon: 0xff9a6a, skyBottom: 0xb05a4a, mountain: 0x4a2a40, mountainSnow: 0xff7a3a, fog: 0x9a5a5a, sun: 0xffc8a0, ambient: 0xc89aa8, hemiGround: 0x5a2a2a, cloud: 0xd8b0b0 },
 ];
 
-const pathMats = new Map<number, THREE.MeshToonMaterial>();
+const pathMats = new Map<number, THREE.MeshStandardMaterial>();
 function pathMat(level: number) {
   let m = pathMats.get(level);
   if (!m) {
@@ -370,24 +370,77 @@ export function buildEnvironment(region: number, paths: Path[], spots: Spot[], s
   const placements = new Map<string, THREE.Matrix4[]>();
   const castleP = castle.position;
   const portalPts = seenStarts;
-  const tries = 520;
-  for (let t = 0; t < tries; t++) {
-    const x = rng.range(-HX, HX), y = rng.range(-HY, HY);
-    if (islandSD(x, y, seed) > -1.2) continue;
+  const blocked = (x: number, y: number, pdMin: number) => {
+    if (islandSD(x, y, seed) > -1.2) return true;
     const pd = pathDist(x, y);
-    if (pd < 2.7) continue;
-    if (pd < 6 && rng.chance(0.55)) continue;
-    if (spotDist(x, y) < 2.3) continue;
-    if (Math.hypot(castleP.x - x, castleP.z - y) < 5) continue;
-    if (portalPts.some((q) => Math.hypot(q.x - x, q.y - y) < 3.5)) continue;
-    const near = pd < 4.5;
-    const type = pickDeco(rng, region, near);
+    if (pd < pdMin) return true;
+    if (spotDist(x, y) < 2.4) return true;
+    if (Math.hypot(castleP.x - x, castleP.z - y) < 5.2) return true;
+    if (portalPts.some((q) => Math.hypot(q.x - x, q.y - y) < 3.6)) return true;
+    return false;
+  };
+  const put = (type: string, x: number, y: number, scMul = 1) => {
     const def = decoTypes[type];
-    const sc = rng.range(def.scale[0], def.scale[1]);
+    const sc = rng.range(def.scale[0], def.scale[1]) * scMul;
     const m = new THREE.Matrix4().compose(new THREE.Vector3(x, heightAt(x, y) - 0.05, y),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng.range(0, Math.PI * 2), 0)), new THREE.Vector3(sc, sc * rng.range(0.9, 1.15), sc));
     if (!placements.has(type)) placements.set(type, []);
     placements.get(type)!.push(m);
+  };
+  // 1) dense forest that frames the battlefield: every free cell far from the road gets a tree clump
+  const forestTree = region === 2 ? 'pine' : region === 3 ? 'deadtree' : region === 1 ? 'tree' : 'tree';
+  for (let gx = -HX; gx <= HX; gx += 2.3) {
+    for (let gy = -HY; gy <= HY; gy += 2.3) {
+      const x = gx + rng.range(-0.9, 0.9), y = gy + rng.range(-0.9, 0.9);
+      if (blocked(x, y, 6.2)) continue;
+      const pd = pathDist(x, y);
+      if (fbm(x * 0.09 + seed, y * 0.09) < 0.36 && pd < 11) continue; // keep a few clearings
+      const t = region === 1 && rng.chance(0.35) ? 'pine' : region === 3 && rng.chance(0.55) ? 'rock' : region === 2 && rng.chance(0.15) ? 'rock' : forestTree;
+      put(t, x, y, pd > 9 ? 1.25 : 1.05);
+      if (region === 3 && rng.chance(0.16)) put(rng.chance(0.6) ? 'lava' : 'crystal', x + rng.range(-1, 1), y + rng.range(-1, 1), 1.2);
+      if (region === 2 && rng.chance(0.06)) put('crystal', x + rng.range(-1, 1), y + rng.range(-1, 1));
+      if (region !== 3 && rng.chance(0.3)) put('bush', x + rng.range(-1, 1), y + rng.range(-1, 1));
+    }
+  }
+  // 2) the band between road and forest: flowers, bushes, mushrooms, ponds, stumps
+  for (let t = 0; t < 420; t++) {
+    const x = rng.range(-HX, HX), y = rng.range(-HY, HY);
+    if (blocked(x, y, 2.6)) continue;
+    const pd = pathDist(x, y);
+    if (pd > 6.5) continue;
+    put(pickDeco(rng, region, pd < 4.5), x, y);
+  }
+  // 3) wooden fences that follow the road edges in short runs
+  {
+    const fenceGeo = (() => { const mb = new MB();
+      mb.box(0.13, 0.62, 0.13, 0x8a5a32, [-0.8, 0.31, 0], [0, 0, 0], 0.03);
+      mb.box(0.13, 0.62, 0.13, 0x8a5a32, [0.8, 0.31, 0], [0, 0, 0], 0.03);
+      mb.box(1.85, 0.11, 0.08, 0xb07a44, [0, 0.46, 0], [0, 0, 0], 0.02);
+      mb.box(1.85, 0.11, 0.08, 0xb07a44, [0, 0.24, 0], [0, 0, 0.04], 0.02);
+      return mb.build(); })();
+    const fences: THREE.Matrix4[] = [];
+    paths.forEach((p, pi) => {
+      for (let d = 4; d < p.length - 5; d += 1.65) {
+        const run = fbm(d * 0.11 + pi * 7, pi + seed) > 0.52;
+        if (!run) continue;
+        for (const side of [-1, 1]) {
+          if (fbm(d * 0.13 + side * 3, pi * 5 + seed) < 0.45) continue;
+          const q = p.at(d);
+          const w = 2.35;
+          const x = q.x - q.dy * w * side, y = q.y + q.dx * w * side;
+          if (spotDist(x, y) < 1.9 || paths.some((o) => o !== p && o.nearest({ x, y }).dist < 2.2)) continue;
+          if (Math.hypot(castleP.x - x, castleP.z - y) < 5) continue;
+          fences.push(new THREE.Matrix4().compose(new THREE.Vector3(x, 0, y), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -Math.atan2(q.dy, q.dx), 0)), new THREE.Vector3(1, 1, 1)));
+        }
+      }
+    });
+    if (fences.length) {
+      const im = new THREE.InstancedMesh(fenceGeo, toonMat(), fences.length);
+      fences.forEach((m, i) => im.setMatrixAt(i, m));
+      im.castShadow = true; im.receiveShadow = true;
+      withOutline(im);
+      group.add(im);
+    }
   }
   for (const [type, list] of placements) {
     const def = decoTypes[type];
@@ -471,13 +524,18 @@ interface DecoDef { geo: THREE.BufferGeometry; scale: [number, number]; flat?: b
 export function buildDecoTypes(region: number, pal: Palette): Record<string, DecoDef> {
   const out: Record<string, DecoDef> = {};
   const mk = (fn: (mb: MB) => void) => { const mb = new MB(); fn(mb); return mb.build(); };
-  out.tree = { scale: [0.8, 1.35], geo: mk((mb) => {
-    mb.cyl(0.18, 0.28, 1.4, 0x7a4a26, [0, 0.7, 0], [0, 0, 0], 7);
-    const g = region === 1 ? [0x3f8a5a, 0x4f9a6a, 0x2f7a4a] : [0x5fb04a, 0x6fc255, 0x4f9a3a];
-    mb.sphere(1.0, g[0], [0, 2.0, 0], [1, 0.9, 1], 10);
-    mb.sphere(0.75, g[1], [0.55, 2.5, 0.2], [1, 0.9, 1], 9);
-    mb.sphere(0.7, g[2], [-0.5, 2.35, -0.25], [1, 0.9, 1], 9);
-    mb.sphere(0.6, g[1], [0.05, 2.85, -0.1], [1, 0.9, 1], 9);
+  out.tree = { scale: [0.85, 1.3], geo: mk((mb) => {
+    mb.cyl(0.2, 0.3, 1.3, 0x7a4a26, [0, 0.65, 0], [0, 0, 0], 7);
+    const g = region === 1 ? [0x2f7a4a, 0x3f8a5a, 0x4f9a62, 0x6ab070] : [0x3f8f2e, 0x56a83a, 0x6cc044, 0x8ad45a];
+    // layered round canopy: dark core, mid lobes, bright sunlit top (reads as lush at a distance)
+    mb.sphere(1.15, g[0], [0, 2.0, 0], [1, 0.82, 1], 12);
+    mb.sphere(0.85, g[1], [0.7, 2.25, 0.35], [1, 0.85, 1], 10);
+    mb.sphere(0.85, g[1], [-0.7, 2.2, -0.2], [1, 0.85, 1], 10);
+    mb.sphere(0.8, g[1], [0.1, 2.15, -0.75], [1, 0.85, 1], 10);
+    mb.sphere(0.75, g[2], [-0.25, 2.75, 0.3], [1, 0.8, 1], 10);
+    mb.sphere(0.6, g[2], [0.55, 2.7, -0.2], [1, 0.8, 1], 9);
+    mb.sphere(0.42, g[3], [0.0, 3.15, 0.15], [1, 0.75, 1], 8);
+    if (region === 0) { mb.sphere(0.12, 0xe8403a, [0.8, 2.3, 0.9]); mb.sphere(0.12, 0xe8403a, [-0.6, 2.6, 0.75]); }
   }) };
   out.pine = { scale: [0.8, 1.4], geo: mk((mb) => {
     mb.cyl(0.15, 0.22, 1.0, 0x6e4322, [0, 0.5, 0], [0, 0, 0], 6);
