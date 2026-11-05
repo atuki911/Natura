@@ -15,6 +15,8 @@ import { ITEMS, ITEM, TIPS, gemReward, type ItemId } from '../data/items.ts';
 import { MapView } from '../render/mapview.ts';
 
 const el = (tag: string, cls = '', html = '') => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
+/** battle speed relative to real time */
+const GAME_SPEED = 1.5;
 const DIFF_NAMES = ['かんたん', 'ふつう', 'むずかしい'];
 const MODE_INFO: Record<Mode, { name: string; desc: string }> = {
   campaign: { name: 'キャンペーン', desc: 'ライフ20で全ウェーブを守り抜こう。残ったライフで最大★3。' },
@@ -29,7 +31,6 @@ export class App {
   screen: 'title' | 'map' | 'game' = 'title';
   game: Game | null = null;
   hud: Hud | null = null;
-  speed = 1;
   private pauseReasons = new Set<string>();
   private get paused() { return this.pauseReasons.size > 0; }
   guide: Guide;
@@ -83,15 +84,17 @@ export class App {
     let events: GEvent[] = [];
     if (this.screen === 'game' && this.game) {
       const g = this.game;
+      // the battle always runs at 1.5x real time (no separate fast-forward button)
+      const gdt = dt * GAME_SPEED;
       if (!this.paused) {
-        const steps = this.speed;
+        const steps = Math.ceil(gdt / (1 / 40));
         for (let i = 0; i < steps; i++) {
-          g.update(dt);
+          g.update(gdt / steps);
           if (g.events.length) { events = events.concat(g.events); g.events.length = 0; }
         }
       }
-      this.world.frame(this.paused ? 0 : dt, events);
-      this.hud?.update(events, dt);
+      this.world.frame(this.paused ? 0 : gdt, events);
+      this.hud?.update(events, gdt);
       for (const ev of events) if (ev.type === 'end' && !this.ended) { this.ended = true; setTimeout(() => this.showResult(ev.won), 1600); }
     } else if (this.screen === 'title' && this.demo) {
       this.demoStep(dt);
@@ -315,7 +318,6 @@ export class App {
     this.game = g;
     this.lockedSpells = i === 0 && mode === 'campaign' && d.progress[0].stars === 0 ? new Set(['meteor', 'reinforce']) : new Set();
     this.ended = false;
-    this.speed = 1;
     this.screen = 'game';
     this.world.menuMode = false;
     this.world.renderer.domElement.style.display = 'block';

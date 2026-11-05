@@ -13,7 +13,6 @@ import { ITEMS, ITEM, type ItemId } from '../data/items.ts';
 export interface HudHost {
   world: World;
   ui: HTMLElement;
-  speed: number;
   guide: Guide;
   setPaused(p: boolean, reason: string): void;
   isPaused(): boolean;
@@ -50,7 +49,6 @@ export class Hud {
   private goldEl: HTMLElement;
   private livesEl: HTMLElement;
   private waveEl: HTMLElement;
-  private speedBtn: HTMLButtonElement;
   private heroBtn: HTMLElement | null = null;
   private meteorBtn: HTMLElement;
   private reinfBtn: HTMLElement;
@@ -96,13 +94,10 @@ export class Hud {
     top.append(row1, row2);
     this.root.appendChild(top);
     const right = el('div', 'hud-right');
-    this.speedBtn = el('button', 'sqbtn outlined', '') as HTMLButtonElement;
-    this.speedBtn.onclick = () => { audio.play('click'); this.host.speed = this.host.speed >= 3 ? 1 : this.host.speed + 1; this.refreshSpeed(); };
     const pause = el('button', 'sqbtn', ICON.pause);
     pause.onclick = () => { audio.play('click'); this.host.openPauseMenu(); };
-    right.append(this.speedBtn, pause);
+    right.append(pause);
     this.root.appendChild(right);
-    this.refreshSpeed();
 
     const bottom = el('div', 'hud-bottom');
     this.meteorBtn = el('div', 'spell meteor', `<div class="spell-face">${ICON.meteorArt}</div><div class="shine"></div><div class="cd"></div><div class="cdtext outlined"></div><div class="lockface">${ICON.lock}</div><div class="spell-name outlined">卵メテオ</div>`);
@@ -162,7 +157,6 @@ export class Hud {
     this.host.world.heroSelected = false;
   }
 
-  private refreshSpeed() { this.speedBtn.innerHTML = `<span>x${this.host.speed}</span>`; }
 
   // ───────────────────────── input ─────────────────────────
   private onHeroButton() {
