@@ -260,6 +260,23 @@ export const STAGE_3_3: StageDef = {
   ],
 };
 
+/** 耐久モード。1-3 を勝つと遊べる。何ウェーブ耐えたかを競う。 */
+export const ENDLESS_STAGE: StageDef = {
+  id: 'endless',
+  region: 2,
+  index: 0,
+  name: { en: 'Endless Blight', ja: '果てなき穢れ' },
+  background: 'bg_region2',
+  units: ALL_UNITS,
+  endless: true,
+  startGold: 300,
+  startMana: 80,
+  castleHp: 1000,
+  firstBreak: 8,
+  breakTime: 10,
+  waves: [],
+};
+
 export const STAGES: StageDef[] = [STAGE_1_1, STAGE_1_2, STAGE_1_3, STAGE_2_1, STAGE_2_2, STAGE_2_3, STAGE_3_1, STAGE_3_2, STAGE_3_3];
 
 /** テストと計測で使う、全部の兵が出せる10ウェーブのステージ。 */

@@ -171,6 +171,8 @@ export interface StageDef {
   units: UnitId[];
   /** 最初の1回だけ遊び方の手引きを出す。 */
   tutorial?: boolean;
+  /** 耐久モード: ウェーブが終わらず、番号が進むほど強くなる。waves は使わない。 */
+  endless?: boolean;
   /** 敵の体力の倍率(ステージごとの難しさの調整)。 */
   enemyHpScale?: number;
   /** 敵の攻撃力の倍率。 */

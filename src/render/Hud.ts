@@ -319,11 +319,11 @@ export class Hud {
     }
 
     // ウェーブ
-    this.waveTitle.setText(`${L.waveBanner} ${Math.max(1, w.wavesStarted)} / ${w.totalWaves}`);
+    this.waveTitle.setText(w.stage.endless ? `${L.waveBanner} ${Math.max(1, w.wavesStarted)}` : `${L.waveBanner} ${Math.max(1, w.wavesStarted)} / ${w.totalWaves}`);
     this.waveBar.clear();
     this.waveBar.fillStyle(0x0e1420, 1);
     this.waveBar.fillRoundedRect(668, 636, 216, 10, 4);
-    const progress = Math.min(1, (w.wavesStarted - (w.phase === 'wave' ? 0.5 : 0)) / w.totalWaves);
+    const progress = w.stage.endless ? ((w.wavesStarted - 1) % 5) / 5 + (w.phase === 'wave' ? 0.1 : 0.2) : Math.min(1, (w.wavesStarted - (w.phase === 'wave' ? 0.5 : 0)) / w.totalWaves);
     this.waveBar.fillStyle(0x5fa8ff, 1);
     this.waveBar.fillRoundedRect(668, 636, Math.max(8, 216 * progress), 10, 4);
     this.waveBar.lineStyle(2, 0x1c1726, 1);

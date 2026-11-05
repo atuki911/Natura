@@ -11,6 +11,8 @@ import {
 import { TREE_OF_UNIT, TREE_RULES, TREES } from '../data/trees.ts';
 import { UNITS } from '../data/units.ts';
 import { CASTLE_ARCHER, DT, ECONOMY, FIELD, RALLY_MIN, TOWER_SLOTS } from './constants.ts';
+import { ENDLESS } from '../data/endless.ts';
+import { endlessPower, endlessWave } from './endless.ts';
 import { Rng } from './rng.ts';
 import {
   CASTLE_TARGET,
@@ -343,7 +345,7 @@ export class World {
     }
     if (this.spawnQueue.length === 0 && this.enemies().length === 0) {
       this.events.push({ t: 'waveClear', wave: this.wavesStarted });
-      if (this.wavesStarted >= this.totalWaves) {
+      if (!this.stage.endless && this.wavesStarted >= this.totalWaves) {
         this.phase = 'victory';
         this.events.push({ t: 'victory' });
       } else {
@@ -354,7 +356,7 @@ export class World {
   }
 
   private startWave(): void {
-    const wave = this.stage.waves[this.wavesStarted];
+    const wave = this.stage.endless ? endlessWave(this.wavesStarted + 1, this.rng) : this.stage.waves[this.wavesStarted];
     this.wavesStarted++;
     this.waveTime = 0;
     this.phase = 'wave';
@@ -372,9 +374,10 @@ export class World {
 
   private addFighter(side: Side, def: FighterDef, x: number): Fighter {
     if (side === 'enemy') {
-      // ステージごとの難しさ: 敵の体力と攻撃力に倍率をかけた写しを使う。
-      const hpScale = this.stage.enemyHpScale ?? 1;
-      const dmgScale = this.stage.enemyDamageScale ?? 1;
+      // ステージごとの難しさ: 敵の体力と攻撃力に倍率をかけた写しを使う(耐久モードはウェーブごとに強くなる)。
+      const endless = this.stage.endless ? endlessPower(Math.max(1, this.wavesStarted)) * (isEnemyDef(def) && def.boss ? ENDLESS.bossScale : 1) : 1;
+      const hpScale = (this.stage.enemyHpScale ?? 1) * endless;
+      const dmgScale = (this.stage.enemyDamageScale ?? 1) * endless;
       if (hpScale !== 1 || dmgScale !== 1) def = { ...def, hp: Math.round(def.hp * hpScale), damage: def.damage * dmgScale };
     }
     const special = isEnemyDef(def) ? def.special : null;
