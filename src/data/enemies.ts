@@ -1,10 +1,11 @@
 import type { EnemyDef, EnemyId } from '../sim/types.ts';
 
-// 敵。「穢れ(Blight)」から湧き出す生き物たち。
+// 敵。「穢れ(Blight)」から湧き出す生き物たち。ward は魔法ダメージの軽減率(穢れの生き物は魔法を少し弾く)。
 
 const base = {
   splash: 0,
   armor: 0,
+  ward: 0,
   magic: false,
   hitsFlying: false,
   flying: false,
@@ -20,6 +21,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
   blightling: {
     ...base,
     id: 'blightling',
+    ward: 0.3,
     hp: 60,
     damage: 8,
     range: 30,
@@ -33,6 +35,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
   gnasher: {
     ...base,
     id: 'gnasher',
+    ward: 0.3,
     hp: 42,
     damage: 6,
     range: 28,
@@ -57,13 +60,14 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     knockback: 30,
     bounty: 24,
   },
-  /** 空を飛ぶ影。近接攻撃が届かない。 */
+  /** 空を飛ぶ影。近接攻撃が届かず、魔法にも強い。 */
   wisp: {
     ...base,
     id: 'wisp',
+    ward: 0.5,
     hp: 55,
-    damage: 10,
-    range: 170,
+    damage: 12,
+    range: 120,
     attackInterval: 1.6,
     windup: 0.4,
     speed: 45,
@@ -76,6 +80,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
   rollereye: {
     ...base,
     id: 'rollereye',
+    ward: 0.3,
     hp: 150,
     damage: 14,
     range: 34,
@@ -86,19 +91,20 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     bounty: 14,
     special: { type: 'charge', damageMult: 3, knockback: 90, slowAfter: 0.45 },
   },
-  /** ボス。叩きつけで周りをまとめて攻撃し、雑魚を吐き出す。 */
+  /** ボス。叩きつけで周りをまとめて攻撃し、雑魚を吐き出す。魔法に強く、茨で足を止めて物理で削る相手。 */
   mireMaw: {
     ...base,
     id: 'mireMaw',
-    hp: 5900,
-    damage: 48,
+    ward: 0.65,
+    hp: 9500,
+    damage: 72,
     range: 80,
     attackInterval: 2.4,
     windup: 0.7,
-    speed: 14,
+    speed: 22,
     attack: 'slam',
-    splash: 130,
-    armor: 0.2,
+    splash: 80,
+    armor: 0,
     knockback: 70,
     bounty: 300,
     boss: true,

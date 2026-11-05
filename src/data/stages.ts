@@ -12,7 +12,7 @@ export const STAGE_1: StageDef = {
   id: 'stage1',
   startGold: 250,
   startMana: 60,
-  castleHp: 1500,
+  castleHp: 900,
   firstBreak: 10,
   breakTime: 12,
   waves: [
