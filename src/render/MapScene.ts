@@ -6,6 +6,7 @@ import type { StageDef } from '../sim/types.ts';
 import { ART_SCALE, DEPTH, VIEW, setupCamera } from './layout.ts';
 import { INK_HEX } from './palette.ts';
 import { sfx } from './sfx.ts';
+import { addUpgradeButton } from './UpgradeScene.ts';
 import { button, label } from './widgets.ts';
 
 // ステージ選択の地図。3つの地域に3ステージずつ。前のステージを1度でも勝つと次が開く。
@@ -94,5 +95,7 @@ export class MapScene extends Phaser.Scene {
     const total = STAGES.reduce((sum, s) => sum + (stars[s.id] ?? 0), 0);
     label(this, VIEW.width - 40, 660, `★ ${total} / ${STAGES.length * 3}`, { size: 24, align: 'right', color: '#ffe28a' }).setDepth(DEPTH.hud);
     button(this, 110, 660, 'btn_stone', L.back, () => this.scene.start('title'), { width: 160, height: 50, size: 20 });
+    // 強化(葉で買う、戦闘をまたぐ成長)への入口
+    addUpgradeButton(this, VIEW.width / 2, 660);
   }
 }
