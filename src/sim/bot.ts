@@ -31,6 +31,33 @@ export const BOT_STYLES: Record<string, BotStyle> = {
     useAbilities: true,
     callEarly: false,
   },
+  /** 近接で押す作戦。剣士と爆弾兵が中心。 */
+  rush: {
+    name: 'rush',
+    thinkEvery: 0.6,
+    mix: { sword: 5, bomber: 2, archer: 1 },
+    buildTowers: false,
+    useAbilities: true,
+    callEarly: false,
+  },
+  /** 遠距離とタワーで守る作戦。 */
+  ranged: {
+    name: 'ranged',
+    thinkEvery: 0.6,
+    mix: { archer: 4, sword: 2 },
+    buildTowers: true,
+    useAbilities: true,
+    callEarly: false,
+  },
+  /** 魔法と能力に頼る作戦。 */
+  magic: {
+    name: 'magic',
+    thinkEvery: 0.6,
+    mix: { mage: 3, sword: 2 },
+    buildTowers: false,
+    useAbilities: true,
+    callEarly: false,
+  },
   /** 剣士だけを出す、考えない人。勝てないくらいがよい。 */
   swordOnly: {
     name: 'swordOnly',
