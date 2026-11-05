@@ -1,6 +1,6 @@
 import '@fontsource/lilita-one/400.css';
 import Phaser from 'phaser';
-import { setLang } from './i18n.ts';
+import { setLang, t } from './i18n.ts';
 import { BattleScene } from './render/BattleScene.ts';
 import { BootScene } from './render/BootScene.ts';
 import { CANVAS } from './render/layout.ts';
@@ -33,6 +33,19 @@ async function start(): Promise<void> {
   // 検証ツール(tools/screenshot.mjs)から状態を読めるようにする
   (window as unknown as { __natura: Phaser.Game }).__natura = game;
   window.addEventListener('pointerdown', () => sfx.unlock(), { once: true });
+  addRotateHint();
+}
+
+/** スマホを縦に持っている時は、横にしてもらう案内を出す。 */
+function addRotateHint(): void {
+  const style = document.createElement('style');
+  style.textContent = `#rotate-hint{display:none;position:fixed;inset:0;z-index:20;background:#14121f;color:#e8ffd0;font:24px "Lilita One",sans-serif;align-items:center;justify-content:center;text-align:center;padding:24px}
+@media (orientation: portrait) and (max-width: 900px){#rotate-hint{display:flex}}`;
+  document.head.appendChild(style);
+  const hint = document.createElement('div');
+  hint.id = 'rotate-hint';
+  hint.textContent = `⟳ ${t().rotate}`;
+  document.body.appendChild(hint);
 }
 
 void start();

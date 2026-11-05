@@ -207,6 +207,8 @@ export interface Fighter {
   summonTimer: number;
   /** これまでに呼び出した数(呼び出す種類を順番に変える時に使う)。 */
   summonCount: number;
+  /** 向き(1=右、-1=左)。味方は旗へ戻る時だけ左を向く。 */
+  facing: 1 | -1;
   /** 出てからの秒数。 */
   age: number;
   /** 与えたダメージの合計(倒れた時に木になるかを決める)。 */

@@ -9,7 +9,7 @@ export const TREES: Record<TreeId, TreeDef> = {
     id: 'thornBush',
     hp: 450,
     growTime: 2.5,
-    decayPerSecond: 3,
+    decayPerSecond: 1.5,
     radius: 90,
     blocks: true,
     trampleDps: 0,
@@ -24,7 +24,7 @@ export const TREES: Record<TreeId, TreeDef> = {
     id: 'watchTree',
     hp: 160,
     growTime: 3,
-    decayPerSecond: 1.5,
+    decayPerSecond: 0.8,
     radius: 26,
     blocks: false,
     trampleDps: 6,
@@ -39,7 +39,7 @@ export const TREES: Record<TreeId, TreeDef> = {
     id: 'manaFlower',
     hp: 110,
     growTime: 3,
-    decayPerSecond: 1,
+    decayPerSecond: 0.5,
     radius: 22,
     blocks: false,
     trampleDps: 8,
@@ -81,6 +81,8 @@ export const TREE_RULES = {
   minSpacing: 30,
   /** 太らせる時に戻る HP の割合。 */
   reinforceRatio: 0.5,
+  /** 倒れた場所に木がある時、城の側へ何か所まで空きを探すか。 */
+  spreadSteps: 4,
   /**
    * 木になるのに要る、兵が与えたダメージの合計。
    * 戦わずに倒れた兵(出してすぐ死ぬ兵)では木が生えない。

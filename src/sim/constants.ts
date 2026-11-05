@@ -22,7 +22,12 @@ export const RALLY_MIN = 330;
 export const TOWER_SLOTS = [380, 590, 790];
 
 export const ECONOMY = {
-  goldPerSecond: 5,
+  /**
+   * 時間で入るゴールド。旗(前線)が前にあるほど多い(取り戻した土地が実りを生む)。
+   * 旗が一番手前なら goldPerSecondMin、門の前なら goldPerSecond。
+   */
+  goldPerSecond: 6,
+  goldPerSecondMin: 4,
   manaPerSecond: 3,
   maxMana: 200,
   /** 休憩を早めに切り上げた時、残り1秒ごとにもらえるゴールド。 */

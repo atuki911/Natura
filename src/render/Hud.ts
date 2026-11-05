@@ -30,6 +30,7 @@ export interface HudActions {
   pause(): void;
   speed(): void;
   mute(): void;
+  stance(which: 'defend' | 'advance'): void;
 }
 
 interface Card {
@@ -55,7 +56,8 @@ export class Hud {
   private goldText: Phaser.GameObjects.Text;
   private manaText: Phaser.GameObjects.Text;
   private manaBar: Phaser.GameObjects.Graphics;
-  private waveText: Phaser.GameObjects.Text;
+  private defendBtn: Button;
+  private advanceBtn: Button;
   private waveTitle: Phaser.GameObjects.Text;
   private waveBar: Phaser.GameObjects.Graphics;
   private nextButton: Button;
@@ -93,10 +95,12 @@ export class Hud {
     root.add(label(scene, 46, 660, L.mana, { size: 17, align: 'left', color: '#9fe8ff' }));
     this.manaText = label(scene, 222, 660, '0', { size: 18, align: 'right', color: '#9fe8ff' });
     this.manaBar = scene.add.graphics();
-    root.add(scene.add.image(28, 698, 'flag_icon').setScale(S * 1.05));
-    root.add(label(scene, 46, 698, L.wave, { size: 17, align: 'left', color: '#d8e4ff' }));
-    this.waveText = label(scene, 222, 698, '', { size: 18, align: 'right', color: '#d8e4ff' });
-    root.add([this.goldText, this.manaText, this.manaBar, this.waveText]);
+    root.add([this.goldText, this.manaText, this.manaBar]);
+
+    // 旗の命令: 守る(城の近くで踏みとどまる)・進め(門の前まで押し込む)
+    this.defendBtn = button(scene, 72, 699, 'btn_stone', `◀ ${L.defend}`, () => actions.stance('defend'), { width: 112, height: 38, size: 16 });
+    this.advanceBtn = button(scene, 180, 699, 'btn_stone', `${L.advance} ▶`, () => actions.stance('advance'), { width: 104, height: 38, size: 16 });
+    root.add([this.defendBtn.root, this.advanceBtn.root]);
 
     // ユニットのカード
     UNIT_ORDER.filter((u) => world.stage.units.includes(u)).forEach((unit, i) => {
@@ -195,6 +199,9 @@ export class Hud {
       e?.stopPropagation?.();
       scene.tweens.add({ targets: root, scaleX: 0.9, scaleY: 0.9, duration: 50, yoyo: true });
       onClick();
+      // タッチでは「乗せる」が無いので、押した時にも少しだけ説明を出す
+      this.showTooltip(x, y - 78, t().units[unit], t().unitInfo[unit]);
+      scene.time.delayedCall(1400, () => this.tooltip.setVisible(false));
     });
     bg.on('pointerover', () => {
       scene.tweens.add({ targets: root, y: y - 4, duration: 90 });
@@ -276,7 +283,9 @@ export class Hud {
     this.manaBar.fillRoundedRect(46, 673, 176, 5, 2);
     this.manaBar.fillStyle(hex(COLORS.mana), 1);
     this.manaBar.fillRoundedRect(46, 673, 176 * (w.mana / ECONOMY.maxMana), 5, 2);
-    this.waveText.setText(`${Math.max(1, w.wavesStarted)}/${w.totalWaves}`);
+    const defending = w.rallyX < 600;
+    this.defendBtn.bg.setTexture(defending ? 'btn_gold' : 'btn_stone');
+    this.advanceBtn.bg.setTexture(defending ? 'btn_stone' : 'btn_gold');
 
     for (const card of this.cards) {
       const def = UNITS[card.unit];

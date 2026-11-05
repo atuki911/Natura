@@ -1,6 +1,10 @@
 import { ABILITIES, METEOR_RADIUS, TOWERS } from '../data/towers.ts';
 import { UNITS } from '../data/units.ts';
+import { FIELD } from './constants.ts';
 import type { World } from './world.ts';
+
+const HOLD_X = 430;
+const MID_X = 650;
 import type { TowerId, UnitId } from './types.ts';
 
 /**
@@ -19,6 +23,8 @@ export interface BotStyle {
   useAbilities: boolean;
   /** 休憩を切り上げて次のウェーブを呼ぶか。 */
   callEarly: boolean;
+  /** 旗の動かし方。adaptive: 押せる時は前へ、押される時は下がる。省略すると動かさない(門の前のまま)。 */
+  rally?: 'adaptive' | 'hold' | 'advance';
   /** 木の実・花の蜜を摘み、枯れかけの木を引き抜くか。 */
   tendTrees: boolean;
 }
@@ -27,6 +33,7 @@ export const BOT_STYLES: Record<string, BotStyle> = {
   /** ふつうの上手さの人。目安の勝率はここで測る。 */
   standard: {
     name: 'standard',
+    rally: 'adaptive',
     thinkEvery: 0.6,
     mix: { sword: 4, archer: 3, mage: 1.5, bomber: 1 },
     buildTowers: true,
@@ -67,6 +74,18 @@ export const BOT_STYLES: Record<string, BotStyle> = {
   /** 気軽に遊ぶ人。考えるのが遅く、木の世話をしない。人に近い難しさの目安に使う。 */
   casual: {
     name: 'casual',
+    rally: 'adaptive',
+    thinkEvery: 1.2,
+    mix: { sword: 4, archer: 3, mage: 1.5, bomber: 1 },
+    buildTowers: true,
+    useAbilities: true,
+    callEarly: false,
+    tendTrees: false,
+  },
+  /** 旗を常に城の近くに置く人(検証用)。 */
+  hold: {
+    name: 'hold',
+    rally: 'hold',
     thinkEvery: 1.2,
     mix: { sword: 4, archer: 3, mage: 1.5, bomber: 1 },
     buildTowers: true,
@@ -116,6 +135,7 @@ export class Bot {
 
     if (style.tendTrees) this.tendTrees(world);
     if (style.useAbilities) this.useAbilities(world);
+    if (style.rally) this.moveRally(world, style.rally);
 
     if (style.buildTowers && world.wavesStarted >= 2) {
       const slot = world.towers.findIndex((t) => t === null);
@@ -166,6 +186,20 @@ export class Bot {
       }
     }
     return best;
+  }
+
+  /** 旗を動かす。押されている時は下がって城と塔の近くで守り、余裕がある時は前へ出て稼ぐ。 */
+  private moveRally(world: World, mode: 'adaptive' | 'hold' | 'advance'): void {
+    let x = FIELD.rallyX;
+    if (mode === 'hold') x = HOLD_X;
+    if (mode === 'adaptive') {
+      const enemyPower = world.enemies().reduce((sum, e) => sum + e.hp * Math.max(1, e.def.damage / 10), 0);
+      const allyPower = world.allies().reduce((sum, a) => sum + a.hp * Math.max(1, a.def.damage / 10), 0);
+      const pressed = world.boss() !== undefined || enemyPower > allyPower * 1.2;
+      const castleLow = world.castle.hp < world.castle.maxHp * 0.5;
+      x = castleLow ? HOLD_X : pressed ? MID_X : FIELD.rallyX;
+    }
+    if (Math.abs(world.rallyX - x) > 1) world.command({ type: 'rally', x });
   }
 
   /** 実や蜜のたまった木を摘み、枯れかけの木は引き抜いてゴールドにする。 */

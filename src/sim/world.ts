@@ -168,6 +168,12 @@ export class World {
     return this.trees.filter((t) => t.alive && t.growing <= 0 && t.def.nectar && t.nectar >= t.def.nectar.minHarvest);
   }
 
+  /** 今の時間あたりのゴールド。旗が前にあるほど多い。 */
+  incomePerSecond(): number {
+    const k = (this.rallyX - RALLY_MIN) / (FIELD.rallyX - RALLY_MIN);
+    return ECONOMY.goldPerSecondMin + (ECONOMY.goldPerSecond - ECONOMY.goldPerSecondMin) * Math.max(0, Math.min(1, k));
+  }
+
   /** 1/60 秒進める。 */
   step(): void {
     this.events = [];
@@ -177,7 +183,7 @@ export class World {
     if (this.ended) return;
 
     this.time += DT;
-    this.gold += ECONOMY.goldPerSecond * DT;
+    this.gold += this.incomePerSecond() * DT;
     this.mana = Math.min(ECONOMY.maxMana, this.mana + ECONOMY.manaPerSecond * this.mods.manaRegenMult * DT);
     for (const key of Object.keys(this.unitCooldowns) as UnitId[]) this.unitCooldowns[key] -= DT;
     for (const key of Object.keys(this.abilityCooldowns) as AbilityId[]) this.abilityCooldowns[key] -= DT;
@@ -389,6 +395,7 @@ export class World {
       charged: false,
       summonTimer: special?.type === 'summon' ? special.every * 0.6 : 0,
       summonCount: 0,
+      facing: side === 'ally' ? 1 : -1,
       age: 0,
       dealt: 0,
       slowTimer: 0,
@@ -456,11 +463,18 @@ export class World {
       // 旗の位置まで進む。同じ位置に重ならないよう、兵ごとに少しずらす。
       const spread = ((f.id * 37) % 56) - 28;
       const limit = isRanged(f.def.attack) ? this.rallyX - FIELD.rangedRallyOffset - ((f.id * 53) % 50) : this.rallyX + spread;
-      if (f.x < limit) {
+      if (f.x < limit - 2) {
         f.x = Math.min(limit, f.x + f.def.speed * DT);
         f.state = 'walk';
+        f.facing = 1;
+      } else if (f.x > limit + 2) {
+        // 旗が下げられたら、戻って旗のところで守る。
+        f.x = Math.max(limit, f.x - f.def.speed * DT);
+        f.state = 'walk';
+        f.facing = -1;
       } else {
         f.state = 'idle';
+        f.facing = 1;
       }
     } else {
       const charged = special?.type === 'charge' && f.charged ? special.slowAfter : 1;
@@ -661,9 +675,21 @@ export class World {
       this.mods.treeHpMult === 1 && this.mods.treeDecayMult === 1
         ? baseDef
         : { ...baseDef, hp: Math.round(baseDef.hp * this.mods.treeHpMult), decayPerSecond: baseDef.decayPerSecond * this.mods.treeDecayMult };
-    const near = this.trees.find((t) => t.alive && Math.abs(t.x - f.x) < TREE_RULES.minSpacing);
-    if (near) {
-      if (near.def.id !== def.id) return;
+    // 倒れた場所が空いていればそこに、木があれば城の側へずらして生やす(森が前線から後ろへ広がる)。
+    // 空きが無ければ、近くの同じ種類の木を太らせる。
+    const isFree = (x: number) => !this.trees.some((t) => t.alive && Math.abs(t.x - x) < TREE_RULES.minSpacing);
+    let spotX: number | null = null;
+    for (let k = 0; k <= TREE_RULES.spreadSteps; k++) {
+      const x = f.x - k * TREE_RULES.minSpacing * 1.4;
+      if (x < FIELD.castleX + 40) break;
+      if (isFree(x)) {
+        spotX = x;
+        break;
+      }
+    }
+    if (spotX === null) {
+      const near = this.trees.find((t) => t.alive && t.def.id === def.id && Math.abs(t.x - f.x) < TREE_RULES.minSpacing * 4);
+      if (!near) return;
       const amount = Math.round(Math.min(near.maxHp - near.hp, near.maxHp * TREE_RULES.reinforceRatio));
       near.hp += amount;
       this.events.push({ t: 'treeReinforce', id: near.id, amount });
@@ -678,7 +704,7 @@ export class World {
       id: this.nextId++,
       def,
       from: unit,
-      x: f.x,
+      x: spotX,
       row: f.row,
       hp: def.hp,
       maxHp: def.hp,

@@ -20,6 +20,7 @@ export class Tutorial {
   private timer = 0;
   private seenTree = false;
   private seenBreak = false;
+  private flagShown = false;
 
   constructor(scene: Phaser.Scene, world: World, cardPos: { x: number; y: number }) {
     this.scene = scene;
@@ -59,7 +60,16 @@ export class Tutorial {
     if (this.step === 'done') return;
     if (this.timer > 0) {
       this.timer -= dt;
-      if (this.timer <= 0) this.hide();
+      if (this.timer <= 0) {
+        this.hide();
+        // 戦い方を伝えた後は、旗で兵の位置を決められることを教える
+        if (this.step === 'fight' && !this.flagShown) {
+          this.flagShown = true;
+          this.show(t().flagHint, this.world.rallyX, 350, 'down');
+          this.timer = 6;
+          return;
+        }
+      }
     }
     // 木が実ったら、摘み方を教える
     if ((this.step === 'tree' || this.step === 'fight' || this.step === 'nextWave') && this.timer <= 0 && this.step !== 'nextWave') {

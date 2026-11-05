@@ -7,13 +7,13 @@ import { t } from '../i18n.ts';
 import { platform } from '../platform.ts';
 import { loadSave, updateSave } from '../save.ts';
 import { Bot, BOT_STYLES } from '../sim/bot.ts';
-import { DT, FIELD, TOWER_SLOTS } from '../sim/constants.ts';
+import { DT, FIELD, RALLY_MIN, TOWER_SLOTS } from '../sim/constants.ts';
 import { CASTLE_TARGET, type AbilityId, type EnemyId, type Fighter, type SimEvent, type TowerId, type UnitId } from '../sim/types.ts';
 import { World } from '../sim/world.ts';
 import { createEnemyView, type EnemyView } from './enemyView.ts';
 import { Fx } from './fx.ts';
 import { Hud } from './Hud.ts';
-import { ART_SCALE, DEPTH, FLY_HEIGHT, HUD_TOP, TOWER_BASE_Y, VIEW, groundY, setupCamera } from './layout.ts';
+import { ART_SCALE, DEPTH, FLY_HEIGHT, HUD_TOP, LANE, TOWER_BASE_Y, VIEW, groundY, setupCamera } from './layout.ts';
 import { INK_HEX } from './palette.ts';
 import { sfx } from './sfx.ts';
 import { ATTACK_STRIKE, drawRagdoll, drawStickman, type StickKind } from './stickman.ts';
@@ -73,6 +73,10 @@ interface TowerView {
 }
 
 const ENEMY_HIT_HEIGHT = 30;
+/** 「守る」で旗を立てる位置(城の近く)。 */
+const DEFEND_X = 430;
+/** 旗の竿の先の高さ。 */
+const FLAG_TOP = 400;
 /** 棒人間と敵の表示の大きさ。 */
 const ALLY_SCALE = 1.3;
 const ENEMY_SCALE = 1.15;
@@ -85,6 +89,14 @@ export class BattleScene extends Phaser.Scene {
   private bot: Bot | null = null;
   private fx!: Fx;
   private trees!: TreeLayer;
+  private rallyFlag!: Phaser.GameObjects.Graphics;
+  private castleImg!: Phaser.GameObjects.Image;
+  private castleCracks!: Phaser.GameObjects.Graphics;
+  private castleStage = 0;
+  private smokeTimer = 0;
+  private bannerFreeAt = 0;
+  private draggingFlag = false;
+  private flagPreviewX = 0;
   private tutorial: Tutorial | null = null;
   private hud: Hud | null = null;
   private accumulator = 0;
@@ -128,6 +140,9 @@ export class BattleScene extends Phaser.Scene {
     this.resultShown = false;
     this.hud = null;
     this.hint = null;
+    this.draggingFlag = false;
+    this.castleStage = 0;
+    this.bannerFreeAt = 0;
     this.tutorial = null;
   }
 
@@ -166,6 +181,7 @@ export class BattleScene extends Phaser.Scene {
         pause: () => this.togglePause(),
         speed: () => this.cycleSpeed(),
         mute: () => this.toggleMute(),
+        stance: (which) => this.setRally(which === 'defend' ? DEFEND_X : FIELD.rallyX),
       });
       this.hud.speedText.setText(`x${this.speed}`);
       this.hud.muteText.setText(loadSave().muted ? 'OFF' : 'ON');
@@ -178,7 +194,14 @@ export class BattleScene extends Phaser.Scene {
     }
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onFieldClick(p));
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => this.onPointerMove(p));
-    this.input.on('pointerup', () => this.trees.pointerUp());
+    this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
+      this.trees.pointerUp();
+      if (this.draggingFlag) {
+        this.draggingFlag = false;
+        this.setRally(p.worldX);
+      }
+    });
+    this.rallyFlag = this.add.graphics().setDepth(DEPTH.actors + LANE.top - 30);
     if (this.config.debug && !this.isAttract) attachDebugPanel(this);
     this.events.once('shutdown', () => document.getElementById('debug-panel')?.remove());
   }
@@ -222,7 +245,8 @@ export class BattleScene extends Phaser.Scene {
       gfx.setPosition(x, y);
       this.castleArchers.push({ gfx, x, y, attackAt: -10 });
     }
-    this.add.image(-30, 576, 'castle').setOrigin(0, 330 / 340).setScale(S).setDepth(DEPTH.buildings);
+    this.castleImg = this.add.image(-30, 576, 'castle').setOrigin(0, 330 / 340).setScale(S).setDepth(DEPTH.buildings);
+    this.castleCracks = this.add.graphics().setDepth(DEPTH.buildings + 1);
     this.flag = this.add.graphics().setDepth(DEPTH.buildings + 1);
 
     // タワーの土台
@@ -252,6 +276,8 @@ export class BattleScene extends Phaser.Scene {
     kb.on('keydown-Q', () => this.tryAbility('heal'));
     kb.on('keydown-W', () => this.tryAbility('meteor'));
     kb.on('keydown-SPACE', () => this.world.command({ type: 'nextWave' }));
+    kb.on('keydown-A', () => this.setRally(DEFEND_X));
+    kb.on('keydown-D', () => this.setRally(FIELD.rallyX));
     // Esc は提出先(CrazyGames)の決まりで使わない。取り消しは右クリック、一時停止は P。
     kb.on('keydown-P', () => {
       if (this.targeting) this.cancelTargeting();
@@ -313,6 +339,10 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private onPointerMove(p: Phaser.Input.Pointer): void {
+    if (this.draggingFlag) {
+      this.flagPreviewX = Phaser.Math.Clamp(p.worldX, RALLY_MIN, FIELD.rallyX);
+      return;
+    }
     if (this.targeting) this.drawReticle(p.worldX);
     else if (!this.paused && p.worldY < HUD_TOP) this.trees.pointerMove(p.worldX, p.worldY);
   }
@@ -349,7 +379,60 @@ export class BattleScene extends Phaser.Scene {
       this.closeBuildMenu();
       return;
     }
+    if (p.worldY < HUD_TOP && this.hitFlag(p.worldX, p.worldY)) {
+      this.draggingFlag = true;
+      this.flagPreviewX = this.world.rallyX;
+      return;
+    }
     if (p.worldY < HUD_TOP) this.trees.pointerDown(p.worldX, p.worldY);
+  }
+
+  // ---- 旗(兵が進んで止まる位置) ----
+
+  private hitFlag(x: number, y: number): boolean {
+    return Math.abs(x - this.world.rallyX) < 34 && y > FLAG_TOP - 10 && y < LANE.top + 10;
+  }
+
+  private setRally(x: number): void {
+    if (this.world.ended || this.isAttract) return;
+    this.world.command({ type: 'rally', x });
+    sfx.play('click');
+  }
+
+  private drawRallyFlag(): void {
+    const g = this.rallyFlag;
+    g.clear();
+    if (this.isAttract) return;
+    const x = this.draggingFlag ? this.flagPreviewX : this.world.rallyX;
+    const base = LANE.top - 6;
+    if (this.draggingFlag) {
+      g.lineStyle(3, 0xffffff, 0.5);
+      for (let y = LANE.top; y < LANE.bottom; y += 14) g.lineBetween(x, y, x, y + 7);
+    }
+    // 竿
+    g.lineStyle(5, INK_HEX, 1);
+    g.lineBetween(x, base, x, FLAG_TOP);
+    g.lineStyle(3, 0xc89a5a, 1);
+    g.lineBetween(x, base, x, FLAG_TOP);
+    // はためく旗
+    const pts: { x: number; y: number }[] = [];
+    for (let i = 0; i <= 6; i++) {
+      const k = i / 6;
+      pts.push({ x: x + 2 + k * 34, y: FLAG_TOP + 2 + Math.sin(this.clock * 7 - k * 4) * 2.5 * k });
+    }
+    const bottom = pts.map((p) => ({ x: p.x, y: p.y + 22 - (p.x - x) * 0.1 })).reverse();
+    g.fillStyle(0x3f7fe0, 1);
+    g.lineStyle(2.5, INK_HEX, 1);
+    g.fillPoints([...pts, ...bottom], true);
+    g.strokePoints([...pts, ...bottom], true);
+    g.fillStyle(0xffcc33, 1);
+    g.fillCircle(pts[3].x, pts[3].y + 10, 4);
+    g.fillStyle(0xffcc33, 1);
+    g.fillCircle(x, FLAG_TOP - 3, 4);
+    // 掴める印
+    const pulse = 0.5 + Math.sin(this.clock * 4) * 0.25;
+    g.lineStyle(2, 0xffffff, this.draggingFlag ? 0.9 : pulse * 0.6);
+    g.strokeEllipse(x, base + 4, 40, 12);
   }
 
   private openBuildMenu(slot: number): void {
@@ -409,6 +492,8 @@ export class BattleScene extends Phaser.Scene {
     this.paused = !this.paused;
     if (this.paused) {
       platform.gameplayStop();
+      this.closeBuildMenu();
+      this.cancelTargeting();
       this.showPauseOverlay();
     } else {
       platform.gameplayStart();
@@ -545,6 +630,7 @@ export class BattleScene extends Phaser.Scene {
           this.fx.hitSpark(FIELD.castleX - 10, 470 + Math.random() * 40, 5);
           this.fx.shake(2.5);
           sfx.play('castleHit', 0.6);
+          this.updateCastleDamage();
           break;
         case 'castleShot': {
           const archer = this.castleArchers[this.castleArcherTurn++ % this.castleArchers.length];
@@ -611,6 +697,7 @@ export class BattleScene extends Phaser.Scene {
           } else {
             sfx.play('defeat');
             this.fx.shake(10);
+            this.collapseCastle();
           }
           break;
       }
@@ -748,7 +835,7 @@ export class BattleScene extends Phaser.Scene {
       v.root.setDepth(DEPTH.actors + v.root.y);
       if (v.gfx) {
         v.gfx.clear();
-        drawStickman(v.gfx, { kind: v.kind as StickKind, walk: v.walk, moving, attack, flash: v.flash, time: v.time, facing: 1 });
+        drawStickman(v.gfx, { kind: v.kind as StickKind, walk: v.walk, moving, attack, flash: v.flash, time: v.time, facing: f.facing });
       } else if (v.enemy) {
         v.enemy.update({ time: v.time, moving, attack, flash: v.flash });
       }
@@ -866,6 +953,8 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private animateScenery(dt: number, animDt: number): void {
+    this.drawRallyFlag();
+    this.animateCastleDamage(dt);
     // 雲
     for (const c of this.clouds) {
       c.x += (c.getData('speed') as number) * dt;
@@ -928,9 +1017,83 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
+  // ---- 城の傷 ----
+
+  /** 城の体力に合わせて、ひび・煙・火を出す。 */
+  private updateCastleDamage(): void {
+    const ratio = this.world.castle.hp / this.world.castle.maxHp;
+    const stage = ratio < 0.25 ? 3 : ratio < 0.5 ? 2 : ratio < 0.75 ? 1 : 0;
+    if (stage === this.castleStage) return;
+    this.castleStage = stage;
+    const g = this.castleCracks;
+    g.clear();
+    const cracks: [number, number][][] = [
+      [
+        [40, 330],
+        [52, 352],
+        [44, 372],
+        [58, 396],
+      ],
+      [
+        [170, 420],
+        [182, 440],
+        [176, 458],
+        [190, 478],
+      ],
+      [
+        [110, 360],
+        [98, 384],
+        [112, 402],
+      ],
+      [
+        [20, 430],
+        [34, 452],
+        [26, 476],
+      ],
+    ];
+    const count = stage === 0 ? 0 : stage === 1 ? 2 : 4;
+    for (let i = 0; i < count; i++) {
+      g.lineStyle(3.5, INK_HEX, 0.85);
+      const pts = cracks[i];
+      for (let k = 1; k < pts.length; k++) g.lineBetween(pts[k - 1][0], pts[k - 1][1], pts[k][0], pts[k][1]);
+    }
+    this.castleImg.setTint(stage >= 3 ? 0xc8a8a0 : stage >= 2 ? 0xe0d0c8 : 0xffffff);
+  }
+
+  private animateCastleDamage(dt: number): void {
+    if (this.castleStage < 2) return;
+    this.smokeTimer -= dt;
+    if (this.smokeTimer > 0) return;
+    this.smokeTimer = this.castleStage >= 3 ? 0.12 : 0.3;
+    const spots: [number, number][] = [
+      [48, 300],
+      [200, 380],
+      [120, 400],
+    ];
+    const [x, y] = spots[Math.floor(Math.random() * spots.length)];
+    this.fx.dustPuff(x, y, 1);
+    if (this.castleStage >= 3) this.fx.fireTrail(x, y + 10, 1);
+  }
+
+  private collapseCastle(): void {
+    this.tweens.add({ targets: [this.castleImg, this.castleCracks, this.flag], y: '+=46', angle: -3, duration: 1100, ease: 'Cubic.In' });
+    for (let i = 0; i < 8; i++) this.time.delayedCall(i * 120, () => this.fx.dustPuff(30 + Math.random() * 200, 520 + Math.random() * 50, 4));
+  }
+
   // ---- 文字の演出・終わり ----
 
   private banner(text: string, color: string, boss: boolean, small = false): void {
+    // 前の帯が出ている間は、次の帯を少し待たせて重ならないようにする
+    const wait = Math.max(0, this.bannerFreeAt - this.clock);
+    this.bannerFreeAt = this.clock + wait + (small ? 1.3 : 1.9);
+    if (wait > 0) {
+      this.time.delayedCall(wait * 1000, () => this.showBanner(text, color, boss, small));
+      return;
+    }
+    this.showBanner(text, color, boss, small);
+  }
+
+  private showBanner(text: string, color: string, boss: boolean, small: boolean): void {
     const obj = label(this, VIEW.width / 2, small ? 180 : 230, text, { size: small ? 34 : boss ? 64 : 58, color, stroke: boss ? 12 : 10 }).setDepth(DEPTH.banner);
     obj.setScale(small ? 0.6 : 2.2).setAlpha(0);
     this.tweens.add({ targets: obj, scale: 1, alpha: 1, duration: 260, ease: 'Back.Out' });
@@ -979,7 +1142,13 @@ export class BattleScene extends Phaser.Scene {
     const lines = victory
       ? `${L.kills}: ${this.world.stats.kills}\n${L.deployed}: ${this.world.stats.unitsDeployed}`
       : `${L.reached}: ${this.world.wavesStarted} / ${this.world.totalWaves}\n${L.kills}: ${this.world.stats.kills}`;
-    root.add(label(this, VIEW.width / 2, victory ? 372 : 330, lines, { size: 20, color: '#d8e4ff' }));
+    root.add(label(this, VIEW.width / 2, victory ? 372 : 316, lines, { size: 20, color: '#d8e4ff' }));
+    if (!victory) {
+      const tip = L.tips[Math.floor(Math.random() * L.tips.length)];
+      const tipText = label(this, VIEW.width / 2, 390, `${L.tipTitle}: ${tip}`, { size: 17, color: '#ffe9a8' });
+      tipText.setWordWrapWidth(440, true);
+      root.add(tipText);
+    }
     const retry = () => this.scene.restart({ ...this.config, seed: undefined });
     const buttons = next
       ? [

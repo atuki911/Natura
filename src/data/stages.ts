@@ -22,17 +22,20 @@ export const STAGE_1_1: StageDef = {
   background: 'bg_stage1',
   units: ['sword', 'archer'],
   tutorial: true,
+  // 最初のステージでも兵が倒れて木が生えるよう、敵は強め。
+  enemyHpScale: 2.5,
+  enemyDamageScale: 3.5,
   startGold: 220,
   startMana: 60,
   castleHp: 900,
-  firstBreak: 12,
+  firstBreak: 7,
   breakTime: 12,
   waves: [
-    { groups: [g('blightling', 5, 2.2)] },
-    { groups: [g('blightling', 7, 1.8)] },
-    { groups: [g('blightling', 6, 1.6), g('gnasher', 3, 1.4, 6)] },
-    { groups: [g('gnasher', 6, 1), g('blightling', 5, 1.4, 4)] },
-    { groups: [g('blightling', 8, 1.1), g('gnasher', 6, 0.8, 5)] },
+    { groups: [g('blightling', 6, 1.4), g('gnasher', 3, 0.8, 5)] },
+    { groups: [g('blightling', 8, 1.1), g('gnasher', 5, 0.7, 3)] },
+    { groups: [g('gnasher', 10, 0.6), g('blightling', 6, 1, 4)] },
+    { groups: [g('blightling', 10, 0.8), g('gnasher', 8, 0.5, 4)] },
+    { groups: [g('gnasher', 14, 0.45), g('blightling', 10, 0.7, 3)] },
   ],
 };
 
