@@ -180,6 +180,15 @@ export class Hud {
     const g = this.game;
     const w = this.host.world;
     if (this.showingNew) return;
+    // tutorial: while moving the hero, any tap on the island counts as the destination
+    if (this.tut === 'heroMove' && p.inside && p.kind !== 'none') {
+      g.moveHero(p);
+      w.burst('dust', p.x, 0.2, p.y, 6);
+      w.showMoveMarker(p.x, p.y);
+      this.select(null);
+      this.tut = 'w2'; this.tutT = 0; this.host.setPaused(false, 'tut');
+      return;
+    }
     // tutorial gating
     if (this.tut && !this.tutFree()) {
       const ok =
@@ -756,7 +765,13 @@ export class Hud {
         break;
       case 'hero': G.show('こちらはヒーローの<b>コッカ</b>。ボタンをタップして選ぼう。', () => rectTarget(this.heroBtn, 6)); break;
       case 'heroMove': {
-        const p = g.paths[0].at(g.paths[0].length * 0.42);
+        // a point on the road that is clear of towers
+        let p = g.paths[0].at(g.paths[0].length * 0.42), bestD = -1;
+        for (let f = 0.3; f <= 0.62; f += 0.04) {
+          const q = g.paths[0].at(g.paths[0].length * f);
+          const d = Math.min(...g.towers.map((t) => Math.hypot(t.x - q.x, t.y - q.y)), 99);
+          if (d > bestD) { bestD = d; p = q; }
+        }
         G.show('移動したい場所をタップ。ヒーローはどこでも戦えるよ!', () => { const s = this.host.world.project(p.x, 0.2, p.y); return { x: s.x, y: s.y, r: 34 }; });
         break;
       }

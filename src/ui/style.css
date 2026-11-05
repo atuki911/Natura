@@ -115,7 +115,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #2b1d14; fon
 .hud-chip svg { width: 32px; height: 32px; flex: none; }
 .hud-chip.flash { animation: pulse .3s 2; background: linear-gradient(#c04030, #801a10); }
 .hud-right { position: absolute; top: calc(8px + env(safe-area-inset-top, 0px)); right: calc(8px + env(safe-area-inset-right, 0px)); display: flex; gap: 8px; }
-.hud-bottom { position: absolute; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); display: flex; gap: 10px; align-items: flex-end; }
+.hud-bottom { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: calc(24px + env(safe-area-inset-left, 0px)); display: flex; gap: 10px; align-items: flex-end; }
 .skillbtn { position: relative; width: 74px; height: 74px; border-radius: 50%; border: 4px solid var(--ink); background: radial-gradient(circle at 50% 35%, #fff4c8, #e8a83a); box-shadow: 0 5px 0 rgba(0,0,0,.45); cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .skillbtn img, .skillbtn svg { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .skillbtn svg { width: 64%; height: 64%; }
