@@ -269,7 +269,7 @@ export class UpgradeScene extends Phaser.Scene {
     const lvBefore = levelIn(loadSave(), card.def.id);
     if (!buyUpgrade(card.def.id)) return;
     const after = loadSave().leaves;
-    sfx.play('build');
+    sfx.play('buy');
     this.refresh();
     // 新しい段の玉は、葉が届くまで空のまま見せておく
     const pip = card.pips[lvBefore];

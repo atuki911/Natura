@@ -404,7 +404,7 @@ export class BattleScene extends Phaser.Scene {
   private setRally(x: number): void {
     if (this.world.ended || this.isAttract) return;
     this.world.command({ type: 'rally', x });
-    sfx.play('click');
+    sfx.play('rally');
   }
 
   private drawRallyFlag(): void {
