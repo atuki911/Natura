@@ -17,6 +17,7 @@ import { Hud } from './Hud.ts';
 import { ART_SCALE, DEPTH, FLY_HEIGHT, HUD_TOP, LANE, TOWER_BASE_Y, VIEW, groundY, setupCamera } from './layout.ts';
 import { INK_HEX } from './palette.ts';
 import { sfx } from './sfx.ts';
+import { music } from './music.ts';
 import { ATTACK_STRIKE, drawRagdoll, drawStickman, type StickKind } from './stickman.ts';
 import { button, label } from './widgets.ts';
 import { attachDebugPanel } from './debugPanel.ts';
@@ -168,6 +169,7 @@ export class BattleScene extends Phaser.Scene {
     this.speed = this.config.speed ?? 1;
     if (this.isAttract || this.config.autoplay) this.bot = new Bot(BOT_STYLES.standard);
     else this.bot = null;
+    if (!this.isAttract) music.play(`region${stage.region}`);
 
     this.buildScenery();
     this.fx = new Fx(this);
@@ -685,6 +687,7 @@ export class BattleScene extends Phaser.Scene {
         case 'waveStart':
           this.banner(e.boss ? L.bossBanner : `${L.waveBanner} ${e.wave}`, e.boss ? '#ff5a6a' : '#ffffff', e.boss);
           sfx.play(e.boss ? 'boss' : 'horn');
+          if (e.boss && !this.isAttract) music.play('boss', { fade: 0.6 });
           if (e.boss) this.fx.shake(6);
           break;
         case 'waveClear':
@@ -697,6 +700,7 @@ export class BattleScene extends Phaser.Scene {
         case 'victory':
         case 'defeat':
           this.time.delayedCall(this.isAttract ? 2500 : 1400, () => this.onEnd(e.t === 'victory'));
+          if (!this.isAttract) music.play(e.t);
           if (e.t === 'victory') {
             sfx.play('victory');
             platform.happyTime();

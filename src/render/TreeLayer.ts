@@ -128,13 +128,13 @@ export class TreeLayer {
           v.bounce = 1;
           for (const f of v.fruits) f.setVisible(false);
         }
-        sfx.play('coin', 0.7);
+        sfx.play('harvest', 0.8);
         return true;
       }
       case 'uproot': {
         const v = this.views.get(e.treeId);
         if (v) this.fx.floatText(v.root.x, v.root.y - 70, `+${Math.round(e.gold)}G`, '#ffe28a', 18);
-        sfx.play('squish', 0.6);
+        sfx.play('uproot', 0.8);
         return true;
       }
       default:
@@ -205,7 +205,7 @@ export class TreeLayer {
     this.scene.tweens.add({ targets: v.purify, alpha: 0.85, scaleX: S, scaleY: S, duration: 1600, ease: 'Cubic.Out' });
     this.fx.healAt(v.root.x, v.root.y - 30, 6);
     this.fx.dustPuff(v.root.x, v.root.y, 3);
-    sfx.play('heal', 0.35);
+    sfx.play('treeGrow', 0.7);
   }
 
   private remove(id: number, reason: string): void {

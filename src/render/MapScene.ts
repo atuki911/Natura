@@ -5,6 +5,7 @@ import { loadSave } from '../save.ts';
 import type { StageDef } from '../sim/types.ts';
 import { ART_SCALE, DEPTH, VIEW, setupCamera } from './layout.ts';
 import { INK_HEX } from './palette.ts';
+import { music } from './music.ts';
 import { sfx } from './sfx.ts';
 import { addUpgradeButton } from './UpgradeScene.ts';
 import { button, label } from './widgets.ts';
@@ -34,6 +35,7 @@ export class MapScene extends Phaser.Scene {
     const L = t();
     const lang = getLang();
     const stars = loadSave().bestStars;
+    music.play('title');
     this.add.image(0, 0, 'bg_stage1').setOrigin(0, 0).setScale(S).setAlpha(0.35);
     const shade = this.add.graphics();
     shade.fillStyle(0x14121f, 0.7);

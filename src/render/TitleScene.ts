@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { getLang, setLang, t } from '../i18n.ts';
 import { loadSave, updateSave } from '../save.ts';
 import { ART_SCALE, DEPTH, VIEW, setupCamera } from './layout.ts';
+import { music } from './music.ts';
 import { sfx } from './sfx.ts';
 import { button, label } from './widgets.ts';
 
@@ -18,6 +19,7 @@ export class TitleScene extends Phaser.Scene {
     setupCamera(this);
     if (!this.scene.isActive('battle')) this.scene.launch('battle', { mode: 'attract' });
     this.scene.bringToTop();
+    music.play('title');
     this.draw();
   }
 
