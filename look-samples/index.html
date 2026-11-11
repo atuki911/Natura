@@ -1,0 +1,691 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>藍鎧の武士 見本4種</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 見本を同じ大きさの舞台で2×2に並べる。舞台の色は4つとも同じにして、絵だけを比べられるようにする。 */
+:root{
+  --bg:#e9ecf2; --card:#ffffff; --ink:#191c2a; --muted:#596079; --line:#d3d8e4; --ai:#2b3c82;
+  --f-head:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1e2a;--ink:#e6e8f0;--muted:#9aa0b8;--line:#2c3142;--ai:#8ea2ec;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1e2a;--ink:#e6e8f0;--muted:#9aa0b8;--line:#2c3142;--ai:#8ea2ec;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-head);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+header{max-width:1180px;margin:0 auto 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px}
+h1{font-size:1.35rem;font-weight:900;margin:0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-size:.9rem}
+.grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.head{display:flex;align-items:baseline;gap:10px;padding:10px 14px 8px}
+.num{font:500 1.1rem var(--f-mono);color:var(--ai)}
+.head h2{margin:0;font-size:1.02rem;font-weight:700}
+.head .tag{margin-left:auto;font:500 .72rem var(--f-mono);color:var(--muted);letter-spacing:.04em;white-space:nowrap}
+.stage{position:relative;aspect-ratio:4/3;max-width:100%;background:#c9d3e4}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.note{padding:8px 14px 12px;font-size:.85rem;color:var(--muted);min-width:0}
+.note a{color:var(--ai)}
+.hint{position:absolute;left:10px;bottom:10px;padding:4px 10px;border-radius:999px;background:rgba(20,24,40,.62);color:#fff;font-size:.78rem;pointer-events:none;transition:opacity .4s}
+.combo{position:absolute;right:12px;top:8px;font:900 1.6rem var(--f-head);color:#fff;text-shadow:0 2px 0 #1b2350,0 0 12px rgba(30,40,90,.5);pointer-events:none;opacity:0}
+.combo.pop{animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(1.5);opacity:1}60%{opacity:1}100%{transform:scale(1);opacity:0}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.err{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;color:#3a2030;font-size:.85rem}
+@media (prefers-reduced-motion:reduce){.combo.pop{animation:none}}
+</style>
+
+<header>
+  <h1>藍鎧の武士 見本4種</h1>
+  <p>同じ題材を4つの作り方で。どれも5秒ほどで繰り返します。4は画面を押すと斬ります。</p>
+</header>
+
+<main class="grid">
+  <section class="card">
+    <div class="head"><span class="num">1</span><h2>2D・コードだけで描いた絵</h2><span class="tag">CANVAS 2D</span></div>
+    <div class="stage"><canvas id="c1"></canvas></div>
+    <div class="note">画像ファイルなし。線と塗りを毎フレーム描き、関節の角度で動かしています。</div>
+  </section>
+  <section class="card">
+    <div class="head"><span class="num">2</span><h2>3D・コードで組んだ立体</h2><span class="tag">THREE.JS</span></div>
+    <div class="stage"><canvas id="c2"></canvas></div>
+    <div class="note">球・円柱・押し出し形を組み合わせて作成。陰影、落ち影、刀の映り込みあり。</div>
+  </section>
+  <section class="card">
+    <div class="head"><span class="num">3</span><h2>3D・無料素材（CC0）</h2><span class="tag">GLTF</span></div>
+    <div class="stage"><canvas id="c3"></canvas></div>
+    <div class="note">素材: KayKit「Adventurers Character Pack 1.0」の Knight（作者 Kay Lousberg）。ライセンス CC0 1.0。入手元 <a href="https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0" target="_blank" rel="noopener">GitHub</a>。武士ではなく騎士です。動きは素材付属の Walking_A と 1H_Melee_Attack_Chop。</div>
+  </section>
+  <section class="card">
+    <div class="head"><span class="num">4</span><h2>手触り・気持ちいい一撃</h2><span class="tag">TAP</span></div>
+    <div class="stage" id="s4"><canvas id="c4"></canvas><div class="flash" id="flash4"></div><div class="combo" id="combo4"></div><div class="hint" id="hint4">押すと斬る（音が出ます）</div></div>
+    <div class="note">3の素材を使用。敵は同じパックの Barbarian（CC0）。当たった瞬間の止め・揺れ・火花・音。6撃目でとどめ。</div>
+  </section>
+</main>
+
+<script src="models/knight.glb.js"></script>
+<script src="models/barbarian.glb.js"></script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+
+// ---------- 共通 ----------
+const CYCLE = 5.0, WALK_END = 3.2, ATK_LEN = 1.2;
+const SKY = 0xc9d3e4, GROUND = 0xd8d3c6;
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const easeIn = t => t * t;
+const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
+const visible = new Map();
+const io = new IntersectionObserver(es => es.forEach(e => visible.set(e.target, e.isIntersecting)));
+const isVisible = el => visible.get(el) !== false;
+
+// 1と2で共有する「歩く→斬る」の姿勢。角度は前向きが正、腕は肩基準(3Dの rotation.x の符号に合わせる)
+const KEYS = [
+  { t: 0.00, armS: -0.35, armE: -0.30, wrist: 0.90, lean: 0.05, lunge: 0.00, squash: 1.00, legF: 0.00, legB: 0.00, kneeF: 0.15, kneeB: 0.15, back: 0.0 },
+  { t: 0.34, armS: -3.45, armE: -0.50, wrist: -0.30, lean: -0.16, lunge: -0.05, squash: 0.93, legF: 0.35, legB: -0.35, kneeF: 0.45, kneeB: 0.45, back: -0.6 },
+  { t: 0.44, armS: -0.75, armE: -0.15, wrist: 1.25, lean: 0.30, lunge: 0.26, squash: 1.05, legF: 0.65, legB: -0.55, kneeF: 0.60, kneeB: 0.15, back: 0.7 },
+  { t: 0.78, armS: -0.70, armE: -0.18, wrist: 1.20, lean: 0.24, lunge: 0.24, squash: 1.00, legF: 0.60, legB: -0.50, kneeF: 0.55, kneeB: 0.18, back: 0.5 },
+  { t: 1.20, armS: -0.35, armE: -0.30, wrist: 0.90, lean: 0.05, lunge: 0.00, squash: 1.00, legF: 0.00, legB: 0.00, kneeF: 0.15, kneeB: 0.15, back: 0.0 },
+];
+const EASES = [easeInOut, easeIn, t => t, easeInOut];
+function samuraiPose(tc) {
+  const p = { bob: 0, lean: 0.05, armS: -0.35, armE: -0.30, wrist: 0.90, back: 0, legF: 0, legB: 0, kneeF: 0.15, kneeB: 0.15, squash: 1, lunge: 0, shout: 0, swing: false, head: 0 };
+  if (tc < WALK_END) {
+    const amp = seg(tc, 0, 0.35) * (1 - seg(tc, WALK_END - 0.3, WALK_END));
+    const ph = tc / 0.8 * Math.PI * 2;
+    const s = Math.sin(ph);
+    p.legF = s * 0.55 * amp; p.legB = -s * 0.55 * amp;
+    p.kneeF = 0.15 + 0.6 * Math.max(0, Math.cos(ph)) * amp;
+    p.kneeB = 0.15 + 0.6 * Math.max(0, -Math.cos(ph)) * amp;
+    p.bob = (Math.abs(Math.cos(ph)) - 0.5) * 0.05 * amp;
+    p.armS = -0.35 + s * 0.12 * amp; p.back = -s * 0.5 * amp;
+    p.lean = 0.05 + 0.04 * amp; p.head = Math.sin(ph * 2) * 0.03 * amp;
+  } else {
+    const ta = tc - WALK_END;
+    if (ta < ATK_LEN) {
+      let i = 0; while (i < KEYS.length - 2 && ta > KEYS[i + 1].t) i++;
+      const a = KEYS[i], b = KEYS[i + 1], k = EASES[i](seg(ta, a.t, b.t));
+      for (const key of ['armS', 'armE', 'wrist', 'lean', 'lunge', 'squash', 'legF', 'legB', 'kneeF', 'kneeB', 'back']) p[key] = lerp(a[key], b[key], k);
+      p.shout = seg(ta, 0.25, 0.35) * (1 - seg(ta, 0.7, 0.85));
+      p.swing = ta > 0.33 && ta < 0.5;
+      p.head = -p.lean * 0.4;
+    }
+  }
+  return p;
+}
+
+// ---------- 見本1: 2D ----------
+function sample1() {
+  const cv = document.getElementById('c1'), ctx = cv.getContext('2d');
+  io.observe(cv);
+  const OL = '#1a1c2e';
+  const C = { ai: '#2e4190', aiL: '#4a62b8', aiD: '#1d2860', lace: '#b9c9f0', cord: '#c8483a', gold: '#d9a93a', goldD: '#a77a1f', skin: '#f4caa6', cheek: '#f09c94', cloth: '#262b48', lacq: '#20243a', lacqL: '#3a4166', steel: '#e3e9f1', steelD: '#9aa6b8' };
+  const K = 97; // 3Dの1単位 = 97px
+  const trail = [];
+  const dir = (a) => [Math.sin(a), Math.cos(a)];
+  function stroke(path, fill, lw = 3) {
+    ctx.fillStyle = fill; ctx.fill(path); ctx.lineWidth = lw; ctx.strokeStyle = OL; ctx.stroke(path);
+  }
+  function limb(pts, w, fill) {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.strokeStyle = OL; ctx.lineWidth = w + 6; ctx.stroke();
+    ctx.strokeStyle = fill; ctx.lineWidth = w; ctx.stroke();
+  }
+  function leg(hx, hy, swing, knee, front) {
+    const a1 = swing, a2 = swing - knee;
+    const [dx1, dy1] = dir(a1), [dx2, dy2] = dir(a2);
+    const kx = hx + dx1 * 19, ky = hy + dy1 * 19, fx = kx + dx2 * 19, fy = ky + dy2 * 19;
+    limb([[hx, hy], [kx, ky]], 17, front ? C.cloth : '#1c2036');
+    limb([[kx, ky], [fx, fy]], 13, front ? C.ai : C.aiD);
+    // すね当ての金線
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(kx + dx2 * 6, ky + dy2 * 6); ctx.lineTo(kx + dx2 * 15, ky + dy2 * 15); ctx.stroke();
+    // 足
+    ctx.save(); ctx.translate(fx, fy); ctx.rotate(-a2 * 0.3);
+    const p = new Path2D(); p.roundRect(-8, -3, 21, 10, 5); stroke(p, front ? '#3a2d24' : '#2a211b');
+    ctx.restore();
+  }
+  function sword(x, y, b) {
+    // b: 刃の向き(下=0, 前=+)
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-b + Math.PI / 2); // ローカル +x が刃の向き
+    // 柄
+    const h = new Path2D(); h.roundRect(-20, -4, 22, 8, 3); stroke(h, '#2a2238', 2.5);
+    ctx.strokeStyle = '#d8d2e8'; ctx.lineWidth = 1.5;
+    for (let i = -17; i < 0; i += 5) { ctx.beginPath(); ctx.moveTo(i, -3); ctx.lineTo(i + 3, 3); ctx.stroke(); }
+    // 刃(反りあり)
+    const L = 66, bl = new Path2D();
+    bl.moveTo(5, -3.2); bl.quadraticCurveTo(L * 0.55, -5.5, L, -9.5); bl.lineTo(L - 9, -3.5); bl.quadraticCurveTo(L * 0.5, 1.8, 5, 3.2); bl.closePath();
+    stroke(bl, C.steel, 2.5);
+    ctx.strokeStyle = C.steelD; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(8, -1.4); ctx.quadraticCurveTo(L * 0.55, -3.6, L - 6, -7.2); ctx.stroke();
+    // 鍔
+    const t = new Path2D(); t.ellipse(3, 0, 3, 8, 0, 0, Math.PI * 2); stroke(t, C.gold, 2.2);
+    ctx.restore();
+  }
+  function head(cx, cy, shout) {
+    // しころ(首を守る板)を後ろに
+    for (let i = 2; i >= 0; i--) {
+      const p = new Path2D(); const y0 = cy + 2 + i * 9, w = 44 + i * 6;
+      p.moveTo(cx - 6, y0 - 8); p.quadraticCurveTo(cx - w * 0.9, y0 - 2, cx - w + 2, y0 + 12); p.lineTo(cx - w + 10, y0 + 18); p.quadraticCurveTo(cx - w * 0.6, y0 + 8, cx - 2, y0 + 6); p.closePath();
+      stroke(p, i % 2 ? C.aiL : C.ai, 2.6);
+      ctx.fillStyle = C.lace; for (let k = 0; k < 3; k++) ctx.fillRect(cx - w * 0.55 - k * 9, y0 + 3 + k * 1.5, 2, 4);
+    }
+    // 顔
+    const f = new Path2D(); f.ellipse(cx + 3, cy + 4, 33, 31, 0, 0, Math.PI * 2); stroke(f, C.skin);
+    // 頬・目・口
+    ctx.fillStyle = C.cheek; ctx.globalAlpha = .55; ctx.beginPath(); ctx.ellipse(cx + 15, cy + 17, 6, 3.5, 0, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    const eye = (x, y, s) => { ctx.fillStyle = OL; ctx.beginPath(); ctx.ellipse(x, y, 4.2 * s, 6.5 * s, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x + 1.2 * s, y - 2.4 * s, 1.7 * s, 0, 7); ctx.fill(); };
+    eye(cx + 20, cy + 6, 1); eye(cx + 33, cy + 5, .78);
+    ctx.strokeStyle = OL; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + 13, cy - 4); ctx.lineTo(cx + 25, cy - 1); ctx.stroke();
+    if (shout > 0.1) { ctx.fillStyle = '#7a2a33'; ctx.beginPath(); ctx.ellipse(cx + 28, cy + 21, 3.5, 2 + 4 * shout, 0, 0, 7); ctx.fill(); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.moveTo(cx + 25, cy + 20); ctx.lineTo(cx + 31, cy + 19); ctx.stroke(); }
+    // 兜の鉢
+    const d = new Path2D(); d.moveTo(cx - 34, cy + 2); d.bezierCurveTo(cx - 40, cy - 46, cx + 34, cy - 56, cx + 40, cy - 8); d.lineTo(cx + 8, cy - 7); d.quadraticCurveTo(cx - 14, cy - 6, cx - 34, cy + 2); d.closePath();
+    stroke(d, C.lacq);
+    ctx.save(); ctx.clip(d); ctx.strokeStyle = C.lacqL; ctx.lineWidth = 2;
+    for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(cx + 2 + i * 3, cy - 44); ctx.quadraticCurveTo(cx + i * 13 + 4, cy - 30, cx + i * 11 + 2, cy - 4); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(cx - 6, cy - 34, 14, 6, -0.3, 0, 7); ctx.fill();
+    ctx.restore();
+    // 金の縁と眉庇
+    const v = new Path2D(); v.moveTo(cx - 30, cy - 1); v.quadraticCurveTo(cx + 4, cy - 12, cx + 48, cy - 9); v.lineTo(cx + 44, cy - 3); v.quadraticCurveTo(cx + 4, cy - 4, cx - 28, cy + 5); v.closePath();
+    stroke(v, C.gold, 2.4);
+    // 吹返し
+    const fk = new Path2D(); fk.moveTo(cx - 8, cy - 3); fk.quadraticCurveTo(cx - 22, cy + 2, cx - 26, cy + 14); fk.lineTo(cx - 10, cy + 12); fk.quadraticCurveTo(cx - 6, cy + 4, cx - 8, cy - 3); fk.closePath();
+    stroke(fk, C.ai, 2.4);
+    // 鍬形(二本の角)
+    const bx = cx + 30, by = cy - 15;
+    const horn = (sx) => { const p = new Path2D(); p.moveTo(bx - 3, by); p.quadraticCurveTo(bx + sx * 34, by - 8, bx + sx * 32, by - 46); p.quadraticCurveTo(bx + sx * 16, by - 18, bx + 3, by - 2); p.closePath(); stroke(p, sx > 0 ? C.gold : C.goldD, 2.4); };
+    horn(-0.8); horn(1);
+    const b = new Path2D(); b.arc(bx, by, 6.5, 0, 7); stroke(b, C.gold, 2.4);
+  }
+  function draw(tc) {
+    const dpr = DPR(), w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const s = h / 300 * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const g = ctx.createLinearGradient(0, 0, 0, cv.height); g.addColorStop(0, '#bccadf'); g.addColorStop(0.72, '#dfe4ec'); g.addColorStop(0.72, '#d8d3c6'); g.addColorStop(1, '#c9c3b4');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cv.width, cv.height);
+    const p = samuraiPose(tc);
+    ctx.setTransform(s, 0, 0, s, cv.width / 2 - 20 * s, 0);
+    const gy = 236;
+    // 影
+    ctx.fillStyle = 'rgba(40,40,60,.22)'; ctx.beginPath(); ctx.ellipse(p.lunge * K + 4, gy + 2, 44 - p.bob * 120, 7, 0, 0, 7); ctx.fill();
+    ctx.translate(p.lunge * K, gy);
+    ctx.scale(1 / Math.sqrt(p.squash), p.squash);
+    const hy = -42 - p.bob * K;
+    leg(-6, hy, p.legB, p.kneeB, false);
+    // 後ろの腕
+    ctx.save(); ctx.translate(0, hy); ctx.rotate(p.lean);
+    { const [dx, dy] = dir(p.back); const [dx2, dy2] = dir(p.back + 0.5);
+      limb([[-4, -38], [-4 + dx * 15, -38 + dy * 15], [-4 + dx * 15 + dx2 * 13, -38 + dy * 15 + dy2 * 13]], 12, C.aiD);
+      const hd = new Path2D(); hd.arc(-4 + dx * 15 + dx2 * 15, -38 + dy * 15 + dy2 * 15, 5.5, 0, 7); stroke(hd, '#d9ad8c', 2.4); }
+    ctx.restore();
+    leg(6, hy, p.legF, p.kneeF, true);
+    // 胴
+    ctx.save(); ctx.translate(0, hy); ctx.rotate(p.lean);
+    // 草摺
+    for (let i = 0; i < 3; i++) {
+      const x0 = -22 + i * 15, pth = new Path2D();
+      pth.moveTo(x0, -6); pth.lineTo(x0 + 17, -6); pth.lineTo(x0 + 19 + (i - 1) * 2, 16); pth.lineTo(x0 - 2 + (i - 1) * 2, 16); pth.closePath();
+      stroke(pth, i === 1 ? C.aiL : C.ai, 2.6);
+      ctx.strokeStyle = C.aiD; ctx.lineWidth = 1.5; for (let k = 1; k < 3; k++) { ctx.beginPath(); ctx.moveTo(x0 - 0.5, -6 + k * 7); ctx.lineTo(x0 + 17.5, -6 + k * 7); ctx.stroke(); }
+    }
+    // 胴(板と威し糸)
+    const body = new Path2D(); body.moveTo(-18, -44); body.lineTo(17, -44); body.quadraticCurveTo(26, -24, 21, -4); body.lineTo(-20, -4); body.quadraticCurveTo(-23, -24, -18, -44); body.closePath();
+    stroke(body, C.ai);
+    ctx.save(); ctx.clip(body);
+    for (let k = 0; k < 5; k++) { const y = -40 + k * 8; ctx.fillStyle = k % 2 ? C.aiL : C.ai; ctx.fillRect(-24, y, 52, 8); ctx.strokeStyle = C.aiD; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(-24, y); ctx.lineTo(28, y); ctx.stroke();
+      ctx.fillStyle = C.lace; for (let x = -16; x < 24; x += 7) ctx.fillRect(x, y + 2, 2, 4); }
+    ctx.restore(); ctx.lineWidth = 3; ctx.strokeStyle = OL; ctx.stroke(body);
+    // 胸板と帯
+    const top = new Path2D(); top.roundRect(-17, -47, 34, 7, 3); stroke(top, C.lacq, 2.4);
+    const belt = new Path2D(); belt.roundRect(-21, -8, 44, 6, 3); stroke(belt, C.cord, 2.4);
+    // 頭
+    ctx.save(); ctx.translate(2, -48); ctx.rotate(p.head); head(4, -34, p.shout); ctx.restore();
+    // 前の腕と刀
+    const sx = 4, sy = -38;
+    const a1 = -p.armS, a2 = -(p.armS + p.armE), bdir = Math.PI / 2 - (p.armS + p.armE + p.wrist);
+    const [d1x, d1y] = dir(a1), [d2x, d2y] = dir(a2);
+    const ex = sx + d1x * 15, ey = sy + d1y * 15, hx2 = ex + d2x * 14, hy2 = ey + d2y * 14;
+    sword(hx2, hy2, bdir);
+    // 刃先の軌跡を記録(画面座標)
+    { const m = ctx.getTransform(); const [bx, by] = dir(bdir);
+      const base = m.transformPoint(new DOMPoint(hx2 + bx * 10, hy2 + by * 10)), tip = m.transformPoint(new DOMPoint(hx2 + bx * 66, hy2 + by * 66));
+      trail.push({ base, tip, t: tc, on: p.swing }); }
+    limb([[sx, sy], [ex, ey], [hx2, hy2]], 13, C.aiD);
+    const hand = new Path2D(); hand.arc(hx2, hy2, 6.5, 0, 7); stroke(hand, C.skin, 2.4);
+    // 袖(肩の大きな板)
+    ctx.save(); ctx.translate(sx, sy - 2); ctx.rotate(clamp(-p.armS * 0.35, -0.4, 1.1));
+    const sode = new Path2D(); sode.roundRect(-11, -4, 22, 26, 4); stroke(sode, C.ai, 2.6);
+    ctx.save(); ctx.clip(sode); for (let k = 0; k < 4; k++) { ctx.fillStyle = k % 2 ? C.aiL : C.ai; ctx.fillRect(-12, -4 + k * 6.5, 24, 6.5); ctx.fillStyle = C.lace; ctx.fillRect(-6, -2 + k * 6.5, 2, 3); ctx.fillRect(3, -2 + k * 6.5, 2, 3); } ctx.restore();
+    ctx.strokeStyle = OL; ctx.lineWidth = 2.6; ctx.stroke(sode);
+    ctx.restore();
+    ctx.restore();
+    // 刃の軌跡
+    while (trail.length && (trail[0].t > tc || tc - trail[0].t > 0.14)) trail.shift();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    for (let i = 1; i < trail.length; i++) {
+      const a = trail[i - 1], b = trail[i]; if (!a.on || !b.on) continue;
+      const age = (tc - b.t) / 0.14; ctx.fillStyle = `rgba(235,244,255,${0.75 * (1 - age)})`;
+      ctx.beginPath(); ctx.moveTo(a.base.x, a.base.y); ctx.lineTo(a.tip.x, a.tip.y); ctx.lineTo(b.tip.x, b.tip.y); ctx.lineTo(b.base.x, b.base.y); ctx.closePath(); ctx.fill();
+    }
+  }
+  return { tick: (t) => { if (isVisible(cv)) draw(t % CYCLE); } };
+}
+
+// ---------- 3D の共通 ----------
+function makeStage(canvas, { camPos = [-2.5, 1.4, 4.6], look = [0, 0.86, 0], fov = 30 } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(DPR());
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(SKY);
+  scene.fog = new THREE.Fog(SKY, 9, 20);
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.45;
+  const camera = new THREE.PerspectiveCamera(fov, 4 / 3, 0.1, 50);
+  camera.position.set(...camPos); camera.lookAt(...look);
+  scene.add(new THREE.HemisphereLight(0xe8eeff, 0x8a8070, 0.85));
+  const sun = new THREE.DirectionalLight(0xfff2e0, 2.2);
+  sun.position.set(-3, 6, 4); sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
+  Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 15 });
+  scene.add(sun);
+  const rim = new THREE.DirectionalLight(0xa9c0ff, 1.4); rim.position.set(3, 3, -4); scene.add(rim);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(14, 48), new THREE.MeshStandardMaterial({ color: GROUND, roughness: 0.95 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  io.observe(canvas);
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    const c = renderer.domElement;
+    if (c.width !== Math.round(w * DPR()) || c.height !== Math.round(h * DPR())) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  }
+  return { renderer, scene, camera, sun, render() { resize(); renderer.render(scene, camera); }, visible: () => isVisible(canvas) };
+}
+const shadowAll = (o) => o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+
+// ---------- 見本2: 3D 自作 ----------
+function lacingTexture(base, light, dark, lace, rows = 6) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d');
+  const h = 256 / rows;
+  for (let r = 0; r < rows; r++) {
+    g.fillStyle = r % 2 ? light : base; g.fillRect(0, r * h, 256, h);
+    g.fillStyle = dark; g.fillRect(0, r * h, 256, 3);
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(0, r * h + 3, 256, 3);
+    g.fillStyle = lace; for (let x = 6; x < 256; x += 20) g.fillRect(x, r * h + h * 0.3, 3, h * 0.4);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t;
+}
+function sample2() {
+  const st = makeStage(document.getElementById('c2'));
+  const std = (color, roughness, metalness = 0, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, metalness, ...extra });
+  const armorTex = lacingTexture('#2b3d88', '#33479a', '#141c46', '#8094cc');
+  const armorTex2 = armorTex.clone(); armorTex2.repeat.set(2, 1); armorTex2.needsUpdate = true;
+  const M = {
+    armor: std(0xffffff, 0.5, 0.1, { map: armorTex }), armorSide: std(0xffffff, 0.5, 0.1, { map: armorTex, side: THREE.DoubleSide }),
+    skirt: std(0xffffff, 0.5, 0.1, { map: armorTex2, side: THREE.DoubleSide }),
+    ai: std(0x2e4190, 0.45, 0.15), aiDark: std(0x1c2658, 0.6, 0.1), lacq: std(0x1c2036, 0.28, 0.45), lacqRib: std(0x3c4570, 0.3, 0.6),
+    gold: std(0xd8a63c, 0.28, 1.0), skin: std(0xf4c8a4, 0.65), cloth: std(0x262b46, 0.9), cord: std(0xc44a3a, 0.6),
+    steel: std(0xeef3f8, 0.12, 1.0), black: std(0x15161d, 0.35), boot: std(0x3a2c22, 0.8), white: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+    blush: new THREE.MeshBasicMaterial({ color: 0xf29a92, transparent: true, opacity: 0.55, depthWrite: false }),
+  };
+  const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; };
+  const root = new THREE.Group(); st.scene.add(root);
+  const hips = new THREE.Group(); hips.position.y = 0.5; root.add(hips);
+  // 胴
+  const torso = mesh(new THREE.CylinderGeometry(0.33, 0.29, 0.44, 32), M.armor, 0, 0.24, 0); torso.scale.z = 0.86; hips.add(torso);
+  const collar = mesh(new THREE.TorusGeometry(0.3, 0.035, 10, 32), M.lacq, 0, 0.46, 0); collar.rotation.x = Math.PI / 2; collar.scale.y = 0.86; hips.add(collar);
+  const chestPlate = mesh(new THREE.CylinderGeometry(0.335, 0.33, 0.12, 32, 1, true, -1.1, 2.2), M.lacq, 0, 0.39, 0); chestPlate.scale.z = 0.87; hips.add(chestPlate);
+  const belt = mesh(new THREE.TorusGeometry(0.3, 0.03, 10, 32), M.cord, 0, 0.04, 0); belt.rotation.x = Math.PI / 2; belt.scale.y = 0.86; hips.add(belt);
+  // 草摺(5枚)
+  for (let i = 0; i < 5; i++) {
+    const a0 = i / 5 * Math.PI * 2 + 0.08;
+    const pl = mesh(new THREE.CylinderGeometry(0.3, 0.4, 0.26, 8, 1, true, a0, Math.PI * 2 / 5 - 0.16), M.skirt, 0, -0.1, 0); pl.scale.z = 0.88; hips.add(pl);
+  }
+  // 頭
+  const headG = new THREE.Group(); headG.position.y = 0.5; hips.add(headG);
+  const H = new THREE.Group(); H.position.y = 0.34; headG.add(H);
+  const face = mesh(new THREE.SphereGeometry(0.4, 40, 28), M.skin); face.scale.set(1, 0.94, 0.98); H.add(face);
+  for (const sx of [-1, 1]) {
+    const eye = mesh(new THREE.SphereGeometry(0.06, 20, 14), M.black, sx * 0.135, -0.04, 0.355); eye.scale.set(0.8, 1.3, 0.45); H.add(eye);
+    const hl = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.white, sx * 0.135 - 0.018, -0.005, 0.385); H.add(hl);
+    const bl = mesh(new THREE.CircleGeometry(0.05, 20), M.blush, sx * 0.22, -0.13, 0.322); bl.rotation.y = sx * 0.6; bl.scale.y = 0.6; H.add(bl);
+  }
+  const mouth = mesh(new THREE.SphereGeometry(0.03, 14, 10), std(0x7a2a33, 0.6), 0, -0.19, 0.36); mouth.scale.set(1.2, 0.35, 0.5); H.add(mouth);
+  // 兜
+  const kabuto = new THREE.Group(); kabuto.position.y = 0.09; H.add(kabuto);
+  const dome = mesh(new THREE.SphereGeometry(0.455, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.5), M.lacq); dome.scale.set(1, 0.92, 1.03); kabuto.add(dome);
+  for (let i = 0; i < 8; i++) { const r = mesh(new THREE.TorusGeometry(0.457, 0.01, 6, 40, Math.PI), M.lacqRib); r.rotation.y = i / 8 * Math.PI; r.scale.set(1, 0.92, 1.03); kabuto.add(r); }
+  const tehen = mesh(new THREE.TorusGeometry(0.05, 0.016, 8, 20), M.gold, 0, 0.42, 0); tehen.rotation.x = Math.PI / 2; kabuto.add(tehen);
+  const rimG = mesh(new THREE.TorusGeometry(0.458, 0.02, 8, 48), M.gold); rimG.rotation.x = Math.PI / 2; rimG.scale.set(1, 1.03, 1); kabuto.add(rimG);
+  const visor = mesh(new THREE.CylinderGeometry(0.47, 0.54, 0.06, 32, 1, false, -1.05, 2.1), M.lacq, 0, 0.0, 0.0); visor.rotation.x = 0.12; kabuto.add(visor);
+  const visorRim = mesh(new THREE.TorusGeometry(0.54, 0.012, 6, 32, 2.1), M.gold, 0, -0.03, 0); visorRim.rotation.set(Math.PI / 2, 0, Math.PI / 2 - 1.05 + 0.0); kabuto.add(visorRim);
+  // しころ
+  [[0.0, 0.46, 0.52, 0.1], [-0.085, 0.51, 0.58, 0.1], [-0.17, 0.56, 0.64, 0.1]].forEach(([y, r1, r2, h]) => {
+    kabuto.add(mesh(new THREE.CylinderGeometry(r1, r2, h, 32, 1, true, Math.PI * 0.27, Math.PI * 1.46), M.armorSide, 0, y - 0.03, 0));
+  });
+  // 吹返し
+  for (const sx of [-1, 1]) {
+    const fk = mesh(new THREE.BoxGeometry(0.03, 0.15, 0.17), M.ai, sx * 0.5, 0.0, 0.25); fk.rotation.y = sx * 0.55; fk.rotation.z = sx * -0.15; kabuto.add(fk);
+    const fkr = mesh(new THREE.BoxGeometry(0.034, 0.155, 0.02), M.gold, sx * 0.535, 0.0, 0.32); fkr.rotation.copy(fk.rotation); kabuto.add(fkr);
+  }
+  // 鍬形
+  const hornShape = (s) => { const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(s * 0.25, 0.04, s * 0.26, 0.46); sh.quadraticCurveTo(s * 0.16, 0.14, 0, 0.08); return sh; };
+  const hornGeo = (s) => new THREE.ExtrudeGeometry(hornShape(s), { depth: 0.018, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.006, bevelSegments: 2, curveSegments: 16 });
+  const crest = new THREE.Group(); crest.position.set(0, 0.17, 0.4); crest.rotation.x = -0.32; kabuto.add(crest);
+  crest.add(mesh(hornGeo(1), M.gold, 0.02, 0, 0)); crest.add(mesh(hornGeo(-1), M.gold, -0.02, 0, 0));
+  const disc = mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 24), M.gold, 0, 0.03, 0.01); disc.rotation.x = Math.PI / 2; crest.add(disc);
+  // 腕
+  function arm(sx, withSword) {
+    const sh = new THREE.Group(); sh.position.set(sx * 0.37, 0.4, 0); hips.add(sh);
+    sh.add(mesh(new THREE.CapsuleGeometry(0.085, 0.14, 6, 14), M.aiDark, 0, -0.11, 0));
+    const el = new THREE.Group(); el.position.y = -0.23; sh.add(el);
+    el.add(mesh(new THREE.CapsuleGeometry(0.08, 0.1, 6, 14), M.cloth, 0, -0.08, 0));
+    el.add(mesh(new THREE.SphereGeometry(0.09, 16, 12), M.skin, 0, -0.2, 0));
+    const wr = new THREE.Group(); wr.position.y = -0.2; el.add(wr);
+    if (withSword) {
+      const handle = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.24, 12), M.black, 0, 0, -0.01); handle.rotation.x = Math.PI / 2; wr.add(handle);
+      const tsuba = mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.016, 24), M.gold, 0, 0, 0.12); tsuba.rotation.x = Math.PI / 2; wr.add(tsuba);
+      // 反りのある刃
+      const g = new THREE.BoxGeometry(0.016, 0.05, 0.9, 1, 1, 24); const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const z = pos.getZ(i), u = (z + 0.45) / 0.9; let y = pos.getY(i);
+        if (y < 0) y *= (1 - u * 0.5); else y *= (1 - u * 0.2);
+        if (u > 0.93 && y < 0) y += (u - 0.93) / 0.07 * 0.03;
+        pos.setY(i, y + u * u * 0.09); pos.setX(i, pos.getX(i) * (1 - u * 0.6));
+      }
+      g.computeVertexNormals();
+      wr.add(mesh(g, M.steel, 0, 0, 0.58));
+    }
+    // 袖
+    const sode = new THREE.Group(); sode.position.set(sx * 0.37, 0.43, 0); hips.add(sode);
+    const sp = mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.28, 12, 1, true, sx * Math.PI / 2 - 0.85, 1.7), M.armorSide, 0, -0.12, 0); sode.add(sp);
+    return { sh, el, wr, sode };
+  }
+  const R = arm(-1, true), L = arm(1, false);
+  // 脚
+  function legM(sx) {
+    const hip = new THREE.Group(); hip.position.set(sx * 0.14, 0.5, 0); root.add(hip);
+    const th = mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.22, 16), M.cloth, 0, -0.1, 0); hip.add(th);
+    const kn = new THREE.Group(); kn.position.y = -0.22; hip.add(kn);
+    kn.add(mesh(new THREE.CapsuleGeometry(0.08, 0.1, 6, 12), M.ai, 0, -0.1, 0));
+    kn.add(mesh(new THREE.BoxGeometry(0.03, 0.12, 0.02), M.gold, 0, -0.1, 0.085));
+    const foot = mesh(new THREE.BoxGeometry(0.14, 0.07, 0.24), M.boot, 0, -0.24, 0.04); foot.geometry.translate(0, 0, 0); kn.add(foot);
+    return { hip, kn };
+  }
+  const LF = legM(-1), LB = legM(1);
+  shadowAll(root);
+  // 刃の軌跡(リボン)
+  const TR = 14, trailGeo = new THREE.BufferGeometry(); const tp = new Float32Array(TR * 2 * 3), ta = new Float32Array(TR * 2);
+  trailGeo.setAttribute('position', new THREE.BufferAttribute(tp, 3)); trailGeo.setAttribute('alpha', new THREE.BufferAttribute(ta, 1));
+  const idx = []; for (let i = 0; i < TR - 1; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } trailGeo.setIndex(idx);
+  const trailMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    vertexShader: 'attribute float alpha; varying float va; void main(){ va=alpha; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader: 'varying float va; void main(){ gl_FragColor=vec4(vec3(0.75,0.85,1.0)*va, va); }' });
+  const trail = new THREE.Mesh(trailGeo, trailMat); trail.frustumCulled = false; st.scene.add(trail);
+  const hist = [];
+  const vA = new THREE.Vector3(), vB = new THREE.Vector3();
+  function tick(t) {
+    if (!st.visible()) return;
+    const tc = t % CYCLE, p = samuraiPose(tc);
+    root.position.set(0, p.bob, p.lunge); root.scale.set(1 / Math.sqrt(p.squash), p.squash, 1 / Math.sqrt(p.squash));
+    root.rotation.y = 0.1;
+    hips.rotation.x = p.lean;
+    headG.rotation.x = p.head - p.lean * 0.3;
+    R.sh.rotation.x = p.armS; R.sh.rotation.z = -0.12; R.el.rotation.x = p.armE; R.wr.rotation.x = p.wrist;
+    L.sh.rotation.x = -p.back; L.sh.rotation.z = 0.15; L.el.rotation.x = -0.4 - Math.max(0, p.back) * 0.4;
+    R.sode.rotation.x = clamp(p.armS * 0.3, -0.7, 0.2); R.sode.rotation.z = -0.08; L.sode.rotation.x = clamp(-p.back * 0.3, -0.4, 0.4);
+    LF.hip.rotation.x = -p.legF; LF.kn.rotation.x = p.kneeF; LB.hip.rotation.x = -p.legB; LB.kn.rotation.x = p.kneeB;
+    mouth.scale.set(1.2, 0.35 + p.shout * 1.4, 0.5);
+    // 軌跡
+    root.updateMatrixWorld(true);
+    vA.set(0, 0.03, 0.25); R.wr.localToWorld(vA); vB.set(0, 0.12, 1.02); R.wr.localToWorld(vB);
+    hist.unshift({ a: vA.clone(), b: vB.clone(), on: p.swing, t: tc }); if (hist.length > TR) hist.pop();
+    for (let i = 0; i < TR; i++) {
+      const h = hist[Math.min(i, hist.length - 1)];
+      tp.set([h.a.x, h.a.y, h.a.z], i * 6); tp.set([h.b.x, h.b.y, h.b.z], i * 6 + 3);
+      const al = h.on && (tc - h.t) < 0.15 && h.t <= tc ? (1 - i / TR) * 0.8 : 0;
+      ta[i * 2] = al * 0.2; ta[i * 2 + 1] = al;
+    }
+    trailGeo.attributes.position.needsUpdate = true; trailGeo.attributes.alpha.needsUpdate = true;
+    st.render();
+  }
+  return { tick };
+}
+
+// ---------- GLB 読み込み ----------
+function b64ToBuf(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+const loader = new GLTFLoader();
+const parseGLB = (key) => new Promise((res, rej) => loader.parse(b64ToBuf(window.GLB[key]), '', res, rej));
+function prepModel(gltf, keep, height = 1.8) {
+  const scene = gltf.scene;
+  scene.traverse(o => { if (o.isMesh && o.parent && /handslot/.test(o.parent.name) && !keep.includes(o.name)) o.visible = false; });
+  shadowAll(scene);
+  const box = new THREE.Box3().setFromObject(scene); const s = height / (box.max.y - box.min.y);
+  const g = new THREE.Group(); scene.scale.setScalar(s); g.add(scene); return g;
+}
+const clip = (gltf, name) => gltf.animations.find(a => a.name === name);
+
+// ---------- 見本3: 3D 無料素材 ----------
+async function sample3(kn) {
+  const st = makeStage(document.getElementById('c3'));
+  const model = prepModel(kn, ['1H_Sword']); model.rotation.y = 0.1; st.scene.add(model);
+  const mixer = new THREE.AnimationMixer(model.children[0]);
+  const walk = mixer.clipAction(clip(kn, 'Walking_A')), atk = mixer.clipAction(clip(kn, '1H_Melee_Attack_Chop')), idle = mixer.clipAction(clip(kn, 'Idle'));
+  atk.setLoop(THREE.LoopOnce); atk.clampWhenFinished = true;
+  walk.play(); let state = 'walk', last = 0;
+  // 歩きの根の移動を止める(その場で歩く)
+  let hipBone = null; model.traverse(o => { if (o.isBone && !hipBone && /hips/i.test(o.name)) hipBone = o; });
+  const hip0 = hipBone ? hipBone.position.clone() : null;
+  function to(a) { const cur = { idle, walk, atk }[state]; a.reset().play(); cur.crossFadeTo(a, a === atk ? 0.15 : 0.3, false); }
+  function tick(t, dt) {
+    const tc = t % CYCLE;
+    if (tc < last && state !== 'walk') { to(walk); state = 'walk'; }
+    if (state === 'walk' && tc >= WALK_END) { to(atk); state = 'atk'; }
+    if (state === 'atk' && tc >= WALK_END + atk.getClip().duration * 0.92) { to(idle); state = 'idle'; }
+    last = tc;
+    mixer.update(dt);
+    if (hipBone) { hipBone.position.x = hip0.x; hipBone.position.z = hip0.z; }
+    if (st.visible()) st.render();
+  }
+  return { tick };
+}
+
+// ---------- 見本4: 手触り ----------
+function makeAudio() {
+  let ac = null, master = null, noiseBuf = null;
+  function init() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 6; comp.connect(ac.destination);
+    master = ac.createGain(); master.gain.value = 0.8; master.connect(comp);
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  function noise(t, dur, type, f0, f1, q, gain) {
+    const s = ac.createBufferSource(); s.buffer = noiseBuf;
+    const f = ac.createBiquadFilter(); f.type = type; f.Q.value = q; f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.05);
+  }
+  function tone(t, type, f0, f1, dur, gain) {
+    const o = ac.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+  }
+  return {
+    get on() { return !!ac; }, init,
+    swish() { if (!ac) return; const t = ac.currentTime; noise(t, 0.16, 'bandpass', 700, 3800, 1.4, 0.35); },
+    hit(big) {
+      if (!ac) return; const t = ac.currentTime, k = big ? 1.4 : 1;
+      noise(t, 0.07, 'highpass', 2500, 1200, 0.7, 0.9 * k);          // 当たりの「パシッ」
+      noise(t, 0.22 * k, 'lowpass', 1800, 200, 0.8, 0.6 * k);         // 肉に食い込む「ドッ」
+      tone(t, 'sine', big ? 120 : 160, 38, 0.22 * k, 1.0 * k);       // 腹に来る低音
+      tone(t, 'triangle', 1480, 1320, 0.25, 0.10);                    // 金属の鳴り
+      tone(t, 'triangle', 2290, 2100, 0.18, 0.06);
+      if (big) { tone(t + 0.02, 'sawtooth', 70, 30, 0.5, 0.35); noise(t + 0.03, 0.6, 'lowpass', 900, 80, 0.5, 0.5); }
+    },
+  };
+}
+function glowTexture(draw, w = 128, h = 128) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+
+async function sample4(kn, bb) {
+  const canvas = document.getElementById('c4'), stageEl = document.getElementById('s4');
+  const st = makeStage(canvas, { camPos: [0.35, 1.55, 5.3], look: [0, 0.95, 0], fov: 30 });
+  st.sun.position.set(-2, 6, 5);
+  const hero = prepModel({ scene: SkeletonUtils.clone(kn.scene) }, ['1H_Sword']);
+  hero.position.x = -0.62; hero.rotation.y = Math.PI / 2; st.scene.add(hero);
+  const foe = prepModel(bb, ['1H_Axe'], 1.75);
+  foe.position.x = 0.62; foe.rotation.y = -Math.PI / 2; st.scene.add(foe);
+  // 敵だけ光らせるため材質を複製
+  const foeMats = []; foe.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color(0xfff0e0); o.material.emissiveIntensity = 0; foeMats.push(o.material); } });
+  const hm = new THREE.AnimationMixer(hero.children[0]), fm = new THREE.AnimationMixer(foe.children[0]);
+  const hIdle = hm.clipAction(clip(kn, 'Idle')); hIdle.play();
+  const atkNames = ['1H_Melee_Attack_Slice_Diagonal', '1H_Melee_Attack_Chop', '1H_Melee_Attack_Slice_Horizontal'];
+  const atks = atkNames.map(n => { const a = hm.clipAction(clip(kn, n)); a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; return a; });
+  const fIdle = fm.clipAction(clip(bb, 'Idle')); fIdle.play();
+  const fHits = ['Hit_A', 'Hit_B'].map(n => { const a = fm.clipAction(clip(bb, n)); a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; return a; });
+  const fDeath = fm.clipAction(clip(bb, 'Death_A')); fDeath.setLoop(THREE.LoopOnce); fDeath.clampWhenFinished = true;
+  // 各攻撃の「当たる瞬間」= 刀の先が一番速く動く時刻を割り出す
+  let sword = null; hero.traverse(o => { if (o.name === '1H_Sword') sword = o; });
+  const sb = new THREE.Box3().setFromBufferAttribute(sword.geometry.attributes.position);
+  const tipLocal = Math.abs(sb.max.y) > Math.abs(sb.min.y) ? new THREE.Vector3(0, sb.max.y, 0) : new THREE.Vector3(0, sb.min.y, 0);
+  const contact = atks.map(a => {
+    hIdle.stop(); a.play(); let best = 0, bt = 0.3; const prev = new THREE.Vector3(), cur = new THREE.Vector3(); const dur = a.getClip().duration;
+    for (let t = 0; t <= dur; t += 1 / 60) { hm.setTime(t); hero.updateMatrixWorld(true); cur.copy(tipLocal); sword.localToWorld(cur); if (t > 0) { const v = cur.distanceTo(prev); if (v > best && t < dur * 0.8) { best = v; bt = t; } } prev.copy(cur); }
+    a.stop(); return bt;
+  });
+  hm.setTime(0); hIdle.reset().play();
+
+  // 演出の部品
+  const sparkTex = glowTexture((g, w, h) => { const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, 'rgba(255,200,120,0)'); gr.addColorStop(0.7, 'rgba(255,240,200,1)'); gr.addColorStop(1, 'rgba(255,255,255,1)');
+    g.fillStyle = gr; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2, h / 2, 0, 0, 7); g.fill(); }, 64, 12);
+  const flashTex = glowTexture((g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,240,190,.9)'); gr.addColorStop(1, 'rgba(255,160,60,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+  const arcTex = glowTexture((g, w, h) => { g.translate(w / 2, h / 2); for (let i = 0; i < 18; i++) { g.strokeStyle = `rgba(230,240,255,${0.07 + i * 0.05})`; g.lineWidth = 2 + (18 - i) * 0.9; g.beginPath(); g.arc(0, 0, w * 0.4, -1.2 + i * 0.02, 1.2 - i * 0.02 + i * 0.01); g.stroke(); } }, 256, 256);
+  const add = (map) => new THREE.SpriteMaterial({ map, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false });
+  const sparks = []; for (let i = 0; i < 48; i++) { const s = new THREE.Sprite(add(sparkTex)); s.visible = false; s.renderOrder = 5; st.scene.add(s); sparks.push({ s, v: new THREE.Vector3(), life: 0, max: 1, w: 0.02 }); }
+  const flash = new THREE.Sprite(add(flashTex)); flash.visible = false; flash.renderOrder = 6; st.scene.add(flash);
+  const arc = new THREE.Sprite(add(arcTex)); arc.visible = false; arc.renderOrder = 6; st.scene.add(arc);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.8, 1, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false, opacity: 0 })); ring.rotation.x = -Math.PI / 2; ring.position.set(foe.position.x, 0.01, 0); st.scene.add(ring);
+  const chips = []; for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.04), new THREE.MeshStandardMaterial({ color: i % 2 ? 0xc9b48a : 0x8c6b4a, roughness: 0.8 })); m.castShadow = true; m.visible = false; st.scene.add(m); chips.push({ m, v: new THREE.Vector3(), life: 0 }); }
+
+  const audio = makeAudio();
+  const comboEl = document.getElementById('combo4'), flashEl = document.getElementById('flash4'), hintEl = document.getElementById('hint4');
+  let hitstop = 0, trauma = 0, fovPunch = 0, foeFlash = 0, knock = 0, knockV = 0, combo = 0, comboT = 0, foeDown = 0;
+  let pending = null, curAtk = null, atkIdx = 0, lastUser = -99, lastAuto = 0, now = 0;
+  const impactPos = new THREE.Vector3();
+  function swing(user) {
+    if (user) { audio.init(); lastUser = now; hintEl.style.opacity = 0; }
+    const i = atkIdx++ % atks.length, a = atks[i];
+    const start = Math.max(0, contact[i] - 0.14);
+    for (const o of [hIdle, ...atks]) if (o !== a) o.fadeOut(0.05);
+    a.reset(); a.timeScale = 1.35; a.time = start; a.fadeIn(0.04).play();
+    curAtk = a;
+    pending = { at: (contact[i] - start) / 1.35, i };
+    if (audio.on) audio.swish();
+    hero.userData.step = 1;
+  }
+  function impact() {
+    if (foeDown > 0) return; // 倒れている間は空振り
+    combo = (now - comboT < 1.6) ? combo + 1 : 1; comboT = now;
+    const big = combo % 6 === 0;
+    hitstop = big ? 0.2 : 0.085; trauma = Math.min(1, trauma + (big ? 0.95 : 0.55)); fovPunch = big ? 2.4 : 1.2; foeFlash = 1;
+    knockV += big ? 3.2 : 1.6;
+    foe.updateMatrixWorld(true);
+    impactPos.set(foe.position.x - 0.18, 1.0 + (Math.random() - 0.5) * 0.2, 0.15);
+    // 火花
+    const n = big ? 40 : 22;
+    for (let k = 0, c = 0; k < sparks.length && c < n; k++) { const p = sparks[k]; if (p.life > 0) continue; c++;
+      p.s.position.copy(impactPos); const a = (Math.random() - 0.5) * 2.4, sp = (big ? 5 : 3.5) * (0.4 + Math.random());
+      p.v.set(Math.cos(a) * sp * 0.9 + 1.2, Math.sin(a) * sp + 1, (Math.random() - 0.5) * sp); p.life = p.max = 0.18 + Math.random() * 0.25; p.w = 0.02 + Math.random() * 0.025; p.s.visible = true; }
+    for (const ch of chips.slice(0, big ? 10 : 5)) { ch.m.position.copy(impactPos); ch.v.set(1 + Math.random() * 2, 1.5 + Math.random() * 2, (Math.random() - 0.5) * 2); ch.life = 1.2; ch.m.visible = true; }
+    flash.visible = true; flash.userData.t = 0; flash.userData.big = big; flash.position.copy(impactPos);
+    arc.visible = true; arc.userData.t = 0; arc.position.copy(impactPos); arc.material.rotation = [-0.7, -1.4, -0.1][pending.i] + Math.PI;
+    ring.material.opacity = 0.7; ring.scale.setScalar(0.2); ring.userData.t = 0;
+    comboEl.textContent = big ? 'とどめ' : combo + ' 連撃'; comboEl.classList.remove('pop'); void comboEl.offsetWidth; comboEl.classList.add('pop');
+    if (big) { flashEl.style.transition = 'none'; flashEl.style.opacity = 0.55; requestAnimationFrame(() => { flashEl.style.transition = 'opacity .25s'; flashEl.style.opacity = 0; }); }
+    // 敵の反応
+    const ha = big ? fDeath : fHits[combo % 2];
+    for (const a of [fIdle, ...fHits]) if (a !== ha) a.fadeOut(0.05);
+    ha.reset().setEffectiveWeight(1).fadeIn(0.03).play();
+    if (big) foeDown = 1.9;
+    audio.hit(big);
+    try { if (now - lastUser < 0.5 && navigator.vibrate) navigator.vibrate(big ? 40 : 15); } catch (e) {}
+  }
+  hm.addEventListener('finished', e => { if (e.action === curAtk) { curAtk.fadeOut(0.25); hIdle.reset().fadeIn(0.25).play(); curAtk = null; } });
+  fm.addEventListener('finished', e => { if (fHits.includes(e.action) && foeDown <= 0) { e.action.fadeOut(0.2); fIdle.reset().fadeIn(0.2).play(); } });
+  canvas.addEventListener('pointerdown', e => { e.preventDefault(); swing(true); });
+  canvas.tabIndex = 0; canvas.setAttribute('aria-label', '押すと斬る'); canvas.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); swing(true); } });
+
+  const camBase = st.camera.position.clone(), look = new THREE.Vector3(0, 0.95, 0), v3 = new THREE.Vector3(), proj = new THREE.Vector3();
+  function tick(t, dt) {
+    now = t;
+    // 誰も押していなければ自動で斬って見せる
+    if (now - lastUser > 3 && now - lastAuto > 1.3 && foeDown <= 0) { lastAuto = now; swing(false); }
+    let gdt = dt;
+    if (hitstop > 0) { hitstop -= dt; gdt = 0; }
+    if (pending) { pending.at -= gdt; if (pending.at <= 0 && gdt > 0) { impact(); pending = null; } }
+    hm.update(gdt); fm.update(gdt);
+    // 敵: 被弾の後は待機へ戻す / 倒れたら起き上がる
+    if (foeDown > 0) { foeDown -= gdt; if (foeDown <= 0) { fDeath.fadeOut(0.3); fIdle.reset().fadeIn(0.3).play(); combo = 0; } }
+
+    // ノックバック(ばね)
+    hero.userData.step = Math.max(0, (hero.userData.step || 0) - gdt * 2.2); hero.position.x = -0.66 + Math.sin((1 - hero.userData.step) * Math.PI) * 0.12;
+    knockV += (-knock * 60 - knockV * 9) * gdt; knock += knockV * gdt; foe.position.x = 0.62 + knock * 0.12;
+    // 白く光る
+    if (hitstop <= 0) foeFlash = Math.max(0, foeFlash - dt * 14); for (const m of foeMats) m.emissiveIntensity = foeFlash * 0.6;
+    // 火花など
+    for (const p of sparks) if (p.life > 0) {
+      p.life -= gdt; if (p.life <= 0) { p.s.visible = false; continue; }
+      p.v.y -= 9 * gdt; p.v.multiplyScalar(1 - 3 * gdt); p.s.position.addScaledVector(p.v, gdt);
+      v3.copy(p.s.position).add(p.v).project(st.camera); proj.copy(p.s.position).project(st.camera);
+      p.s.material.rotation = Math.atan2(v3.y - proj.y, (v3.x - proj.x) * st.camera.aspect);
+      const sp = p.v.length(); p.s.scale.set(0.03 + sp * 0.03, p.w * 0.8, 1); p.s.material.opacity = Math.min(1, p.life / p.max * 2);
+    }
+    for (const c of chips) if (c.life > 0) { c.life -= gdt; c.v.y -= 9.8 * gdt; c.m.position.addScaledVector(c.v, gdt); c.m.rotation.x += gdt * 9; c.m.rotation.z += gdt * 7;
+      if (c.m.position.y < 0.02) { c.m.position.y = 0.02; c.v.y *= -0.35; c.v.x *= 0.6; c.v.z *= 0.6; } if (c.life <= 0) c.m.visible = false; }
+    if (flash.visible) { flash.userData.t += dt; const k = flash.userData.t / (flash.userData.big ? 0.2 : 0.12); const s = (flash.userData.big ? 0.95 : 0.5) * (0.4 + easeOut(Math.min(1, k)) * 0.8); flash.scale.set(s, s, 1); flash.material.opacity = 1 - k; if (k >= 1) flash.visible = false; }
+    if (arc.visible) { arc.userData.t += dt; const k = arc.userData.t / 0.16; const s = 0.7 + easeOut(Math.min(1, k)) * 0.35; arc.scale.set(s * 0.85, s * 0.85, 1); arc.material.opacity = 1 - k; if (k >= 1) arc.visible = false; }
+    if (ring.material.opacity > 0) { ring.userData.t += dt; ring.scale.setScalar(0.2 + easeOut(Math.min(1, ring.userData.t / 0.35)) * 0.9); ring.material.opacity = Math.max(0, 0.7 - ring.userData.t * 2.2); }
+    // 揺れ
+    trauma = Math.max(0, trauma - dt * 2.6); const sh = trauma * trauma;
+    st.camera.position.set(camBase.x + (Math.random() - 0.5) * 0.22 * sh, camBase.y + (Math.random() - 0.5) * 0.18 * sh, camBase.z);
+    fovPunch = Math.max(0, fovPunch - dt * 10); st.camera.fov = 30 - fovPunch; st.camera.updateProjectionMatrix();
+    st.camera.lookAt(look.x + (Math.random() - 0.5) * 0.05 * sh, look.y, look.z);
+    if (st.visible()) st.render();
+  }
+  return { tick };
+}
+
+// ---------- 起動 ----------
+const loops = [];
+try { loops.push(sample1()); } catch (e) { console.error(e); }
+try { loops.push(sample2()); } catch (e) { console.error(e); }
+let t0 = performance.now(), prev = t0;
+function frame(nowMs) {
+  const t = (nowMs - t0) / 1000, dt = Math.min(0.05, (nowMs - prev) / 1000); prev = nowMs;
+  for (const l of loops) l.tick(t, dt);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+function fail(id, e) { console.error(e); const s = document.getElementById(id).parentElement; const d = document.createElement('div'); d.className = 'err'; d.textContent = '読み込みに失敗しました: ' + (e && e.message || e); s.appendChild(d); }
+Promise.all([parseGLB('knight'), parseGLB('barbarian')]).then(async ([kn, bb]) => {
+  try { loops.push(await sample4(kn, bb)); } catch (e) { fail('c4', e); }
+  try { loops.push(await sample3(kn)); } catch (e) { fail('c3', e); }
+}).catch(e => { fail('c3', e); fail('c4', e); });
+</script>
